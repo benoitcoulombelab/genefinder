@@ -1,0 +1,19 @@
+.gene-finder .parameters {
+	-fx-padding: 3;
+	-fx-spacing: 5;
+}
+.gene-finder .parameters .parameter {
+	-fx-spacing: 5;
+	-fx-alignment: center-left;
+}
+.gene-finder .buttons {
+	-fx-border-width: 1 0 0 0;
+	-fx-border-style: solid;
+	-fx-border-color: black;
+	-fx-padding: 3;
+}
+.gene-finder .buttons .button {
+	-fx-font: italic bold 16 sans-serif;
+	-fx-graphic: url('dialog-ok-2_24.png');
+	-fx-graphic-text-gap: 10;
+}

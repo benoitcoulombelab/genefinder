@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?scenebuilder-preview-i18n-resource progressdialog.properties?>
+
+<BorderPane fx:id="layout" styleClass="progress-dialog" xmlns:fx="http://javafx.com/fxml" fx:controller="ca.qc.ircm.genefinder.gui.ProgressDialogPresenter">
+	<center>
+		<VBox styleClass="container">
+			<HBox styleClass="bar">
+				<Label text="%label"/>
+				<ProgressBar fx:id="progressBar" prefWidth="300" prefHeight="20"/>
+				<ProgressIndicator fx:id="progressIndicator"/>
+			</HBox>
+			<HBox styleClass="message">
+				<Label fx:id="message"/>
+			</HBox>
+		</VBox>
+	</center>
+	<bottom>
+		<HBox styleClass="buttons">
+			<Button fx:id="cancel" text="%cancel" onAction="#cancel" defaultButton="true" cancelButton="true"/>
+		</HBox>
+	</bottom>
+</BorderPane>

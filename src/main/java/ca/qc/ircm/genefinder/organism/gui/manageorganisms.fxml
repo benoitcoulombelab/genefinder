@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?scenebuilder-preview-i18n-resource manageorganisms.properties?>
+
+<BorderPane styleClass="manage-organism" xmlns:fx="http://javafx.com/fxml" fx:controller="ca.qc.ircm.genefinder.organism.gui.ManageOrganismsPresenter">
+	<center>
+		<VBox styleClass="parameters">
+			<HBox styleClass="parameter,organisms">
+				<TableView fx:id="organisms" prefHeight="200">
+					<columns>
+						<TableColumn fx:id="nameColumn" text="%name" prefWidth="400"/>
+						<TableColumn fx:id="idColumn" text="%id" prefWidth="50"/>
+					</columns>
+				</TableView>
+			</HBox>
+			<HBox styleClass="parameter,delete">
+				<Button text="%delete" onAction="#delete"/>
+			</HBox>
+			<HBox styleClass="parameter,add">
+				<Label text="%add"/>
+			</HBox>
+			<HBox styleClass="parameter,name">
+				<Label fx:id="nameLabel" text="%name"/>
+				<TextField fx:id="name"/>
+			</HBox>
+			<HBox styleClass="parameter,id">
+				<Label fx:id="idLabel" text="%id"/>
+				<TextField fx:id="id"/>
+			</HBox>
+			<Button text="%save" onAction="#save"/>
+		</VBox>
+	</center>
+</BorderPane>

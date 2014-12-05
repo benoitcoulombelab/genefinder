@@ -1,0 +1,29 @@
+<configuration>
+	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %-5level - %msg  - %logger%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${user.home}/genefinder/genefinder.log</file>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %-5level - %msg  - %logger%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${user.home}/genefinder/genefinder_%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>14</maxHistory>
+		</rollingPolicy>
+	</appender>
+	
+	<logger name="ca.qc.ircm.genefinder" level="TRACE" />
+	<logger name="ca.qc.ircm.genefinder.test.config" level="INFO" />
+	<logger name="ca.qc.ircm.genefinder.test.config.DatabaseCleaner" level="DEBUG" />
+	<logger name="com.google.inject.persist" level="TRACE" />
+	
+	<root level="info">
+		<appender-ref ref="STDOUT"/>
+		<appender-ref ref="FILE"/>
+	</root>
+</configuration>

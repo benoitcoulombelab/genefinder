@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?scenebuilder-preview-i18n-resource genefinder.properties?>
+
+<BorderPane styleClass="gene-finder" xmlns:fx="http://javafx.com/fxml" fx:controller="ca.qc.ircm.genefinder.data.gui.GeneFinderPresenter">
+	<center>
+		<VBox styleClass="parameters">
+			<HBox styleClass="parameter,files">
+				<Label fx:id="filesLabel" text="%files"/>
+				<Button onAction="#addFiles" text="%add"/>
+				<ListView fx:id="files" prefHeight="120.0" editable="true"/>
+			</HBox>
+			<HBox styleClass="parameter,organism">
+				<Label fx:id="organismLabel" text="%organism"/>
+				<ChoiceBox fx:id="organism"/>
+			</HBox>
+			<HBox styleClass="parameter,geneId">
+				<CheckBox fx:id="geneId" text="%geneId"/>
+			</HBox>
+			<HBox styleClass="parameter,geneName">
+				<CheckBox fx:id="geneName" text="%geneName"/>
+			</HBox>
+			<HBox styleClass="parameter,geneSynonyms">
+				<CheckBox fx:id="geneSynonyms" text="%geneSynonyms"/>
+			</HBox>
+			<HBox styleClass="parameter,geneSummary">
+				<CheckBox fx:id="geneSummary" text="%geneSummary"/>
+			</HBox>
+			<HBox styleClass="parameter,proteinMolecularWeight">
+				<CheckBox fx:id="proteinMolecularWeight" text="%proteinMolecularWeight"/>
+			</HBox>
+		</VBox>
+	</center>
+	<bottom>
+		<HBox styleClass="buttons">
+			<Button text="%start" onAction="#start"/>
+		</HBox>
+	</bottom>
+</BorderPane>

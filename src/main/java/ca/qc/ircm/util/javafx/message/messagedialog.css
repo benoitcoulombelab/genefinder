@@ -1,0 +1,13 @@
+.message-dialog {
+	-fx-padding: 10;
+}
+.message-dialog .scroll-pane {
+	-fx-background-color: transparent;
+}
+.message-dialog .messages {
+	-fx-padding: 10px;
+}
+.message-dialog .buttons {
+	-fx-alignment: center;
+	-fx-padding: 10 0 0 0;
+}

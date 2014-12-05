@@ -1,0 +1,11 @@
+.progress-dialog {
+	-fx-padding: 10;
+}
+.progress-dialog .container {
+	-fx-padding: 10;
+	-fx-spacing: 5;
+}
+.progress-dialog .buttons {
+	-fx-alignment: center;
+	-fx-padding: 20 0 0 0;
+}

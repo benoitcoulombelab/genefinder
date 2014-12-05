@@ -1,0 +1,27 @@
+/* Error */
+.error .label, .label.error {
+	-fx-text-fill: red;
+	-fx-graphic: url("images/dialog-error-2.png");
+}
+.error .check-box {
+	-fx-text-fill: red;
+}
+.error .radio-button {
+	-fx-text-fill: red;
+}
+.error .text-field, .text-field.error {
+	-fx-background-color: red, linear-gradient(to bottom, derive(red,70%) 15%, derive(red,90%) 40%);
+}
+
+/* Progress dialog */
+.progress-dialog {
+	-fx-padding: 10;
+}
+.progress-dialog .container {
+	-fx-padding: 10;
+	-fx-spacing: 5;
+}
+.progress-dialog .buttons {
+	-fx-alignment: center;
+	-fx-padding: 20 0 0 0;
+}

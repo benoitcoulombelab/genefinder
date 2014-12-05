@@ -199,9 +199,21 @@
 			<version>2.4</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>alumnus.caltech.edu</groupId>
 			<artifactId>jshorcut</artifactId>
 			<version>0.4</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/jshortcut-0_4.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>ca.qc.ircm.utils</groupId>
@@ -256,6 +268,7 @@
 		<slf4j.version>1.7.7</slf4j.version>
 		<logback.version>1.1.2</logback.version>
 		<guice.version>4.0-beta4</guice.version>
+		<poi.version>3.10.1</poi.version>
 		<mainClass>ca.qc.ircm.genefinder.Main</mainClass>
 		<javafx.ant>${java.home}/../lib/ant-javafx.jar</javafx.ant>
 		<javafx.finalName>${project.build.finalName}-jar-with-dependencies.jar</javafx.finalName>

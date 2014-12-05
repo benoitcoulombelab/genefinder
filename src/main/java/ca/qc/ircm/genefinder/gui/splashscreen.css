@@ -1,0 +1,6 @@
+.splash {
+	-fx-background-color: lightgrey;
+}
+.splash .label {
+	-fx-font: bold 60 sans-serif;
+}
