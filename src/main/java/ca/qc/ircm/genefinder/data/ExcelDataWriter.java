@@ -14,6 +14,8 @@ import java.util.regex.Matcher;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -126,6 +128,10 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                         if (mapping != null && mapping.getMolecularWeight() != null) {
                             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
                             cell.setCellValue(mapping.getMolecularWeight());
+                            CellStyle style = workbook.createCellStyle();
+                            DataFormat format = workbook.createDataFormat();
+                            style.setDataFormat(format.getFormat("0.00"));
+                            cell.setCellStyle(style);
                         }
                     }
                 }
