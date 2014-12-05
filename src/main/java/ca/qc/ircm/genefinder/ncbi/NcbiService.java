@@ -11,6 +11,6 @@ import ca.qc.ircm.progress_bar.ProgressBar;
  * Services using resources from NCBI.
  */
 public interface NcbiService {
-    public List<ProteinMapping> allProteinMappings(Organism organism, ProgressBar progressBar, Locale locale)
-            throws IOException, InterruptedException;
+    public List<ProteinMapping> allProteinMappings(Organism organism, ProteinMappingParameters parameters,
+            ProgressBar progressBar, Locale locale) throws IOException, InterruptedException;
 }

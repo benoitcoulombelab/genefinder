@@ -71,15 +71,14 @@ public class DataServiceBeanTest {
         mappings.add(getProteinMapping(63100331, "FAF"));
         mappings.add(getProteinMapping(30583211, "FAF"));
         mappings.add(getProteinMapping(17512236, "FAF"));
-        when(ncbiService.allProteinMappings(any(Organism.class), any(ProgressBar.class), any(Locale.class)))
-        .thenReturn(mappings);
+        when(ncbiService.allProteinMappings(any(), any(), any(), any())).thenReturn(mappings);
         FindGenesParametersBean parameters = new FindGenesParametersBean();
 
         dataServiceBean.findGeneNames(organism, files, parameters, progressBar, locale);
 
         verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
         verify(progressBar, atLeastOnce()).setMessage(any(String.class));
-        verify(ncbiService).allProteinMappings(organism, progressBar, locale);
+        verify(ncbiService).allProteinMappings(organism, any(), progressBar, locale);
         verify(dataWriter).writeGene(eq(input), eq(output), eq(parameters), mappingsCaptor.capture());
     }
 

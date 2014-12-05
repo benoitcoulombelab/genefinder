@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import ca.qc.ircm.genefinder.ncbi.NcbiService;
 import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
+import ca.qc.ircm.genefinder.ncbi.ProteinMappingParametersFromFindGenesParameters;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progress_bar.ProgressBar;
@@ -41,7 +42,8 @@ public class DataServiceBean implements DataService {
         ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);
         progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
         ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
-        List<ProteinMapping> rawMappings = ncbiService.allProteinMappings(organism, progressBar.step(0.5), locale);
+        List<ProteinMapping> rawMappings = ncbiService.allProteinMappings(organism,
+                new ProteinMappingParametersFromFindGenesParameters(parameters), progressBar.step(0.5), locale);
         Map<Integer, ProteinMapping> mappings = rawMappings.stream().collect(
                 Collectors.toMap(ProteinMapping::getGi, Function.<ProteinMapping> identity()));
         progressBar.setProgress(0.5);

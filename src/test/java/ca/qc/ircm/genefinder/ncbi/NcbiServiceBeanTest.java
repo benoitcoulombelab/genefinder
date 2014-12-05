@@ -3,6 +3,7 @@ package ca.qc.ircm.genefinder.ncbi;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,15 +57,6 @@ public class NcbiServiceBeanTest {
         locale = Locale.getDefault();
         home = temporaryFolder.newFolder("home");
         when(applicationProperties.getHome()).thenReturn(home);
-    }
-
-    private Optional<ProteinMapping> find(Collection<ProteinMapping> mappings, int gi) {
-        return mappings.stream().filter(pm -> pm.getGi() == gi).findFirst();
-    }
-
-    @Test
-    public void allProteinMappings_9606() throws Throwable {
-        when(organism.getId()).thenReturn(9606);
         File file = temporaryFolder.newFile("gene2accession.gz");
         try (InputStream input = getClass().getResourceAsStream("/gene2accession.txt");
                 OutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
@@ -90,9 +82,23 @@ public class NcbiServiceBeanTest {
             IOUtils.copy(input, output);
         }
         when(applicationProperties.getProperty("ncbi.nr")).thenReturn(file.toURI().toURL().toExternalForm());
-        when(proteinService.weight(any())).thenReturn(12.5);
+    }
 
-        List<ProteinMapping> mappings = ncbiServiceBean.allProteinMappings(organism, progressBar, locale);
+    private Optional<ProteinMapping> find(Collection<ProteinMapping> mappings, int gi) {
+        return mappings.stream().filter(pm -> pm.getGi() == gi).findFirst();
+    }
+
+    @Test
+    public void allProteinMappings_9606() throws Throwable {
+        when(organism.getId()).thenReturn(9606);
+        when(proteinService.weight(any())).thenReturn(12.5);
+        ProteinMappingParametersBean parameters = new ProteinMappingParametersBean();
+        parameters.geneId(true);
+        parameters.geneDetails(true);
+        parameters.sequence(true);
+        parameters.molecularWeight(true);
+
+        List<ProteinMapping> mappings = ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
 
         verify(applicationProperties).getProperty("ncbi.gene2accession");
         verify(applicationProperties).getProperty("ncbi.gene_info");
@@ -159,33 +165,13 @@ public class NcbiServiceBeanTest {
     @Test
     public void allProteinMappings_10090() throws Throwable {
         when(organism.getId()).thenReturn(10090);
-        File file = temporaryFolder.newFile("gene2accession.gz");
-        try (InputStream input = getClass().getResourceAsStream("/gene2accession.txt");
-                OutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
-            IOUtils.copy(input, output);
-        }
-        when(applicationProperties.getProperty("ncbi.gene2accession"))
-        .thenReturn(file.toURI().toURL().toExternalForm());
-        file = temporaryFolder.newFile("gene_info.gz");
-        try (InputStream input = getClass().getResourceAsStream("/gene_info.txt");
-                OutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
-            IOUtils.copy(input, output);
-        }
-        when(applicationProperties.getProperty("ncbi.gene_info")).thenReturn(file.toURI().toURL().toExternalForm());
-        file = temporaryFolder.newFile("gi_taxid.txt");
-        try (InputStream input = getClass().getResourceAsStream("/gi_taxid.txt");
-                OutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
-            IOUtils.copy(input, output);
-        }
-        when(applicationProperties.getProperty("ncbi.gi_taxid")).thenReturn(file.toURI().toURL().toExternalForm());
-        file = temporaryFolder.newFile("nr.txt");
-        try (InputStream input = getClass().getResourceAsStream("/nr.txt");
-                OutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
-            IOUtils.copy(input, output);
-        }
-        when(applicationProperties.getProperty("ncbi.nr")).thenReturn(file.toURI().toURL().toExternalForm());
+        ProteinMappingParametersBean parameters = new ProteinMappingParametersBean();
+        parameters.geneId(true);
+        parameters.geneDetails(true);
+        parameters.sequence(true);
+        parameters.molecularWeight(true);
 
-        List<ProteinMapping> mappings = ncbiServiceBean.allProteinMappings(organism, progressBar, locale);
+        List<ProteinMapping> mappings = ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
 
         verify(applicationProperties).getProperty("ncbi.gene2accession");
         verify(applicationProperties).getProperty("ncbi.gene_info");
@@ -242,5 +228,74 @@ public class NcbiServiceBeanTest {
         assertEquals(null, mapping.getGeneSummary());
         assertEquals("LAAPPPP", mapping.getSequence());
         assertEquals((Integer) 10090, mapping.getTaxonomyId());
+    }
+
+    @Test
+    public void allProteinMappings_NoGeneIdAndDetails() throws Throwable {
+        when(organism.getId()).thenReturn(9606);
+        when(proteinService.weight(any())).thenReturn(12.5);
+        ProteinMappingParametersBean parameters = new ProteinMappingParametersBean();
+        parameters.geneId(false);
+        parameters.geneDetails(false);
+        parameters.sequence(true);
+        parameters.molecularWeight(true);
+
+        List<ProteinMapping> mappings = ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
+
+        verify(applicationProperties, never()).getProperty("ncbi.gene2accession");
+        verify(applicationProperties, never()).getProperty("ncbi.gene_info");
+        verify(applicationProperties).getProperty("ncbi.gi_taxid");
+        verify(applicationProperties).getProperty("ncbi.nr");
+        verify(proteinService)
+                .weight("MSMLVVFLLLWGVTWGPVTEAAIFYETQPSLWAESESLLKPLANVTLTCQARLETPDFQLFKNGVAQEPVHLDSPAIKHQFLLTGDTQGRYRCRSGLSTGWTQLSKLLELTGPKSLPAPWLSMAPVSWITPGLKTTAVCRGVLRGVTFLLRREGDHEFLEVPEAQEDVEATFPVHQPGNYSCSYRTDGEGALSEPSATVTIEELAAPPPPVLMHHGESSQVLHPGNKVTLTCVAPLSGVDFQLRRGEKELLVPRSSTSPDRIFFHLNAVALGDGGHYTCRYRLHDNQNGWSGDSAPVELILSDETLPAPEFSPEPESGRALRLRCLAPLEGARFALVREDRGGRRVHRFQSPAGTEALFELHNISVADSANYSCVYVDLKPPFGGSAPSERLELHVDGPPPRPQLRATWSGAVLAGRDAVLRCEGPIPDVTFELLREGETKAVKTVRTPGAAANLELIFVGPQHAGNYRCRYRSWVPHTFESELSDPVELLVAES");
+        verify(proteinService).weight("TEAAIFYETQ");
+        verify(proteinService).weight("QLFKNGVAQEPV");
+        verify(proteinService).weight("ELTGPKSL");
+        verify(proteinService).weight("MSMLVVFLLL");
+        verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
+        verify(progressBar, atLeastOnce()).setMessage(any(String.class));
+        assertEquals(21, mappings.size());
+        ProteinMapping mapping = find(mappings, 119592981).get();
+        assertEquals((Integer) 119592981, mapping.getGi());
+        assertEquals(null, mapping.getGeneId());
+        assertEquals(null, mapping.getGeneName());
+        assertEquals(null, mapping.getGeneSynonyms());
+        assertEquals(null, mapping.getGeneSummary());
+        assertEquals(
+                "MSMLVVFLLLWGVTWGPVTEAAIFYETQPSLWAESESLLKPLANVTLTCQARLETPDFQLFKNGVAQEPVHLDSPAIKHQFLLTGDTQGRYRCRSGLSTGWTQLSKLLELTGPKSLPAPWLSMAPVSWITPGLKTTAVCRGVLRGVTFLLRREGDHEFLEVPEAQEDVEATFPVHQPGNYSCSYRTDGEGALSEPSATVTIEELAAPPPPVLMHHGESSQVLHPGNKVTLTCVAPLSGVDFQLRRGEKELLVPRSSTSPDRIFFHLNAVALGDGGHYTCRYRLHDNQNGWSGDSAPVELILSDETLPAPEFSPEPESGRALRLRCLAPLEGARFALVREDRGGRRVHRFQSPAGTEALFELHNISVADSANYSCVYVDLKPPFGGSAPSERLELHVDGPPPRPQLRATWSGAVLAGRDAVLRCEGPIPDVTFELLREGETKAVKTVRTPGAAANLELIFVGPQHAGNYRCRYRSWVPHTFESELSDPVELLVAES",
+                mapping.getSequence());
+        assertEquals((Integer) 9606, mapping.getTaxonomyId());
+        assertEquals(12.5, mapping.getMolecularWeight(), 0);
+    }
+
+    @Test
+    public void allProteinMappings_NoProteinDetails() throws Throwable {
+        when(organism.getId()).thenReturn(9606);
+        when(proteinService.weight(any())).thenReturn(12.5);
+        ProteinMappingParametersBean parameters = new ProteinMappingParametersBean();
+        parameters.geneId(true);
+        parameters.geneDetails(true);
+        parameters.sequence(false);
+        parameters.molecularWeight(false);
+
+        List<ProteinMapping> mappings = ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
+
+        verify(applicationProperties).getProperty("ncbi.gene2accession");
+        verify(applicationProperties).getProperty("ncbi.gene_info");
+        verify(applicationProperties).getProperty("ncbi.gi_taxid");
+        verify(applicationProperties, never()).getProperty("ncbi.nr");
+        verify(proteinService, never()).weight(any());
+        verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
+        verify(progressBar, atLeastOnce()).setMessage(any(String.class));
+        assertEquals(21, mappings.size());
+        ProteinMapping mapping = find(mappings, 119592981).get();
+        assertEquals((Integer) 119592981, mapping.getGi());
+        assertEquals((Integer) 1, mapping.getGeneId());
+        assertEquals("A1BG", mapping.getGeneName());
+        assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
+        assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
+        assertEquals(null, mapping.getSequence());
+        assertEquals((Integer) 9606, mapping.getTaxonomyId());
+        assertEquals(null, mapping.getMolecularWeight());
     }
 }

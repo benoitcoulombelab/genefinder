@@ -68,8 +68,8 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     @Override
-    public List<ProteinMapping> allProteinMappings(Organism organism, ProgressBar progressBar, Locale locale)
-            throws IOException, InterruptedException {
+    public List<ProteinMapping> allProteinMappings(Organism organism, ProteinMappingParameters parameters,
+            ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
         ResourceBundle bundle = ResourceBundle.getBundle(NcbiService.class.getName(), locale);
         if (cache.containsKey(organism.getId())) {
             List<ProteinMapping> mappings = cache.get(organism.getId()).get();
@@ -89,23 +89,29 @@ public class NcbiServiceBean implements NcbiService {
         progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, giTaxonomy));
         download(url);
         progressBar.setProgress(0.05);
-        ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-        url = new URL(applicationProperties.getProperty(NR_DOWNLOAD));
-        nr = getFile(url);
-        progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, nr));
-        download(url);
+        if (parameters.isSequence() || parameters.isMolecularWeight()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            url = new URL(applicationProperties.getProperty(NR_DOWNLOAD));
+            nr = getFile(url);
+            progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, nr));
+            download(url);
+        }
         progressBar.setProgress(0.15);
-        ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-        url = new URL(applicationProperties.getProperty(GENE_2_ACCESSION_DOWNLOAD));
-        gene2accession = getFile(url);
-        progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, gene2accession));
-        download(url);
+        if (parameters.isGeneId() || parameters.isGeneDetails()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            url = new URL(applicationProperties.getProperty(GENE_2_ACCESSION_DOWNLOAD));
+            gene2accession = getFile(url);
+            progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, gene2accession));
+            download(url);
+        }
         progressBar.setProgress(0.2);
-        ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-        url = new URL(applicationProperties.getProperty(GENE_INFO_DOWNLOAD));
-        geneInfo = getFile(url);
-        progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, geneInfo));
-        download(url);
+        if (parameters.isGeneDetails()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            url = new URL(applicationProperties.getProperty(GENE_INFO_DOWNLOAD));
+            geneInfo = getFile(url);
+            progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, geneInfo));
+            download(url);
+        }
         progressBar.setProgress(0.25);
         ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
         progressBar.setMessage(bundle.getString("parse.GI_TAX_DOWNLOAD"));
@@ -118,19 +124,27 @@ public class NcbiServiceBean implements NcbiService {
                     return mapping;
                 }));
         progressBar.setProgress(0.4);
-        ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-        progressBar.setMessage(bundle.getString("parse.NR_DOWNLOAD"));
-        parseNr(nr, mappings, organism);
-        mappings.values().stream().filter(m -> m.getSequence() != null)
+        if (parameters.isSequence() || parameters.isMolecularWeight()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            progressBar.setMessage(bundle.getString("parse.NR_DOWNLOAD"));
+            parseNr(nr, mappings, organism);
+            if (parameters.isMolecularWeight()) {
+                mappings.values().stream().filter(m -> m.getSequence() != null)
                 .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
+            }
+        }
         progressBar.setProgress(0.7);
-        ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-        progressBar.setMessage(bundle.getString("parse.GENE_2_ACCESSION_DOWNLOAD"));
-        parseGene2Accession(gene2accession, mappings, organism);
+        if (parameters.isGeneId() || parameters.isGeneDetails()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            progressBar.setMessage(bundle.getString("parse.GENE_2_ACCESSION_DOWNLOAD"));
+            parseGene2Accession(gene2accession, mappings, organism);
+        }
         progressBar.setProgress(0.85);
-        ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-        progressBar.setMessage(bundle.getString("parse.GENE_INFO_DOWNLOAD"));
-        parseGeneInfo(geneInfo, mappings.values(), organism);
+        if (parameters.isGeneDetails()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            progressBar.setMessage(bundle.getString("parse.GENE_INFO_DOWNLOAD"));
+            parseGeneInfo(geneInfo, mappings.values(), organism);
+        }
         List<ProteinMapping> mappingsAsList = new ArrayList<>(mappings.values());
         cache.put(organism.getId(), new SoftReference<List<ProteinMapping>>(mappingsAsList));
         progressBar.setProgress(1.0);
