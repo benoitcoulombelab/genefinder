@@ -130,7 +130,7 @@ public class NcbiServiceBean implements NcbiService {
             parseNr(nr, mappings, organism);
             if (parameters.isMolecularWeight()) {
                 mappings.values().stream().filter(m -> m.getSequence() != null)
-                .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
+                        .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
             }
         }
         progressBar.setProgress(0.7);
@@ -153,15 +153,15 @@ public class NcbiServiceBean implements NcbiService {
 
     private File download(URL url) throws IOException {
         File file = getFile(url);
-        if (!wasFileModifiedToday(file)) {
+        if (!wasFileModifiedRecently(file)) {
             download(url, file);
         }
         return file;
     }
 
-    private boolean wasFileModifiedToday(File file) throws IOException {
+    private boolean wasFileModifiedRecently(File file) throws IOException {
         if (file.exists()) {
-            LocalDateTime today = LocalDate.now().atTime(0, 0);
+            LocalDateTime today = LocalDate.now().atTime(0, 0).minusWeeks(1);
             LocalDateTime fileModifiedTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
                     ZoneId.systemDefault());
             return !fileModifiedTime.isBefore(today);
@@ -214,7 +214,7 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private void parseGeneInfo(File file, Collection<ProteinMapping> mappings, Organism organism) throws IOException,
-    InterruptedException {
+            InterruptedException {
         Map<Integer, Collection<ProteinMapping>> mappingsByGeneId = new HashMap<>();
         for (ProteinMapping m : mappings) {
             if (m.getGeneId() != null) {
@@ -269,7 +269,7 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private void parseNr(File file, Map<Integer, ProteinMapping> mappings, Organism organism) throws IOException,
-    InterruptedException {
+            InterruptedException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
                 file))))) {
             String line;
