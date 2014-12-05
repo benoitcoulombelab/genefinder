@@ -8,12 +8,16 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -38,6 +42,8 @@ public class DataServiceBeanTest {
     private ProgressBar progressBar;
     @Captor
     private ArgumentCaptor<Map<Integer, ProteinMapping>> mappingsCaptor;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private Locale locale;
     private Integer organismId = 9606;
 
@@ -52,6 +58,10 @@ public class DataServiceBeanTest {
     @Test
     public void findGeneNames() throws Throwable {
         File file = new File(getClass().getResource("/proteinGroups.txt").toURI());
+        File input = temporaryFolder.newFile("proteinGroups.txt");
+        FileUtils.copyFile(file, input);
+        File output = new File(temporaryFolder.getRoot(), "proteinGroupsWithGene.txt");
+        List<File> files = Arrays.asList(input);
         List<ProteinMapping> mappings = new ArrayList<ProteinMapping>();
         mappings.add(getProteinMapping(4262120, "ABC"));
         mappings.add(getProteinMapping(58201131, "ABC"));
@@ -65,12 +75,12 @@ public class DataServiceBeanTest {
         .thenReturn(mappings);
         FindGenesParametersBean parameters = new FindGenesParametersBean();
 
-        File temp = dataServiceBean.findGeneNames(organism, file, parameters, progressBar, locale);
+        dataServiceBean.findGeneNames(organism, files, parameters, progressBar, locale);
 
         verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
         verify(progressBar, atLeastOnce()).setMessage(any(String.class));
         verify(ncbiService).allProteinMappings(organism, progressBar, locale);
-        verify(dataWriter).writeGene(eq(file), eq(temp), eq(parameters), mappingsCaptor.capture());
+        verify(dataWriter).writeGene(eq(input), eq(output), eq(parameters), mappingsCaptor.capture());
     }
 
     private ProteinMapping getProteinMapping(Integer gi, String geneName) {

@@ -3,6 +3,7 @@ package ca.qc.ircm.genefinder.data;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,8 +36,8 @@ public class DataServiceBean implements DataService {
     }
 
     @Override
-    public File findGeneNames(Organism organism, File file, FindGenesParameters parameters, ProgressBar progressBar,
-            Locale locale) throws IOException, InterruptedException {
+    public void findGeneNames(Organism organism, Collection<File> files, FindGenesParameters parameters,
+            ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
         ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);
         progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
         ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
@@ -44,11 +45,17 @@ public class DataServiceBean implements DataService {
         Map<Integer, ProteinMapping> mappings = rawMappings.stream().collect(
                 Collectors.toMap(ProteinMapping::getGi, Function.<ProteinMapping> identity()));
         progressBar.setProgress(0.5);
-        progressBar.setMessage(MessageFormat.format(bundle.getString("finding"), file.getName()));
-        String extension = FilenameUtils.getExtension(file.getName());
-        File temp = File.createTempFile("withGenes", "." + extension);
-        dataWriter.writeGene(file, temp, parameters, mappings);
+        double step = 0.5 / Math.max(files.size(), 1);
+        int count = 0;
+        for (File file : files) {
+            progressBar.setMessage(MessageFormat.format(bundle.getString("finding"), file.getName()));
+            String extension = FilenameUtils.getExtension(file.getName());
+            String filename = MessageFormat.format(bundle.getString("output.filename"),
+                    FilenameUtils.getBaseName(file.getName()), extension.isEmpty() ? 0 : 1, extension);
+            File output = new File(file.getParentFile(), filename);
+            dataWriter.writeGene(file, output, parameters, mappings);
+            progressBar.setProgress(0.5 + 0.5 * step * count++);
+        }
         progressBar.setProgress(1.0);
-        return temp;
     }
 }
