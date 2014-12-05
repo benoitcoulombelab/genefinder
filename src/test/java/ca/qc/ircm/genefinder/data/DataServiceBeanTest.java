@@ -78,7 +78,7 @@ public class DataServiceBeanTest {
 
         verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
         verify(progressBar, atLeastOnce()).setMessage(any(String.class));
-        verify(ncbiService).allProteinMappings(organism, any(), progressBar, locale);
+        verify(ncbiService).allProteinMappings(eq(organism), any(), eq(progressBar), eq(locale));
         verify(dataWriter).writeGene(eq(input), eq(output), eq(parameters), mappingsCaptor.capture());
     }
 

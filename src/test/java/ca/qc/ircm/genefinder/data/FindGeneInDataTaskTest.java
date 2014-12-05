@@ -102,16 +102,10 @@ public class FindGeneInDataTaskTest extends GuiTest {
     @RetryOnFail(5)
     public void cancel() throws Throwable {
         findGenesInDataTask.setOnCancelled(cancelHandler);
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Thread.sleep(5000);
-                return null;
-            }
-        }).when(dataService).findGeneNames(any(), any(), any(), any(), any());
 
-        findGenesInDataTask.cancel();
+        new Thread(() -> findGenesInDataTask.cancel()).start();
 
+        Thread.sleep(1000);
         verify(cancelHandler).handle(any(WorkerStateEvent.class));
     }
 }
