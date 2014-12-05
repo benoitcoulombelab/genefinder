@@ -2,6 +2,7 @@ package ca.qc.ircm.genefinder.data.gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -17,6 +18,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -86,6 +89,12 @@ public class GeneFinderPresenter {
         files.setOnDragDone(new DragFileOnListDoneHandler(files));
         files.setOnDragOver(new DragFilesOverHandler(files, files));
         files.setOnDragDropped(new DragFileOnListDroppedHandler(files, true));
+        files.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        files.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DELETE) {
+                removeSelectedFiles();
+            }
+        });
         organism.setItems(organismsProperty);
         organism.setConverter(new OrganismStringConverter());
         organismsProperty.addListener((ListChangeListener<Organism>) event -> {
@@ -134,6 +143,17 @@ public class GeneFinderPresenter {
                     files.getItems().add(file);
                 }
             });
+        }
+    }
+
+    private void removeSelectedFiles() {
+        List<Integer> selections = new ArrayList<Integer>(files.getSelectionModel().getSelectedIndices());
+        Collections.sort(selections);
+        Collections.reverse(selections);
+        for (Integer selection : selections) {
+            if (selection >= 0) {
+                files.getItems().remove(selection.intValue());
+            }
         }
     }
 
