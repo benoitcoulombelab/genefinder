@@ -43,11 +43,11 @@ public class DataServiceBean implements DataService {
         progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
         ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
         List<ProteinMapping> rawMappings = ncbiService.allProteinMappings(organism,
-                new ProteinMappingParametersFromFindGenesParameters(parameters), progressBar.step(0.5), locale);
+                new ProteinMappingParametersFromFindGenesParameters(parameters), progressBar.step(0.8), locale);
         Map<Integer, ProteinMapping> mappings = rawMappings.stream().collect(
                 Collectors.toMap(ProteinMapping::getGi, Function.<ProteinMapping> identity()));
-        progressBar.setProgress(0.5);
-        double step = 0.5 / Math.max(files.size(), 1);
+        progressBar.setProgress(0.8);
+        double step = 0.2 / Math.max(files.size(), 1);
         int count = 0;
         for (File file : files) {
             progressBar.setMessage(MessageFormat.format(bundle.getString("finding"), file.getName()));
