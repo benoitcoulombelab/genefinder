@@ -122,7 +122,7 @@ public class NcbiServiceBean implements NcbiService {
         progressBar.setMessage(bundle.getString("parse.NR_DOWNLOAD"));
         parseNr(nr, mappings, organism);
         mappings.values().stream().filter(m -> m.getSequence() != null)
-                .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
+        .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
         progressBar.setProgress(0.7);
         ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
         progressBar.setMessage(bundle.getString("parse.GENE_2_ACCESSION_DOWNLOAD"));
@@ -201,7 +201,7 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private void parseGeneInfo(File file, Collection<ProteinMapping> mappings, Organism organism) throws IOException,
-    InterruptedException {
+            InterruptedException {
         Map<Integer, Collection<ProteinMapping>> mappingsByGeneId = new HashMap<>();
         for (ProteinMapping m : mappings) {
             if (m.getGeneId() != null) {
@@ -256,7 +256,7 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private void parseNr(File file, Map<Integer, ProteinMapping> mappings, Organism organism) throws IOException,
-    InterruptedException {
+            InterruptedException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
                 file))))) {
             String line;
@@ -273,6 +273,9 @@ public class NcbiServiceBean implements NcbiService {
                 } else {
                     sequence.append(line);
                 }
+            }
+            if (gi != null && mappings.containsKey(gi)) {
+                mappings.get(gi).setSequence(sequence.toString());
             }
         }
     }
