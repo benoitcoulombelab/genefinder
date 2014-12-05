@@ -77,11 +77,19 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                 shitCells(row, header.giColumnIndex, addedCount);
                 int index = header.giColumnIndex + 1;
                 if (parameters.isGeneId()) {
+                    cell = row.getCell(index++);
                     String newValue = formatCollection(gis, gi -> mappings.get(gi) != null
                             && mappings.get(gi).getGeneId() != null ? mappings.get(gi).getGeneId().toString() : "");
-                    cell = row.getCell(index++);
                     cell.setCellType(Cell.CELL_TYPE_STRING);
                     cell.setCellValue(newValue);
+                    if (gis.size() == 1) {
+                        Integer gi = gis.get(0);
+                        ProteinMapping mapping = mappings.get(gi);
+                        if (mapping != null && mapping.getGeneId() != null) {
+                            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                            cell.setCellValue(mapping.getGeneId());
+                        }
+                    }
                 }
                 if (parameters.isGeneName()) {
                     String newValue = formatCollection(gis, gi -> mappings.get(gi) != null
@@ -112,7 +120,14 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                     cell = row.getCell(index++);
                     cell.setCellType(Cell.CELL_TYPE_STRING);
                     cell.setCellValue(newValue);
-                    index++;
+                    if (gis.size() == 1) {
+                        Integer gi = gis.get(0);
+                        ProteinMapping mapping = mappings.get(gi);
+                        if (mapping != null && mapping.getMolecularWeight() != null) {
+                            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                            cell.setCellValue(mapping.getMolecularWeight());
+                        }
+                    }
                 }
             }
             try (OutputStream outputStream = new FileOutputStream(output)) {
