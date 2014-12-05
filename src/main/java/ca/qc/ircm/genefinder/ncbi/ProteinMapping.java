@@ -10,6 +10,7 @@ public class ProteinMapping {
     private String geneSynonyms;
     private String geneSummary;
     private Integer taxonomyId;
+    private String sequence;
     private Double molecularWeight;
 
     @Override
@@ -89,6 +90,14 @@ public class ProteinMapping {
 
     public void setGeneSummary(String geneSummary) {
         this.geneSummary = geneSummary;
+    }
+
+    public String getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(String sequence) {
+        this.sequence = sequence;
     }
 
     public Double getMolecularWeight() {

@@ -103,7 +103,8 @@ public class GeneFinderPresenter {
         geneSummaryProperty.bind(geneSummary.selectedProperty());
         proteinMolecularWeightProperty.bind(proteinMolecularWeight.selectedProperty());
 
-        proteinMolecularWeight.setDisable(true);
+        geneId.setSelected(true);
+        geneName.setSelected(true);
     }
 
     public ListProperty<Organism> organismsProperty() {
