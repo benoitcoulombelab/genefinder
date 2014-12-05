@@ -56,6 +56,8 @@ public class ExcelDataWriterTest {
     }
 
     private String getComputedValue(Cell cell, NumberFormat numberFormat) {
+        if (cell == null)
+            return "";
         switch (cell.getCellType()) {
         case Cell.CELL_TYPE_STRING:
         case Cell.CELL_TYPE_BLANK:
@@ -114,7 +116,7 @@ public class ExcelDataWriterTest {
             assertEquals("", getComputedValue(row.getCell(6)));
             row = sheet.getRow(2);
             assertEquals("gi|119627830", getComputedValue(row.getCell(0)));
-            assertEquals("1234", getComputedValue(row.getCell(1)));
+            assertEquals("1234", getComputedValue(row.getCell(1), giFormat));
             assertEquals("POLR2A", getComputedValue(row.getCell(2)));
             assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
             assertEquals("This gene encodes the largest subunit of RNA polymerase II", getComputedValue(row.getCell(4)));
@@ -282,7 +284,7 @@ public class ExcelDataWriterTest {
             assertEquals("", getComputedValue(row.getCell(6)));
             row = sheet.getRow(2);
             assertEquals("119627830", getComputedValue(row.getCell(0), giFormat));
-            assertEquals("1234", getComputedValue(row.getCell(1)));
+            assertEquals("1234", getComputedValue(row.getCell(1), giFormat));
             assertEquals("POLR2A", getComputedValue(row.getCell(2)));
             assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
             assertEquals("This gene encodes the largest subunit of RNA polymerase II", getComputedValue(row.getCell(4)));

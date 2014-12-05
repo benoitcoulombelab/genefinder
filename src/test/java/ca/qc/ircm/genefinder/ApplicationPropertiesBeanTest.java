@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import ca.qc.ircm.genefinder.ApplicationPropertiesBean;
 import ca.qc.ircm.genefinder.test.config.TestLoggingRunner;
 
 /**
@@ -26,13 +25,12 @@ public class ApplicationPropertiesBeanTest {
 
     @Test
     public void getHome() {
-        assertEquals(new File(System.getProperty("user.home") + "/maxquantgenefinder"),
-                applicationPropertiesBean.getHome());
+        assertEquals(new File(System.getProperty("user.home") + "/genefinder"), applicationPropertiesBean.getHome());
     }
 
     @Test
     public void getOrganismData() {
-        assertEquals(new File(System.getProperty("user.home") + "/maxquantgenefinder/organisms.json"),
+        assertEquals(new File(System.getProperty("user.home") + "/genefinder/organisms.json"),
                 applicationPropertiesBean.getOrganismData());
     }
 
