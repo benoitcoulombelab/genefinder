@@ -23,7 +23,6 @@ public class ApplicationModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ApplicationProperties.class).toProvider(ApplicationPropertiesBeanProvider.class);
-        bind(LibraryLoader.class).to(LibraryLoaderBean.class);
         bind(DataService.class).to(DataServiceBean.class);
         bind(DataWriter.class).to(GuessDataWriter.class);
         install(new FactoryModuleBuilder().implement(FindGenesInDataTask.class, FindGenesInDataTask.class).build(

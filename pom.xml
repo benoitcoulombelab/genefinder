@@ -209,11 +209,9 @@
 			<version>${poi.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>alumnus.caltech.edu</groupId>
-			<artifactId>jshorcut</artifactId>
-			<version>0.4</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/jshortcut-0_4.jar</systemPath>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-vfs2</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.qc.ircm.utils</groupId>

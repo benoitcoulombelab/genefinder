@@ -44,8 +44,6 @@ public class Main extends Application {
                 Injector injector = Guice.createInjector(new ApplicationModule());
                 com.airhacks.afterburner.injection.Injector.setInstanceSupplier(new AfterburnerGuiceInstanceSupplier(
                         injector));
-                LibraryLoader libraryLoader = injector.getInstance(LibraryLoader.class);
-                libraryLoader.loadJShortcutLibrary();
 
                 Platform.runLater(() -> {
                     startApp();
