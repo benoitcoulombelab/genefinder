@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -46,13 +44,15 @@ import ca.qc.ircm.progress_bar.ProgressBar;
 import ca.qc.ircm.protein.ProteinService;
 
 public class NcbiServiceBean implements NcbiService {
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(NcbiServiceBean.class);
     private static final String GENE_2_ACCESSION_DOWNLOAD = "ncbi.gene2accession";
     private static final String GENE_INFO_DOWNLOAD = "ncbi.gene_info";
     private static final String GI_TAX_DOWNLOAD = "ncbi.gi_taxid";
     private static final String NR_DOWNLOAD = "ncbi.nr";
     private static final String INTERRUPTED_MESSAGE = "Interrupted gene fetching";
-    private static final Pattern SEQUENCE_NAME_PATTERN = Pattern.compile("\\>gi\\|(\\d+)(|.*)?");
+    private static final String SEQUENCE_NAME_START_PATTERN = "gi|";
+    private static final char SEQUENCE_NAME_END_PATTERN = '|';
     @Inject
     private ProteinService proteinService;
     @Inject
@@ -89,19 +89,19 @@ public class NcbiServiceBean implements NcbiService {
         progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, giTaxonomy));
         download(url);
         progressBar.setProgress(0.05);
-        if (parameters.isSequence() || parameters.isMolecularWeight()) {
-            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-            url = new URL(applicationProperties.getProperty(NR_DOWNLOAD));
-            nr = getFile(url);
-            progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, nr));
-            download(url);
-        }
-        progressBar.setProgress(0.15);
         if (parameters.isGeneId() || parameters.isGeneDetails()) {
             ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
             url = new URL(applicationProperties.getProperty(GENE_2_ACCESSION_DOWNLOAD));
             gene2accession = getFile(url);
             progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, gene2accession));
+            download(url);
+        }
+        progressBar.setProgress(0.1);
+        if (parameters.isSequence() || parameters.isMolecularWeight()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            url = new URL(applicationProperties.getProperty(NR_DOWNLOAD));
+            nr = getFile(url);
+            progressBar.setMessage(MessageFormat.format(bundle.getString("download"), url, nr));
             download(url);
         }
         progressBar.setProgress(0.2);
@@ -124,20 +124,20 @@ public class NcbiServiceBean implements NcbiService {
                     return mapping;
                 }));
         progressBar.setProgress(0.4);
+        if (parameters.isGeneId() || parameters.isGeneDetails()) {
+            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
+            progressBar.setMessage(bundle.getString("parse.GENE_2_ACCESSION_DOWNLOAD"));
+            parseGene2Accession(gene2accession, mappings, organism);
+        }
+        progressBar.setProgress(0.55);
         if (parameters.isSequence() || parameters.isMolecularWeight()) {
             ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
             progressBar.setMessage(bundle.getString("parse.NR_DOWNLOAD"));
             parseNr(nr, mappings, organism);
             if (parameters.isMolecularWeight()) {
                 mappings.values().stream().filter(m -> m.getSequence() != null)
-                        .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
+                .forEach(m -> m.setMolecularWeight(proteinService.weight(m.getSequence())));
             }
-        }
-        progressBar.setProgress(0.7);
-        if (parameters.isGeneId() || parameters.isGeneDetails()) {
-            ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-            progressBar.setMessage(bundle.getString("parse.GENE_2_ACCESSION_DOWNLOAD"));
-            parseGene2Accession(gene2accession, mappings, organism);
         }
         progressBar.setProgress(0.85);
         if (parameters.isGeneDetails()) {
@@ -194,7 +194,7 @@ public class NcbiServiceBean implements NcbiService {
             reader.readLine(); // Skip header
             while ((line = reader.readLine()) != null) {
                 ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-                String[] columns = line.split("\\t");
+                String[] columns = line.split("\t", -1);
                 Integer parsedTaxonomyId = Integer.valueOf(columns[0]);
                 if (organism.getId().equals(parsedTaxonomyId) && !columns[6].equals("-")) {
                     Integer gi = Integer.valueOf(columns[6]);
@@ -214,7 +214,7 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private void parseGeneInfo(File file, Collection<ProteinMapping> mappings, Organism organism) throws IOException,
-            InterruptedException {
+    InterruptedException {
         Map<Integer, Collection<ProteinMapping>> mappingsByGeneId = new HashMap<>();
         for (ProteinMapping m : mappings) {
             if (m.getGeneId() != null) {
@@ -231,7 +231,7 @@ public class NcbiServiceBean implements NcbiService {
             reader.readLine(); // Skip header
             while ((line = reader.readLine()) != null) {
                 ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-                String[] columns = line.split("\\t");
+                String[] columns = line.split("\t", -1);
                 Integer parsedTaxonomyId = Integer.valueOf(columns[0]);
                 if (organism.getId().equals(parsedTaxonomyId)) {
                     Integer id = Integer.valueOf(columns[1]);
@@ -251,13 +251,13 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private List<Integer> parseGiTax(File file, Organism organism) throws IOException, InterruptedException {
-        List<Integer> gisForOrganism = new ArrayList<Integer>();
+        final List<Integer> gisForOrganism = new ArrayList<Integer>(100000);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
                 file))))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-                String[] columns = line.split("\\t");
+                String[] columns = line.split("\t", -1);
                 Integer gi = Integer.valueOf(columns[0]);
                 Integer taxonomyId = Integer.valueOf(columns[1]);
                 if (organism.getId().equals(taxonomyId)) {
@@ -269,35 +269,48 @@ public class NcbiServiceBean implements NcbiService {
     }
 
     private void parseNr(File file, Map<Integer, ProteinMapping> mappings, Organism organism) throws IOException,
-            InterruptedException {
+    InterruptedException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
-                file))))) {
+                file)), "UTF-8"))) {
             String line;
-            Integer gi = null;
+            List<Integer> gis = new ArrayList<>();
             StringBuilder sequence = new StringBuilder();
             while ((line = reader.readLine()) != null) {
                 ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
                 if (line.startsWith(">")) {
-                    if (gi != null && mappings.containsKey(gi)) {
-                        mappings.get(gi).setSequence(sequence.toString());
+                    gis.stream().filter(gi -> mappings.containsKey(gi))
+                    .forEach(gi -> mappings.get(gi).setSequence(sequence.toString()));
+                    try {
+                        parseGis(line, gis);
+                    } catch (NumberFormatException e) {
+                        System.out.println(line);
+                        throw e;
                     }
-                    gi = parseGi(line);
                     sequence.setLength(0);
                 } else {
                     sequence.append(line);
                 }
             }
-            if (gi != null && mappings.containsKey(gi)) {
-                mappings.get(gi).setSequence(sequence.toString());
-            }
+            gis.stream().filter(gi -> mappings.containsKey(gi))
+                    .forEach(gi -> mappings.get(gi).setSequence(sequence.toString()));
         }
     }
 
-    private Integer parseGi(String sequenceName) {
-        Matcher matcher = SEQUENCE_NAME_PATTERN.matcher(sequenceName);
-        if (!matcher.matches()) {
-            logger.error("Sequence name {} does not match pattern {}", sequenceName, SEQUENCE_NAME_PATTERN);
+    private void parseGis(String sequenceName, List<Integer> gis) {
+        gis.clear();
+        int start = 0, end = 0;
+        char zero = '0', nine = '9';
+        char charAt;
+        while (sequenceName.indexOf(SEQUENCE_NAME_START_PATTERN, start) > -1) {
+            start = sequenceName.indexOf(SEQUENCE_NAME_START_PATTERN, start) + SEQUENCE_NAME_START_PATTERN.length();
+            end = start;
+            while (end < sequenceName.length() && (charAt = sequenceName.charAt(end)) >= zero && charAt <= nine) {
+                end++;
+            }
+            // End must be a delimiter or the end of the string to contain a valid GI. Otherwise, the GI is inside of a comment.
+            if (end == sequenceName.length() || sequenceName.charAt(end) == SEQUENCE_NAME_END_PATTERN) {
+                gis.add(Integer.valueOf(sequenceName.substring(start, end)));
+            }
         }
-        return Integer.valueOf(matcher.group(1));
     }
 }

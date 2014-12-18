@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.qc.ircm.genefinder.organism.Organism;
+import ca.qc.ircm.progress_bar.ConcurrentProgressBar;
 import ca.qc.ircm.progress_bar.ProgressBar;
-import ca.qc.ircm.progress_bar.SimpleProgressBar;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -21,20 +21,18 @@ import com.google.inject.assistedinject.Assisted;
  * Task that download protein database and find genes for MaxQuant file.
  */
 public class FindGenesInDataTask extends Task<Void> {
-    private class TaskProgessBar extends SimpleProgressBar {
+    private class TaskProgessBar extends ConcurrentProgressBar {
         private static final long serialVersionUID = -7524127914872361603L;
 
         @Override
-        public void setProgress(double progress) {
-            super.setProgress(progress);
-            updateProgress(progress, Math.max(progress, 1.0));
+        public void progressChanged(double newProgress) {
+            updateProgress(newProgress, Math.max(newProgress, 1.0));
         }
 
         @Override
-        public void setMessage(String message) {
-            super.setMessage(message);
-            updateMessage(message);
-            logger.trace("updateMessage {}", message);
+        public void messageChanged(String newMessage) {
+            updateMessage(newMessage);
+            logger.trace("updateMessage {}", newMessage);
         }
     }
 
