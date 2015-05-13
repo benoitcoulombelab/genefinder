@@ -146,10 +146,6 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>external.atlassian.jgitflow</groupId>
-				<artifactId>jgitflow-maven-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
