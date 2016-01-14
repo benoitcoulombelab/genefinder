@@ -6,14 +6,14 @@ import java.io.File;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.RuleChain;
 import org.mockito.Mock;
 
 import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
-import ca.qc.ircm.genefinder.test.config.TestLoggingRunner;
+import ca.qc.ircm.genefinder.test.config.Rules;
 
-@RunWith(TestLoggingRunner.class)
 public class GuessDataWriterTest {
     private GuessDataWriter guessDataWriter;
     @Mock
@@ -26,45 +26,47 @@ public class GuessDataWriterTest {
     private FindGenesParameters parameters;
     @Mock
     private Map<Integer, ProteinMapping> mappings;
+    @Rule
+    public RuleChain rules = Rules.defaultRules(this);
 
     @Before
     public void beforeTest() {
-        guessDataWriter = new GuessDataWriter(excelDataWriter, textDataWriter);
+	guessDataWriter = new GuessDataWriter(excelDataWriter, textDataWriter);
     }
 
     @Test
     public void writeGene_Text() throws Throwable {
-        File input = new File("data.txt");
+	File input = new File("data.txt");
 
-        guessDataWriter.writeGene(input, output, parameters, mappings);
+	guessDataWriter.writeGene(input, output, parameters, mappings);
 
-        verify(textDataWriter).writeGene(input, output, parameters, mappings);
+	verify(textDataWriter).writeGene(input, output, parameters, mappings);
     }
 
     @Test
     public void writeGene_Excel2003() throws Throwable {
-        File input = new File("data.xls");
+	File input = new File("data.xls");
 
-        guessDataWriter.writeGene(input, output, parameters, mappings);
+	guessDataWriter.writeGene(input, output, parameters, mappings);
 
-        verify(excelDataWriter).writeGene(input, output, parameters, mappings);
+	verify(excelDataWriter).writeGene(input, output, parameters, mappings);
     }
 
     @Test
     public void writeGene_Excel2007() throws Throwable {
-        File input = new File("data.xlsx");
+	File input = new File("data.xlsx");
 
-        guessDataWriter.writeGene(input, output, parameters, mappings);
+	guessDataWriter.writeGene(input, output, parameters, mappings);
 
-        verify(excelDataWriter).writeGene(input, output, parameters, mappings);
+	verify(excelDataWriter).writeGene(input, output, parameters, mappings);
     }
 
     @Test
     public void writeGene_ExcelMacro() throws Throwable {
-        File input = new File("data.xlsm");
+	File input = new File("data.xlsm");
 
-        guessDataWriter.writeGene(input, output, parameters, mappings);
+	guessDataWriter.writeGene(input, output, parameters, mappings);
 
-        verify(excelDataWriter).writeGene(input, output, parameters, mappings);
+	verify(excelDataWriter).writeGene(input, output, parameters, mappings);
     }
 }

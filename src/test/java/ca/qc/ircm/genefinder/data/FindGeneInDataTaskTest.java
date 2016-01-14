@@ -21,8 +21,8 @@ import javafx.scene.control.Label;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.loadui.testfx.GuiTest;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -32,10 +32,9 @@ import org.mockito.stubbing.Answer;
 
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.RetryOnFail;
-import ca.qc.ircm.genefinder.test.config.TestLoggingRunner;
+import ca.qc.ircm.genefinder.test.config.Rules;
 import ca.qc.ircm.progress_bar.ProgressBar;
 
-@RunWith(TestLoggingRunner.class)
 public class FindGeneInDataTaskTest extends GuiTest {
     private FindGenesInDataTask findGenesInDataTask;
     @Mock
@@ -56,56 +55,57 @@ public class FindGeneInDataTaskTest extends GuiTest {
     private ArgumentCaptor<ObservableValue<Number>> observableProgressCaptor;
     private List<File> dataFiles = new ArrayList<File>();
     private Locale locale;
-    @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
 
     @Override
     protected Parent getRootNode() {
-        return new Label("test");
+	return new Label("test");
     }
 
     @Before
     public void beforeTest() throws Throwable {
-        dataFiles.add(temporaryFolder.newFile("data1.txt"));
-        dataFiles.add(temporaryFolder.newFile("data2.txt"));
-        locale = Locale.getDefault();
-        findGenesInDataTask = new FindGenesInDataTask(organism, dataService, dataFiles, parameters, locale);
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                ProgressBar progressBar = (ProgressBar) invocation.getArguments()[3];
-                if (progressBar != null) {
-                    progressBar.setMessage("fillGeneDatabase");
-                    progressBar.setProgress(1.0);
-                }
-                return null;
-            }
-        }).when(dataService).findGeneNames(any(), any(), any(), any(), any(Locale.class));
+	dataFiles.add(temporaryFolder.newFile("data1.txt"));
+	dataFiles.add(temporaryFolder.newFile("data2.txt"));
+	locale = Locale.getDefault();
+	findGenesInDataTask = new FindGenesInDataTask(organism, dataService, dataFiles, parameters, locale);
+	doAnswer(new Answer<Void>() {
+	    @Override
+	    public Void answer(InvocationOnMock invocation) throws Throwable {
+		ProgressBar progressBar = (ProgressBar) invocation.getArguments()[3];
+		if (progressBar != null) {
+		    progressBar.setMessage("fillGeneDatabase");
+		    progressBar.setProgress(1.0);
+		}
+		return null;
+	    }
+	}).when(dataService).findGeneNames(any(), any(), any(), any(), any(Locale.class));
     }
 
     @Test
     public void call() throws Throwable {
-        findGenesInDataTask.messageProperty().addListener(messageChangeListener);
-        findGenesInDataTask.progressProperty().addListener(progressChangeListener);
+	findGenesInDataTask.messageProperty().addListener(messageChangeListener);
+	findGenesInDataTask.progressProperty().addListener(progressChangeListener);
 
-        findGenesInDataTask.call();
+	findGenesInDataTask.call();
 
-        verify(dataService).findGeneNames(eq(organism), eq(dataFiles), eq(parameters), any(ProgressBar.class),
-                eq(locale));
-        verify(messageChangeListener, atLeastOnce()).changed(observableMessageCaptor.capture(), any(String.class),
-                any(String.class));
-        verify(progressChangeListener, atLeastOnce()).changed(observableProgressCaptor.capture(), any(Number.class),
-                any(Number.class));
+	verify(dataService).findGeneNames(eq(organism), eq(dataFiles), eq(parameters), any(ProgressBar.class),
+		eq(locale));
+	verify(messageChangeListener, atLeastOnce()).changed(observableMessageCaptor.capture(), any(String.class),
+		any(String.class));
+	verify(progressChangeListener, atLeastOnce()).changed(observableProgressCaptor.capture(), any(Number.class),
+		any(Number.class));
     }
 
     @Test
     @RetryOnFail(5)
     public void cancel() throws Throwable {
-        findGenesInDataTask.setOnCancelled(cancelHandler);
+	findGenesInDataTask.setOnCancelled(cancelHandler);
 
-        new Thread(() -> findGenesInDataTask.cancel()).start();
+	new Thread(() -> findGenesInDataTask.cancel()).start();
 
-        Thread.sleep(1000);
-        verify(cancelHandler).handle(any(WorkerStateEvent.class));
+	Thread.sleep(1000);
+	verify(cancelHandler).handle(any(WorkerStateEvent.class));
     }
 }
