@@ -46,6 +46,9 @@ public class DataServiceBeanTest {
   private Locale locale;
   private Integer organismId = 9606;
 
+  /**
+   * Before test.
+   */
   @Before
   public void beforeTest() {
     dataServiceBean = new DataServiceBean(ncbiService, dataWriter);
@@ -59,8 +62,8 @@ public class DataServiceBeanTest {
     File file = new File(getClass().getResource("/proteinGroups.txt").toURI());
     File input = temporaryFolder.newFile("proteinGroups.txt");
     FileUtils.copyFile(file, input);
-    File output = new File(temporaryFolder.getRoot(), "proteinGroupsWithGene.txt");
-    List<File> files = Arrays.asList(input);
+    final File output = new File(temporaryFolder.getRoot(), "proteinGroupsWithGene.txt");
+    final List<File> files = Arrays.asList(input);
     List<ProteinMapping> mappings = new ArrayList<ProteinMapping>();
     mappings.add(getProteinMapping(4262120, "ABC"));
     mappings.add(getProteinMapping(58201131, "ABC"));

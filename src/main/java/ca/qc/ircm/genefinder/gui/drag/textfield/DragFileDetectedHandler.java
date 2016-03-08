@@ -28,7 +28,7 @@ public class DragFileDetectedHandler implements EventHandler<MouseEvent> {
 
   @Override
   public void handle(MouseEvent event) {
-    Dragboard db = text.startDragAndDrop(transferModes);
+    final Dragboard db = text.startDragAndDrop(transferModes);
     ClipboardContent content = new ClipboardContent();
     text.selectAll();
     File file = new File(text.getSelectedText());

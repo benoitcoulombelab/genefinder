@@ -10,6 +10,13 @@ import java.util.List;
  * Default test rules.
  */
 public class Rules {
+  /**
+   * Returns rules to use for all tests.
+   *
+   * @param target
+   *          test class instance
+   * @return rules to use for all tests
+   */
   public static RuleChain defaultRules(Object target) {
     RuleChain ruleChain = RuleChain.emptyRuleChain();
     for (TestRule rule : getRules(target)) {

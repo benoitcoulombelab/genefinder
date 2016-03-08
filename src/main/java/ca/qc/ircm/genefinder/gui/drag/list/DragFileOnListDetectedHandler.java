@@ -28,7 +28,7 @@ public class DragFileOnListDetectedHandler implements EventHandler<MouseEvent> {
 
   @Override
   public void handle(MouseEvent event) {
-    Dragboard db = list.startDragAndDrop(transferModes);
+    final Dragboard db = list.startDragAndDrop(transferModes);
     ClipboardContent content = new ClipboardContent();
     List<File> files = list.getSelectionModel().getSelectedItems();
     content.putFiles(files);
@@ -37,8 +37,9 @@ public class DragFileOnListDetectedHandler implements EventHandler<MouseEvent> {
       builder.append("\n");
       builder.append(file.getAbsolutePath());
     });
-    if (builder.length() > 0)
+    if (builder.length() > 0) {
       builder.deleteCharAt(0);
+    }
     content.putString(builder.toString());
     db.setContent(content);
     event.consume();

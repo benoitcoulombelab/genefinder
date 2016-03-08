@@ -11,13 +11,25 @@ import java.io.File;
 /**
  * Utilities for JavaFX.
  */
-public class JavaFXUtils {
+public class JavafxUtils {
+  /**
+   * Set maximum size for screen.
+   *
+   * @param stage
+   *          stage
+   */
   public static void setMaxSizeForScreen(Stage stage) {
     Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
     stage.setMaxHeight(visualBounds.getHeight());
     stage.setMaxWidth(visualBounds.getWidth());
   }
 
+  /**
+   * Sets a valid directory in file chooser.
+   *
+   * @param fileChooser
+   *          file chooser
+   */
   public static void setValidInitialDirectory(FileChooser fileChooser) {
     File initialDirectory = fileChooser.getInitialDirectory();
     while (initialDirectory != null && !initialDirectory.exists()) {
@@ -26,6 +38,12 @@ public class JavaFXUtils {
     fileChooser.setInitialDirectory(initialDirectory);
   }
 
+  /**
+   * Sets a valid directory in directory chooser.
+   * 
+   * @param directoryChooser
+   *          directory chooser
+   */
   public static void setValidInitialDirectory(DirectoryChooser directoryChooser) {
     File initialDirectory = directoryChooser.getInitialDirectory();
     while (initialDirectory != null && !initialDirectory.exists()) {

@@ -23,18 +23,23 @@ public class ProteinMapping {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (!(obj instanceof ProteinMapping))
+    }
+    if (!(obj instanceof ProteinMapping)) {
       return false;
+    }
     ProteinMapping other = (ProteinMapping) obj;
     if (gi == null) {
-      if (other.gi != null)
+      if (other.gi != null) {
         return false;
-    } else if (!gi.equals(other.gi))
+      }
+    } else if (!gi.equals(other.gi)) {
       return false;
+    }
     return true;
   }
 

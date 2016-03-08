@@ -12,7 +12,7 @@ import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDoneHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDroppedHandler;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.organism.gui.OrganismStringConverter;
-import ca.qc.ircm.util.javafx.JavaFXUtils;
+import ca.qc.ircm.util.javafx.JavafxUtils;
 import ca.qc.ircm.util.javafx.message.MessageDialog;
 import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
 import javafx.beans.property.BooleanProperty;
@@ -131,7 +131,7 @@ public class GeneFinderPresenter {
 
   @FXML
   private void addFiles() {
-    JavaFXUtils.setValidInitialDirectory(fileChooser);
+    JavafxUtils.setValidInitialDirectory(fileChooser);
     List<File> selections = fileChooser.showOpenMultipleDialog(files.getScene().getWindow());
     if (selections != null) {
       if (!selections.isEmpty()) {

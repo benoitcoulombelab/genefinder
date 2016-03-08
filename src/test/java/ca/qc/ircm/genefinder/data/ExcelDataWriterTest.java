@@ -58,8 +58,9 @@ public class ExcelDataWriterTest {
   }
 
   private String getComputedValue(Cell cell, NumberFormat numberFormat) {
-    if (cell == null)
+    if (cell == null) {
       return "";
+    }
     switch (cell.getCellType()) {
       case Cell.CELL_TYPE_STRING:
       case Cell.CELL_TYPE_BLANK:
@@ -80,21 +81,24 @@ public class ExcelDataWriterTest {
             return numberFormat.format(cell.getNumericCellValue());
           case Cell.CELL_TYPE_ERROR:
             return "";
+          default:
+            return "";
         }
+      default:
+        return "";
     }
-    throw new AssertionError("Cell type " + cell.getCellType() + " not covered in switch");
   }
 
   @Test
   public void writeGene() throws Throwable {
-    File input = new File(getClass().getResource("/data/data.xlsx").toURI());
-    File output = temporaryFolder.newFile("data.xlsx");
+    final File input = new File(getClass().getResource("/data/data.xlsx").toURI());
+    final File output = temporaryFolder.newFile("data.xlsx");
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -138,14 +142,14 @@ public class ExcelDataWriterTest {
 
   @Test
   public void writeGene_Many() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_many.xlsx").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_many.xlsx").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -197,14 +201,14 @@ public class ExcelDataWriterTest {
 
   @Test
   public void writeGene_ManyInDifferentColumns() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_manycolumns.xlsx").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_manycolumns.xlsx").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -256,14 +260,14 @@ public class ExcelDataWriterTest {
 
   @Test
   public void writeGene_NoGi() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_nogi.xlsx").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_nogi.xlsx").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -307,14 +311,14 @@ public class ExcelDataWriterTest {
 
   @Test
   public void writeGene_ManyNoGi() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_nogi_many.xlsx").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_nogi_many.xlsx").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -366,14 +370,14 @@ public class ExcelDataWriterTest {
 
   @Test
   public void writeGene_ManyNoGiInDifferentColumns() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_nogi_manycolumns.xlsx").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_nogi_manycolumns.xlsx").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");

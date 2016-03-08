@@ -7,9 +7,12 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
- * Configures java logging for tests.
+ * Configures java logging.
  */
 public class LoggingConfiguration {
+  /**
+   * Configures logging.
+   */
   public static void init() {
     try (InputStream config =
         LoggingConfiguration.class.getResourceAsStream("/logging.properties")) {

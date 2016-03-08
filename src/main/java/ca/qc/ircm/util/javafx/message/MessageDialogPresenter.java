@@ -32,6 +32,12 @@ public class MessageDialogPresenter {
     ok.requestFocus();
   }
 
+  /**
+   * Sets messages to show.
+   *
+   * @param messages
+   *          messages to show
+   */
   public void setMessages(ObservableList<String> messages) {
     messages.stream().forEach(message -> {
       messageBox.getChildren().add(new Label(message));

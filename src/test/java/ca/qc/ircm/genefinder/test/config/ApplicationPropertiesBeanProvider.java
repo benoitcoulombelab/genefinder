@@ -9,6 +9,11 @@ public class ApplicationPropertiesBeanProvider {
   public ApplicationPropertiesBeanProvider() {
   }
 
+  /**
+   * Returns an ApplicationPropertiesBean.
+   * 
+   * @return an ApplicationPropertiesBean
+   */
   public ApplicationPropertiesBean get() {
     ApplicationPropertiesBean applicationPropertiesBean = new ApplicationPropertiesBean() {
       {

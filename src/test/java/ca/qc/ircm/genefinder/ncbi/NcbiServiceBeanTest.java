@@ -50,6 +50,9 @@ public class NcbiServiceBeanTest {
   private File home;
   private Locale locale;
 
+  /**
+   * Before test.
+   */
   @Before
   public void beforeTest() throws Throwable {
     ncbiServiceBean = new NcbiServiceBean(proteinService, applicationProperties);
@@ -100,7 +103,7 @@ public class NcbiServiceBeanTest {
     parameters.sequence(true);
     parameters.molecularWeight(true);
 
-    List<ProteinMapping> mappings =
+    final List<ProteinMapping> mappings =
         ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
 
     verify(applicationProperties).getProperty("ncbi.gene2accession");
@@ -174,7 +177,7 @@ public class NcbiServiceBeanTest {
     parameters.sequence(true);
     parameters.molecularWeight(true);
 
-    List<ProteinMapping> mappings =
+    final List<ProteinMapping> mappings =
         ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
 
     verify(applicationProperties).getProperty("ncbi.gene2accession");
@@ -244,7 +247,7 @@ public class NcbiServiceBeanTest {
     parameters.sequence(true);
     parameters.molecularWeight(true);
 
-    List<ProteinMapping> mappings =
+    final List<ProteinMapping> mappings =
         ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
 
     verify(applicationProperties, never()).getProperty("ncbi.gene2accession");
@@ -283,7 +286,7 @@ public class NcbiServiceBeanTest {
     parameters.sequence(false);
     parameters.molecularWeight(false);
 
-    List<ProteinMapping> mappings =
+    final List<ProteinMapping> mappings =
         ncbiServiceBean.allProteinMappings(organism, parameters, progressBar, locale);
 
     verify(applicationProperties).getProperty("ncbi.gene2accession");

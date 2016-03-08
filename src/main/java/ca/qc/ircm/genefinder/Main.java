@@ -49,6 +49,7 @@ public class Main extends Application {
         return null;
       }
     }
+
     final InitialiseTask initialiseTask = new InitialiseTask();
     initialiseTask.setOnSucceeded(event -> splash.hide());
     initialiseTask.setOnFailed(event -> {

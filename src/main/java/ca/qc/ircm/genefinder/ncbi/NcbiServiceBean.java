@@ -162,6 +162,13 @@ public class NcbiServiceBean implements NcbiService {
     return file;
   }
 
+  private void download(URL url, File outputFile) throws IOException {
+    try (InputStream input = new BufferedInputStream(url.openConnection().getInputStream());
+        OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+      IOUtils.copyLarge(input, output);
+    }
+  }
+
   private boolean wasFileModifiedRecently(File file) throws IOException {
     if (file.exists()) {
       LocalDateTime today = LocalDate.now().atTime(0, 0).minusWeeks(1);
@@ -180,13 +187,6 @@ public class NcbiServiceBean implements NcbiService {
     }
     String path = url.getPath();
     return new File(home, FilenameUtils.getName(path));
-  }
-
-  private void download(URL url, File outputFile) throws IOException {
-    try (InputStream input = new BufferedInputStream(url.openConnection().getInputStream());
-        OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile))) {
-      IOUtils.copyLarge(input, output);
-    }
   }
 
   private void parseGene2Accession(File file, Map<Integer, ProteinMapping> mappings,
@@ -303,8 +303,10 @@ public class NcbiServiceBean implements NcbiService {
 
   private void parseGis(String sequenceName, List<Integer> gis) {
     gis.clear();
-    int start = 0, end = 0;
-    char zero = '0', nine = '9';
+    int start = 0;
+    int end = 0;
+    char zero = '0';
+    int nine = '9';
     char charAt;
     while (sequenceName.indexOf(SEQUENCE_NAME_START_PATTERN, start) > -1) {
       start = sequenceName.indexOf(SEQUENCE_NAME_START_PATTERN, start)
@@ -314,7 +316,8 @@ public class NcbiServiceBean implements NcbiService {
           && charAt <= nine) {
         end++;
       }
-      // End must be a delimiter or the end of the string to contain a valid GI. Otherwise, the GI is inside of a comment.
+      // End must be a delimiter or the end of the string to contain a valid GI.
+      //   Otherwise, the GI is inside of a comment.
       if (end == sequenceName.length() || sequenceName.charAt(end) == SEQUENCE_NAME_END_PATTERN) {
         gis.add(Integer.valueOf(sequenceName.substring(start, end)));
       }

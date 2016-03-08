@@ -12,6 +12,9 @@ import javafx.stage.StageStyle;
 public class SplashScreen {
   private Stage stage;
 
+  /**
+   * Creates splash screen window.
+   */
   public SplashScreen() {
     SplashScreenView view = new SplashScreenView();
     Parent viewNode = view.getView();

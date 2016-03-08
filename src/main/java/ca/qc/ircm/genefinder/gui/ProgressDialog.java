@@ -1,6 +1,6 @@
 package ca.qc.ircm.genefinder.gui;
 
-import ca.qc.ircm.util.javafx.JavaFXUtils;
+import ca.qc.ircm.util.javafx.JavafxUtils;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -16,23 +16,31 @@ public class ProgressDialog {
   private Stage stage;
   private Worker<?> worker;
 
+  /**
+   * Creates progress window.
+   *
+   * @param owner
+   *          window's owner
+   * @param worker
+   *          worker
+   */
   public ProgressDialog(Window owner, Worker<?> worker) {
     this.worker = worker;
 
     ProgressDialogView view = new ProgressDialogView();
-    ProgressDialogPresenter presenter = (ProgressDialogPresenter) view.getPresenter();
-    ResourceBundle resources = view.getResourceBundle();
+    final ProgressDialogPresenter presenter = (ProgressDialogPresenter) view.getPresenter();
+    final ResourceBundle resources = view.getResourceBundle();
     stage = new Stage();
     stage.initOwner(owner);
     stage.initModality(Modality.WINDOW_MODAL);
     Scene scene = new Scene(view.getView());
     stage.setScene(scene);
     stage.setTitle(resources.getString("title"));
-    JavaFXUtils.setMaxSizeForScreen(stage);
+    JavafxUtils.setMaxSizeForScreen(stage);
 
     presenter.progressProperty().bind(worker.progressProperty());
     presenter.messageProperty().bind(worker.messageProperty());
-    presenter.cancelledProperty().addListener((ob, o, n) -> close());
+    presenter.cancelledProperty().addListener((observable, oldvalue, newvalue) -> close());
 
     stage.show();
   }

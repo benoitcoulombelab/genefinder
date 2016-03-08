@@ -41,6 +41,20 @@ public class FindGenesInDataTask extends Task<Void> {
   private FindGenesParameters findGenesParameter;
   private Locale locale;
 
+  /**
+   * Creates find genes in data task.
+   * 
+   * @param organism
+   *          organism
+   * @param dataService
+   *          data service
+   * @param files
+   *          files to search
+   * @param findGenesParameter
+   *          parameters
+   * @param locale
+   *          locale
+   */
   @Inject
   public FindGenesInDataTask(@Assisted Organism organism, DataService dataService,
       @Assisted Collection<File> files, @Assisted FindGenesParameters findGenesParameter,

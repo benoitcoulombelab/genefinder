@@ -1,6 +1,6 @@
 package ca.qc.ircm.util.javafx.message;
 
-import ca.qc.ircm.util.javafx.JavaFXUtils;
+import ca.qc.ircm.util.javafx.JavafxUtils;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -34,10 +34,22 @@ public class MessageDialog {
     this(owner, type, title, Arrays.asList(messages));
   }
 
+  /**
+   * Creates message dialog.
+   *
+   * @param owner
+   *          owner
+   * @param type
+   *          type of message
+   * @param title
+   *          title
+   * @param messages
+   *          messages to show
+   */
   public MessageDialog(Window owner, MessageDialogType type, String title, List<String> messages) {
     MessageDialogView view = new MessageDialogView();
     MessageDialogPresenter presenter = (MessageDialogPresenter) view.getPresenter();
-    Region viewNode = (Region) view.getView();
+    final Region viewNode = (Region) view.getView();
     presenter.setMessages(FXCollections.observableArrayList(messages));
     presenter.computeMessageBoxBounds();
 
@@ -49,7 +61,7 @@ public class MessageDialog {
     Scene scene = new Scene(viewNode);
     stage.setScene(scene);
     stage.setTitle(title);
-    JavaFXUtils.setMaxSizeForScreen(stage);
+    JavafxUtils.setMaxSizeForScreen(stage);
     if (type != null) {
       Image icon = getIcon(type);
       if (icon != null) {
@@ -73,6 +85,9 @@ public class MessageDialog {
         break;
       case QUESTION:
         image = new Image(getResourcePath("dialog-question-2.png"));
+        break;
+      default:
+        image = new Image(getResourcePath("dialog-information-3.png"));
         break;
     }
     return image;

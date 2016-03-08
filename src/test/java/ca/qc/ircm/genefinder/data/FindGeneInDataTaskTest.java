@@ -62,6 +62,9 @@ public class FindGeneInDataTaskTest extends GuiTest {
     return new Label("test");
   }
 
+  /**
+   * Before test.
+   */
   @Before
   public void beforeTest() throws Throwable {
     dataFiles.add(temporaryFolder.newFile("data1.txt"));

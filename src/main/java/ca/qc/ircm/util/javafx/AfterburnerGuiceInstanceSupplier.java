@@ -17,7 +17,7 @@ public class AfterburnerGuiceInstanceSupplier implements Function<Class, Object>
 
   @Override
   @SuppressWarnings("unchecked")
-  public Object apply(Class t) {
-    return injector.getInstance(t);
+  public Object apply(Class clazz) {
+    return injector.getInstance(clazz);
   }
 }

@@ -31,18 +31,23 @@ public class Organism implements Named {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (!(obj instanceof Organism))
+    }
+    if (!(obj instanceof Organism)) {
       return false;
+    }
     Organism other = (Organism) obj;
     if (name == null) {
-      if (other.name != null)
+      if (other.name != null) {
         return false;
-    } else if (!name.equalsIgnoreCase(other.name))
+      }
+    } else if (!name.equalsIgnoreCase(other.name)) {
       return false;
+    }
     return true;
   }
 

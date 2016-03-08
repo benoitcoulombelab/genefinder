@@ -35,14 +35,14 @@ public class TextDataWriterTest {
 
   @Test
   public void writeGene() throws Throwable {
-    File input = new File(getClass().getResource("/data/data.txt").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data.txt").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -93,14 +93,14 @@ public class TextDataWriterTest {
 
   @Test
   public void writeGene_Many() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_many.txt").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_many.txt").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -160,14 +160,14 @@ public class TextDataWriterTest {
 
   @Test
   public void writeGene_ManyInDifferentColumns() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_manycolumns.txt").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_manycolumns.txt").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -227,14 +227,14 @@ public class TextDataWriterTest {
 
   @Test
   public void writeGene_NoGi() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_nogi.txt").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_nogi.txt").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -285,14 +285,14 @@ public class TextDataWriterTest {
 
   @Test
   public void writeGene_ManyNoGi() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_nogi_many.txt").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_nogi_many.txt").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");
@@ -352,14 +352,14 @@ public class TextDataWriterTest {
 
   @Test
   public void writeGene_ManyNoGiInDifferentColumns() throws Throwable {
-    File input = new File(getClass().getResource("/data/data_nogi_manycolumns.txt").toURI());
-    File output = temporaryFolder.newFile();
+    final File input = new File(getClass().getResource("/data/data_nogi_manycolumns.txt").toURI());
+    final File output = temporaryFolder.newFile();
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
     mapping.setGeneId(1234);
     mapping.setGeneName("POLR2A");

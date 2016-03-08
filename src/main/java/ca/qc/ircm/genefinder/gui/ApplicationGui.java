@@ -1,6 +1,6 @@
 package ca.qc.ircm.genefinder.gui;
 
-import ca.qc.ircm.util.javafx.JavaFXUtils;
+import ca.qc.ircm.util.javafx.JavafxUtils;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -13,6 +13,9 @@ public class ApplicationGui {
   private ResourceBundle resources;
   private Stage stage;
 
+  /**
+   * Creates application window.
+   */
   public ApplicationGui() {
     ApplicationView view = new ApplicationView();
     resources = view.getResourceBundle();
@@ -21,7 +24,7 @@ public class ApplicationGui {
     Scene scene = new Scene(view.getView());
     scene.getStylesheets().add("error.css");
     stage.setScene(scene);
-    JavaFXUtils.setMaxSizeForScreen(stage);
+    JavafxUtils.setMaxSizeForScreen(stage);
   }
 
   public void show() {

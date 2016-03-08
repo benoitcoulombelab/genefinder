@@ -8,18 +8,19 @@ public class ExceptionUtils {
    * Returns exception if it's already a {@link RuntimeException}. If exception is not a
    * {@link RuntimeException}, exception is packaged into a new {@link PackagedRuntimeException}.
    *
-   * @param e
+   * @param exception
    *          exception to package, if necessary
    * @param message
    *          message to put if a {@link PackagedRuntimeException} is created
    * @return exception if it's already a {@link RuntimeException} or a new
    *         {@link PackagedRuntimeException} with e as cause
    */
-  public static RuntimeException optionallyPackageRuntimeException(Throwable e, String message) {
-    if (e instanceof RuntimeException) {
-      return (RuntimeException) e;
+  public static RuntimeException optionallyPackageRuntimeException(Throwable exception,
+      String message) {
+    if (exception instanceof RuntimeException) {
+      return (RuntimeException) exception;
     } else {
-      return new PackagedRuntimeException(message, e);
+      return new PackagedRuntimeException(message, exception);
     }
   }
 
@@ -63,15 +64,15 @@ public class ExceptionUtils {
    *
    * @param <T>
    *          exception type
-   * @param e
+   * @param exception
    *          exception
    * @param clazz
    *          expected class
    * @return expection's cause if it matches expected class
    */
-  public static <T extends Throwable> T getCause(Throwable e, Class<T> clazz) {
-    if (e != null) {
-      Throwable cause = e.getCause();
+  public static <T extends Throwable> T getCause(Throwable exception, Class<T> clazz) {
+    if (exception != null) {
+      Throwable cause = exception.getCause();
       while (cause != null) {
         if (clazz.isAssignableFrom(cause.getClass())) {
           @SuppressWarnings("unchecked")

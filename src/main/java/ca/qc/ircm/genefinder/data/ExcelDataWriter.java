@@ -175,6 +175,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         case Cell.CELL_TYPE_FORMULA:
           destination.setCellValue(source.getCellFormula());
           break;
+        default:
+          destination.setCellValue(source.getStringCellValue());
+          break;
       }
     }
   }
@@ -223,8 +226,11 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
             return numberFormat.format(cell.getNumericCellValue());
           case Cell.CELL_TYPE_ERROR:
             return "";
+          default:
+            return "";
         }
+      default:
+        return "";
     }
-    throw new AssertionError("Cell type " + cell.getCellType() + " not covered in switch");
   }
 }

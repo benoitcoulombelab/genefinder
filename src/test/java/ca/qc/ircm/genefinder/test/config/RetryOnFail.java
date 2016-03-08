@@ -11,5 +11,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface RetryOnFail {
+  /**
+   * Returns number of retries to do before test fails.
+   * 
+   * @return number of retries to do before test fails
+   */
   public int value();
 }

@@ -38,6 +38,9 @@ public class OrganismServiceBeanTest {
   public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
   private File data;
 
+  /**
+   * Before test.
+   */
   @Before
   public void beforeTest() throws Throwable {
     organismServiceBean = new OrganismServiceBean(applicationProperties);
