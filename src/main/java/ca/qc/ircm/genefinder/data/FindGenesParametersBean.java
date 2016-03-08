@@ -4,59 +4,59 @@ package ca.qc.ircm.genefinder.data;
  * Parameters for finding genes in data files.
  */
 public class FindGenesParametersBean implements FindGenesParameters {
-    private boolean geneId;
-    private boolean geneName;
-    private boolean geneSynonyms;
-    private boolean geneSummary;
-    private boolean proteinMolecularWeight;
+  private boolean geneId;
+  private boolean geneName;
+  private boolean geneSynonyms;
+  private boolean geneSummary;
+  private boolean proteinMolecularWeight;
 
-    @Override
-    public boolean isGeneId() {
-        return geneId;
-    }
+  @Override
+  public boolean isGeneId() {
+    return geneId;
+  }
 
-    public FindGenesParametersBean geneId(boolean geneId) {
-        this.geneId = geneId;
-        return this;
-    }
+  public FindGenesParametersBean geneId(boolean geneId) {
+    this.geneId = geneId;
+    return this;
+  }
 
-    @Override
-    public boolean isGeneName() {
-        return geneName;
-    }
+  @Override
+  public boolean isGeneName() {
+    return geneName;
+  }
 
-    public FindGenesParametersBean geneName(boolean geneName) {
-        this.geneName = geneName;
-        return this;
-    }
+  public FindGenesParametersBean geneName(boolean geneName) {
+    this.geneName = geneName;
+    return this;
+  }
 
-    @Override
-    public boolean isGeneSynonyms() {
-        return geneSynonyms;
-    }
+  @Override
+  public boolean isGeneSynonyms() {
+    return geneSynonyms;
+  }
 
-    public FindGenesParametersBean geneSynonyms(boolean geneSynonyms) {
-        this.geneSynonyms = geneSynonyms;
-        return this;
-    }
+  public FindGenesParametersBean geneSynonyms(boolean geneSynonyms) {
+    this.geneSynonyms = geneSynonyms;
+    return this;
+  }
 
-    @Override
-    public boolean isGeneSummary() {
-        return geneSummary;
-    }
+  @Override
+  public boolean isGeneSummary() {
+    return geneSummary;
+  }
 
-    public FindGenesParametersBean geneSummary(boolean geneSummary) {
-        this.geneSummary = geneSummary;
-        return this;
-    }
+  public FindGenesParametersBean geneSummary(boolean geneSummary) {
+    this.geneSummary = geneSummary;
+    return this;
+  }
 
-    @Override
-    public boolean isProteinMolecularWeight() {
-        return proteinMolecularWeight;
-    }
+  @Override
+  public boolean isProteinMolecularWeight() {
+    return proteinMolecularWeight;
+  }
 
-    public FindGenesParametersBean proteinMolecularWeight(boolean proteinMolecularWeight) {
-        this.proteinMolecularWeight = proteinMolecularWeight;
-        return this;
-    }
+  public FindGenesParametersBean proteinMolecularWeight(boolean proteinMolecularWeight) {
+    this.proteinMolecularWeight = proteinMolecularWeight;
+    return this;
+  }
 }

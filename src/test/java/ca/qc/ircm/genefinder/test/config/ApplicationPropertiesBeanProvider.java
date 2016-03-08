@@ -6,15 +6,15 @@ import ca.qc.ircm.genefinder.ApplicationPropertiesBean;
  * Provider for application properties.
  */
 public class ApplicationPropertiesBeanProvider {
-    public ApplicationPropertiesBeanProvider() {
-    }
+  public ApplicationPropertiesBeanProvider() {
+  }
 
-    public ApplicationPropertiesBean get() {
-        ApplicationPropertiesBean applicationPropertiesBean = new ApplicationPropertiesBean() {
-            {
-                init();
-            }
-        };
-        return applicationPropertiesBean;
-    }
+  public ApplicationPropertiesBean get() {
+    ApplicationPropertiesBean applicationPropertiesBean = new ApplicationPropertiesBean() {
+      {
+        init();
+      }
+    };
+    return applicationPropertiesBean;
+  }
 }

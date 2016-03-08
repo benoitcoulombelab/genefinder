@@ -10,21 +10,21 @@ import org.mockito.MockitoAnnotations;
  * Inject mocks/captors before tests and validate Mockito usage after tests.
  */
 public class MockitoRule implements TestRule {
-    private final Object target;
+  private final Object target;
 
-    public MockitoRule(Object target) {
-        this.target = target;
-    }
+  public MockitoRule(Object target) {
+    this.target = target;
+  }
 
-    @Override
-    public Statement apply(final Statement base, final Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                MockitoAnnotations.initMocks(target);
-                base.evaluate();
-                Mockito.validateMockitoUsage();
-            }
-        };
-    }
+  @Override
+  public Statement apply(final Statement base, final Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        MockitoAnnotations.initMocks(target);
+        base.evaluate();
+        Mockito.validateMockitoUsage();
+      }
+    };
+  }
 }

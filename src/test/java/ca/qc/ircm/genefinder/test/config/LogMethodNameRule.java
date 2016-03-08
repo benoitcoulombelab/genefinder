@@ -10,16 +10,16 @@ import org.slf4j.LoggerFactory;
  * Allow test to be tried again on fail.
  */
 public class LogMethodNameRule implements TestRule {
-    private static final Logger logger = LoggerFactory.getLogger(LogMethodNameRule.class);
+  private static final Logger logger = LoggerFactory.getLogger(LogMethodNameRule.class);
 
-    @Override
-    public Statement apply(final Statement base, final Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                logger.debug("Running test {}", description.getMethodName());
-                base.evaluate();
-            }
-        };
-    }
+  @Override
+  public Statement apply(final Statement base, final Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        logger.debug("Running test {}", description.getMethodName());
+        base.evaluate();
+      }
+    };
+  }
 }

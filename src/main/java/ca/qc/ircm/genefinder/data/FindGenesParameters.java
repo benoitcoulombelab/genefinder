@@ -4,13 +4,13 @@ package ca.qc.ircm.genefinder.data;
  * Parameters for finding genes in data files.
  */
 public interface FindGenesParameters {
-    public boolean isGeneId();
+  public boolean isGeneId();
 
-    public boolean isGeneName();
+  public boolean isGeneName();
 
-    public boolean isGeneSynonyms();
+  public boolean isGeneSynonyms();
 
-    public boolean isGeneSummary();
+  public boolean isGeneSummary();
 
-    public boolean isProteinMolecularWeight();
+  public boolean isProteinMolecularWeight();
 }

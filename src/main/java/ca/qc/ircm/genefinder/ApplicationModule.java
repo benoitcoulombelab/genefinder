@@ -1,5 +1,8 @@
 package ca.qc.ircm.genefinder;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+
 import ca.qc.ircm.genefinder.data.DataService;
 import ca.qc.ircm.genefinder.data.DataServiceBean;
 import ca.qc.ircm.genefinder.data.DataWriter;
@@ -13,22 +16,20 @@ import ca.qc.ircm.genefinder.organism.OrganismServiceBean;
 import ca.qc.ircm.protein.ProteinService;
 import ca.qc.ircm.protein.ProteinServiceDefault;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
-
 /**
  * Guice module that binds classes for application.
  */
 public class ApplicationModule extends AbstractModule {
-    @Override
-    protected void configure() {
-        bind(ApplicationProperties.class).toProvider(ApplicationPropertiesBeanProvider.class);
-        bind(DataService.class).to(DataServiceBean.class);
-        bind(DataWriter.class).to(GuessDataWriter.class);
-        install(new FactoryModuleBuilder().implement(FindGenesInDataTask.class, FindGenesInDataTask.class).build(
-                FindGenesInDataTaskFactory.class));
-        bind(NcbiService.class).to(NcbiServiceBean.class);
-        bind(OrganismService.class).to(OrganismServiceBean.class);
-        bind(ProteinService.class).to(ProteinServiceDefault.class);
-    }
+  @Override
+  protected void configure() {
+    bind(ApplicationProperties.class).toProvider(ApplicationPropertiesBeanProvider.class);
+    bind(DataService.class).to(DataServiceBean.class);
+    bind(DataWriter.class).to(GuessDataWriter.class);
+    install(
+        new FactoryModuleBuilder().implement(FindGenesInDataTask.class, FindGenesInDataTask.class)
+            .build(FindGenesInDataTaskFactory.class));
+    bind(NcbiService.class).to(NcbiServiceBean.class);
+    bind(OrganismService.class).to(OrganismServiceBean.class);
+    bind(ProteinService.class).to(ProteinServiceDefault.class);
+  }
 }

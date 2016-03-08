@@ -5,11 +5,11 @@ package ca.qc.ircm.genefinder;
  */
 public interface Named {
 
-    /**
-     * Returns readable name.
-     * 
-     * @return readable name
-     */
-    public String getName();
+  /**
+   * Returns readable name.
+   * 
+   * @return readable name
+   */
+  public String getName();
 
 }

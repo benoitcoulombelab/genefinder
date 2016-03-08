@@ -9,17 +9,17 @@ import javafx.scene.input.TransferMode;
  * Handles drag done for TextField containing file path.
  */
 public class DragFileDoneHandler implements EventHandler<DragEvent> {
-    protected final TextField text;
+  protected final TextField text;
 
-    public DragFileDoneHandler(TextField text) {
-        this.text = text;
-    }
+  public DragFileDoneHandler(TextField text) {
+    this.text = text;
+  }
 
-    @Override
-    public void handle(DragEvent event) {
-        if (event.getTransferMode() == TransferMode.MOVE) {
-            text.deleteText(text.getSelection());
-        }
-        event.consume();
+  @Override
+  public void handle(DragEvent event) {
+    if (event.getTransferMode() == TransferMode.MOVE) {
+      text.deleteText(text.getSelection());
     }
+    event.consume();
+  }
 }

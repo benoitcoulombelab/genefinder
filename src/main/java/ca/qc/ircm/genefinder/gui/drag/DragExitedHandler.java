@@ -8,15 +8,15 @@ import javafx.scene.input.DragEvent;
  * Handles drag exited.
  */
 public class DragExitedHandler implements EventHandler<DragEvent> {
-    protected final Node dropNode;
+  protected final Node dropNode;
 
-    public DragExitedHandler(Node dropNode) {
-        this.dropNode = dropNode;
-    }
+  public DragExitedHandler(Node dropNode) {
+    this.dropNode = dropNode;
+  }
 
-    @Override
-    public void handle(DragEvent event) {
-        dropNode.setOpacity(1.0);
-        event.consume();
-    }
+  @Override
+  public void handle(DragEvent event) {
+    dropNode.setOpacity(1.0);
+    event.consume();
+  }
 }

@@ -17,39 +17,39 @@ import javafx.scene.layout.BorderPane;
  * Progress dialog controller.
  */
 public class ProgressDialogPresenter {
-    private final BooleanProperty cancelledProperty = new SimpleBooleanProperty();
-    @FXML
-    private BorderPane layout;
-    @FXML
-    private ProgressBar progressBar;
-    @FXML
-    private ProgressIndicator progressIndicator;
-    @FXML
-    private Label message;
-    @FXML
-    private Button cancel;
+  private final BooleanProperty cancelledProperty = new SimpleBooleanProperty();
+  @FXML
+  private BorderPane layout;
+  @FXML
+  private ProgressBar progressBar;
+  @FXML
+  private ProgressIndicator progressIndicator;
+  @FXML
+  private Label message;
+  @FXML
+  private Button cancel;
 
-    @FXML
-    private void initialize() {
-        progressIndicator.progressProperty().bind(progressBar.progressProperty());
+  @FXML
+  private void initialize() {
+    progressIndicator.progressProperty().bind(progressBar.progressProperty());
 
-        cancel.requestFocus();
-    }
+    cancel.requestFocus();
+  }
 
-    public DoubleProperty progressProperty() {
-        return progressBar.progressProperty();
-    }
+  public DoubleProperty progressProperty() {
+    return progressBar.progressProperty();
+  }
 
-    public StringProperty messageProperty() {
-        return message.textProperty();
-    }
+  public StringProperty messageProperty() {
+    return message.textProperty();
+  }
 
-    public ReadOnlyBooleanProperty cancelledProperty() {
-        return cancelledProperty;
-    }
+  public ReadOnlyBooleanProperty cancelledProperty() {
+    return cancelledProperty;
+  }
 
-    @FXML
-    private void cancel(Event event) {
-        cancelledProperty.set(true);
-    }
+  @FXML
+  private void cancel(Event event) {
+    cancelledProperty.set(true);
+  }
 }

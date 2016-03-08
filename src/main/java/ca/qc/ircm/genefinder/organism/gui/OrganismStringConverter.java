@@ -7,13 +7,13 @@ import javafx.util.StringConverter;
  * StringConverter for {@link Organism}.
  */
 public class OrganismStringConverter extends StringConverter<Organism> {
-    @Override
-    public Organism fromString(String value) {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public Organism fromString(String value) {
+    throw new UnsupportedOperationException();
+  }
 
-    @Override
-    public String toString(Organism organism) {
-        return organism.getName();
-    }
+  @Override
+  public String toString(Organism organism) {
+    return organism.getName();
+  }
 }

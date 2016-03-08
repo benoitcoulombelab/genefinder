@@ -14,47 +14,48 @@ import javax.annotation.PostConstruct;
  * Default implementation for {@link ApplicationProperties}.
  */
 public class ApplicationPropertiesBean implements ApplicationProperties {
-    private Properties properties;
+  private Properties properties;
 
-    protected ApplicationPropertiesBean() {
-    }
+  protected ApplicationPropertiesBean() {
+  }
 
-    @PostConstruct
-    protected void init() {
-        loadProperties();
-    }
+  @PostConstruct
+  protected void init() {
+    loadProperties();
+  }
 
-    private void loadProperties() {
-        this.properties = new Properties();
-        try {
-            URL file = getClass().getResource("/application.properties");
-            if (file != null) {
-                try (InputStream input = new BufferedInputStream(file.openStream())) {
-                    properties.load(input);
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not create " + getClass().getSimpleName(), e);
+  private void loadProperties() {
+    this.properties = new Properties();
+    try {
+      URL file = getClass().getResource("/application.properties");
+      if (file != null) {
+        try (InputStream input = new BufferedInputStream(file.openStream())) {
+          properties.load(input);
         }
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not create " + getClass().getSimpleName(), e);
     }
+  }
 
-    @Override
-    public File getHome() {
-        return new File(MessageFormat.format(properties.getProperty("home.directory"), System.getProperty("user.home")));
-    }
+  @Override
+  public File getHome() {
+    return new File(MessageFormat.format(properties.getProperty("home.directory"),
+        System.getProperty("user.home")));
+  }
 
-    @Override
-    public File getOrganismData() {
-        return new File(MessageFormat.format(properties.getProperty("organism.data"), getHome()));
-    }
+  @Override
+  public File getOrganismData() {
+    return new File(MessageFormat.format(properties.getProperty("organism.data"), getHome()));
+  }
 
-    @Override
-    public String getProperty(String key) {
-        return properties.getProperty(key);
-    }
+  @Override
+  public String getProperty(String key) {
+    return properties.getProperty(key);
+  }
 
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        return properties.getProperty(key, defaultValue);
-    }
+  @Override
+  public String getProperty(String key, String defaultValue) {
+    return properties.getProperty(key, defaultValue);
+  }
 }

@@ -16,45 +16,45 @@ import javafx.stage.Stage;
  * Message dialog controller.
  */
 public class MessageDialogPresenter {
-    @FXML
-    private BorderPane messageDialog;
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
-    private VBox messageBox;
-    @FXML
-    private Button ok;
+  @FXML
+  private BorderPane messageDialog;
+  @FXML
+  private ScrollPane scrollPane;
+  @FXML
+  private VBox messageBox;
+  @FXML
+  private Button ok;
 
-    @FXML
-    private void initialize() {
-        messageBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+  @FXML
+  private void initialize() {
+    messageBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        ok.requestFocus();
-    }
+    ok.requestFocus();
+  }
 
-    public void setMessages(ObservableList<String> messages) {
-        messages.stream().forEach(message -> {
-            messageBox.getChildren().add(new Label(message));
-        });
-    }
+  public void setMessages(ObservableList<String> messages) {
+    messages.stream().forEach(message -> {
+      messageBox.getChildren().add(new Label(message));
+    });
+  }
 
-    @FXML
-    private void close(Event event) {
-        ok.getScene().getWindow().hide();
-    }
+  @FXML
+  private void close(Event event) {
+    ok.getScene().getWindow().hide();
+  }
 
-    void computeMessageBoxBounds() {
-        scrollPane.setContent(null);
-        Stage messageBoundsStage = new Stage();
-        messageDialog.setCenter(messageBox);
-        Scene messageBoundsScene = new Scene(messageDialog);
-        messageBoundsStage.setScene(messageBoundsScene);
-        messageDialog.snapshot(null, null);
-        Bounds bounds = messageDialog.getBoundsInLocal();
-        messageDialog.setPrefWidth(bounds.getWidth() + 15);
-        messageDialog.setPrefHeight(bounds.getHeight() + 15);
-        messageDialog.setCenter(scrollPane);
-        messageBoundsScene.setRoot(new Label());
-        scrollPane.setContent(messageBox);
-    }
+  void computeMessageBoxBounds() {
+    scrollPane.setContent(null);
+    Stage messageBoundsStage = new Stage();
+    messageDialog.setCenter(messageBox);
+    Scene messageBoundsScene = new Scene(messageDialog);
+    messageBoundsStage.setScene(messageBoundsScene);
+    messageDialog.snapshot(null, null);
+    Bounds bounds = messageDialog.getBoundsInLocal();
+    messageDialog.setPrefWidth(bounds.getWidth() + 15);
+    messageDialog.setPrefHeight(bounds.getHeight() + 15);
+    messageDialog.setCenter(scrollPane);
+    messageBoundsScene.setRoot(new Label());
+    scrollPane.setContent(messageBox);
+  }
 }
