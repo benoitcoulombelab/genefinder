@@ -479,6 +479,57 @@ public class ExcelDataWriterTest {
   }
 
   @Test
+  public void writeGene_Trembl() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_trembl.xlsx").toURI());
+    final File output = temporaryFolder.newFile("data.xlsx");
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    mapping.setGeneId(1234L);
+    mapping.setGeneName("POLR2A");
+    mapping.setGeneSynonyms("RPB1|RPO2A");
+    mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setMolecularWeight(20.0);
+    mappings.put("P11171", mapping);
+
+    excelDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (InputStream inputStream = new FileInputStream(output)) {
+      Workbook workbook = new XSSFWorkbook(inputStream);
+      Sheet sheet = workbook.getSheetAt(0);
+      Row row = sheet.getRow(0);
+      assertEquals("human", getComputedValue(row.getCell(0)));
+      assertEquals("", getComputedValue(row.getCell(1)));
+      assertEquals("", getComputedValue(row.getCell(2)));
+      assertEquals("", getComputedValue(row.getCell(3)));
+      assertEquals("", getComputedValue(row.getCell(4)));
+      assertEquals("", getComputedValue(row.getCell(5)));
+      assertEquals("", getComputedValue(row.getCell(6)));
+      row = sheet.getRow(2);
+      assertEquals("tr|P11171", getComputedValue(row.getCell(0)));
+      assertEquals("1234", getComputedValue(row.getCell(1)));
+      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+          getComputedValue(row.getCell(4)));
+      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+      assertEquals("", getComputedValue(row.getCell(6)));
+      row = sheet.getRow(3);
+      assertEquals("tr|Q08211", getComputedValue(row.getCell(0)));
+      assertEquals("", getComputedValue(row.getCell(1)));
+      assertEquals("", getComputedValue(row.getCell(2)));
+      assertEquals("", getComputedValue(row.getCell(3)));
+      assertEquals("", getComputedValue(row.getCell(4)));
+      assertEquals("", getComputedValue(row.getCell(5)));
+      assertEquals("", getComputedValue(row.getCell(6)));
+    }
+  }
+
+  @Test
   public void writeGene_Refseq() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_refseq.xlsx").toURI());
     final File output = temporaryFolder.newFile("data.xlsx");
