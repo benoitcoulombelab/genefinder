@@ -1,14 +1,14 @@
 package ca.qc.ircm.genefinder;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Application's properties.
  */
 public interface ApplicationProperties {
-  public File getHome();
+  public Path getHome();
 
-  public File getOrganismData();
+  public Path getOrganismData();
 
   public String getProperty(String key);
 

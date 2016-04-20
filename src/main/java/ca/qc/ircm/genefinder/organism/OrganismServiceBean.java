@@ -11,20 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,12 +45,12 @@ public class OrganismServiceBean implements OrganismService {
     this.applicationProperties = applicationProperties;
   }
 
-  private File getDataFile() {
+  private Path getDataFile() {
     return applicationProperties.getOrganismData();
   }
 
   private List<Organism> getOrganisms() throws IOException {
-    File dataFile = getDataFile();
+    Path dataFile = getDataFile();
     synchronized (dataFile) {
       List<Organism> organisms = null;
       if (organismsCache != null && organismsCache.get() != null) {
@@ -76,12 +72,11 @@ public class OrganismServiceBean implements OrganismService {
     }
   }
 
-  private List<Organism> load(File dataFile) throws IOException {
+  private List<Organism> load(Path dataFile) throws IOException {
     List<Organism> organisms;
     Gson gson = new Gson();
     Type collectionType = new TypeToken<Collection<Organism>>() {}.getType();
-    try (Reader reader =
-        new BufferedReader(new InputStreamReader(new FileInputStream(dataFile), "UTF-8"))) {
+    try (Reader reader = Files.newBufferedReader(dataFile, Charset.forName("UTF-8"))) {
       organisms = gson.fromJson(reader, collectionType);
     } catch (JsonParseException e) {
       organisms = null;
@@ -93,19 +88,18 @@ public class OrganismServiceBean implements OrganismService {
     return organisms;
   }
 
-  private void reset(File dataFile) throws IOException {
+  private void reset(Path dataFile) throws IOException {
     try (
         InputStream input =
             new BufferedInputStream(getClass().getResourceAsStream("/organisms.json"));
-        OutputStream output = new BufferedOutputStream(new FileOutputStream(dataFile))) {
+        OutputStream output = new BufferedOutputStream(Files.newOutputStream(dataFile))) {
       IOUtils.copy(input, output);
     }
   }
 
-  private void save(Collection<Organism> organisms, File dataFile) throws IOException {
+  private void save(Collection<Organism> organisms, Path dataFile) throws IOException {
     Gson gson = new Gson();
-    try (Writer writer =
-        new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dataFile)))) {
+    try (Writer writer = Files.newBufferedWriter(dataFile, Charset.forName("UTF-8"))) {
       gson.toJson(organisms, writer);
     }
   }
@@ -145,7 +139,7 @@ public class OrganismServiceBean implements OrganismService {
           Organism.class.getSimpleName() + " " + organism.getId() + " already exists");
     }
     try {
-      File dataFile = getDataFile();
+      Path dataFile = getDataFile();
       synchronized (dataFile) {
         List<Organism> organisms = load(dataFile);
         organisms.add(organism);
@@ -160,7 +154,7 @@ public class OrganismServiceBean implements OrganismService {
   @Override
   public void delete(Collection<Organism> organisms) {
     try {
-      File dataFile = getDataFile();
+      Path dataFile = getDataFile();
       synchronized (dataFile) {
         List<Organism> allOrganisms = load(dataFile);
         allOrganisms.removeAll(organisms);

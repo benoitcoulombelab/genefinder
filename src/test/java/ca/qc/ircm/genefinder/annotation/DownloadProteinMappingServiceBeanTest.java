@@ -103,7 +103,7 @@ public class DownloadProteinMappingServiceBeanTest {
         geneInfo);
     retrieveFileAnswer(NCBI_GENE_INFO, geneInfo);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
-    when(applicationProperties.getHome()).thenReturn(annotationsFolder.toFile());
+    when(applicationProperties.getHome()).thenReturn(annotationsFolder);
   }
 
   private ProteinMapping findMapping(Collection<ProteinMapping> mappings, String proteinId) {

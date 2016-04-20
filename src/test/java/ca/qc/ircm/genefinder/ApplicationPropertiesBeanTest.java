@@ -8,7 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Tests for {@link ApplicationPropertiesBean}.
@@ -26,13 +26,13 @@ public class ApplicationPropertiesBeanTest {
 
   @Test
   public void getHome() {
-    assertEquals(new File(System.getProperty("user.home") + "/genefinder"),
+    assertEquals(Paths.get(System.getProperty("user.home") + "/genefinder"),
         applicationPropertiesBean.getHome());
   }
 
   @Test
   public void getOrganismData() {
-    assertEquals(new File(System.getProperty("user.home") + "/genefinder/organisms.json"),
+    assertEquals(Paths.get(System.getProperty("user.home") + "/genefinder/organisms.json"),
         applicationPropertiesBean.getOrganismData());
   }
 

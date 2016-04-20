@@ -1,10 +1,11 @@
 package ca.qc.ircm.genefinder;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Properties;
 
@@ -39,14 +40,14 @@ public class ApplicationPropertiesBean implements ApplicationProperties {
   }
 
   @Override
-  public File getHome() {
-    return new File(MessageFormat.format(properties.getProperty("home.directory"),
+  public Path getHome() {
+    return Paths.get(MessageFormat.format(properties.getProperty("home.directory"),
         System.getProperty("user.home")));
   }
 
   @Override
-  public File getOrganismData() {
-    return new File(MessageFormat.format(properties.getProperty("organism.data"), getHome()));
+  public Path getOrganismData() {
+    return Paths.get(MessageFormat.format(properties.getProperty("organism.data"), getHome()));
   }
 
   @Override

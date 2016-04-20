@@ -10,7 +10,6 @@ import com.google.gson.reflect.TypeToken;
 
 import ca.qc.ircm.genefinder.ApplicationProperties;
 import ca.qc.ircm.genefinder.test.config.Rules;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,12 +18,13 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,7 +36,7 @@ public class OrganismServiceBeanTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
   public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
-  private File data;
+  private Path data;
 
   /**
    * Before test.
@@ -44,9 +44,9 @@ public class OrganismServiceBeanTest {
   @Before
   public void beforeTest() throws Throwable {
     organismServiceBean = new OrganismServiceBean(applicationProperties);
-    data = temporaryFolder.newFile("organisms.json");
-    File originalData = new File(getClass().getResource("/organism/organisms.json").toURI());
-    FileUtils.copyFile(originalData, data);
+    data = temporaryFolder.getRoot().toPath().resolve("organisms.json");
+    Path originalData = Paths.get(getClass().getResource("/organism/organisms.json").toURI());
+    Files.copy(originalData, data);
     when(applicationProperties.getOrganismData()).thenReturn(data);
   }
 
@@ -55,7 +55,7 @@ public class OrganismServiceBeanTest {
     Gson gson = new Gson();
     Type collectionType = new TypeToken<Collection<Organism>>() {}.getType();
     try (Reader reader =
-        new BufferedReader(new InputStreamReader(new FileInputStream(data), "UTF-8"))) {
+        new BufferedReader(new InputStreamReader(Files.newInputStream(data), "UTF-8"))) {
       organisms = gson.fromJson(reader, collectionType);
     }
     return organisms;
