@@ -49,7 +49,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.inject.Inject;
 
 /**
- * Services for downloading {@link TargetMapping target mappings}.
+ * Services for downloading protein mappings.
  */
 public class DownloadProteinMappingServiceBean implements ProteinMappingService {
   private static final Pattern UNIPROT_PROTEIN_ID_PATTERN =
