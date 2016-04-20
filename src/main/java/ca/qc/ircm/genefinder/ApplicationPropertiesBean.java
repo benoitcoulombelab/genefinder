@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -15,6 +16,7 @@ import javax.annotation.PostConstruct;
  * Default implementation for {@link ApplicationProperties}.
  */
 public class ApplicationPropertiesBean implements ApplicationProperties {
+  private static final String ANNOTATIONS_FOLDER = "annotations";
   private Properties properties;
 
   protected ApplicationPropertiesBean() {
@@ -43,6 +45,18 @@ public class ApplicationPropertiesBean implements ApplicationProperties {
   public Path getHome() {
     return Paths.get(MessageFormat.format(properties.getProperty("home.directory"),
         System.getProperty("user.home")));
+  }
+
+  @Override
+  public Path getAnnotationsFolder() {
+    Path path = getHome().resolve(ANNOTATIONS_FOLDER);
+    try {
+      Files.createDirectories(path);
+    } catch (IOException e) {
+      throw new IllegalStateException(
+          "Could not create directory to store annotations " + path.getParent());
+    }
+    return path;
   }
 
   @Override
