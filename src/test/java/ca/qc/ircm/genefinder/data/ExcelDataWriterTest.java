@@ -3,7 +3,7 @@ package ca.qc.ircm.genefinder.data;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.test.config.Rules;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -36,15 +36,15 @@ public class ExcelDataWriterTest {
 
   static {
     numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
-    numberFormat.setMinimumFractionDigits(1);
     numberFormat.setGroupingUsed(false);
   }
 
-  private static final NumberFormat giFormat;
+  private static final NumberFormat doubleFormat;
 
   static {
-    giFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
-    giFormat.setGroupingUsed(false);
+    doubleFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
+    doubleFormat.setMinimumFractionDigits(1);
+    doubleFormat.setGroupingUsed(false);
   }
 
   @Before
@@ -98,14 +98,14 @@ public class ExcelDataWriterTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
-    mapping.setGeneId(1234);
+    mapping.setGeneId(1234L);
     mapping.setGeneName("POLR2A");
     mapping.setGeneSynonyms("RPB1|RPO2A");
     mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
     mapping.setMolecularWeight(20.0);
-    mappings.put(119627830, mapping);
+    mappings.put("119627830", mapping);
 
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
@@ -122,12 +122,12 @@ public class ExcelDataWriterTest {
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(2);
       assertEquals("gi|119627830", getComputedValue(row.getCell(0)));
-      assertEquals("1234", getComputedValue(row.getCell(1), giFormat));
+      assertEquals("1234", getComputedValue(row.getCell(1)));
       assertEquals("POLR2A", getComputedValue(row.getCell(2)));
       assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
       assertEquals("This gene encodes the largest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5)));
+          getComputedValue(row.getCell(4), doubleFormat));
+      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
       assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
@@ -149,21 +149,21 @@ public class ExcelDataWriterTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
-    mapping.setGeneId(1234);
+    mapping.setGeneId(1234L);
     mapping.setGeneName("POLR2A");
     mapping.setGeneSynonyms("RPB1|RPO2A");
     mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
     mapping.setMolecularWeight(20.0);
-    mappings.put(119627830, mapping);
+    mappings.put("119627830", mapping);
     mapping = new ProteinMapping();
-    mapping.setGeneId(4567);
+    mapping.setGeneId(4567L);
     mapping.setGeneName("POLR2B");
     mapping.setGeneSynonyms("RPB2|RPO2B");
     mapping.setGeneSummary("This gene encodes the smallest subunit of RNA polymerase II");
     mapping.setMolecularWeight(3.4);
-    mappings.put(189054652, mapping);
+    mappings.put("189054652", mapping);
 
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
@@ -186,7 +186,7 @@ public class ExcelDataWriterTest {
       assertEquals(
           "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
           getComputedValue(row.getCell(4)));
-      assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
+      assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
       assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
@@ -208,21 +208,21 @@ public class ExcelDataWriterTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
-    mapping.setGeneId(1234);
+    mapping.setGeneId(1234L);
     mapping.setGeneName("POLR2A");
     mapping.setGeneSynonyms("RPB1|RPO2A");
     mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
     mapping.setMolecularWeight(20.0);
-    mappings.put(119627830, mapping);
+    mappings.put("119627830", mapping);
     mapping = new ProteinMapping();
-    mapping.setGeneId(4567);
+    mapping.setGeneId(4567L);
     mapping.setGeneName("POLR2B");
     mapping.setGeneSynonyms("RPB2|RPO2B");
     mapping.setGeneSummary("This gene encodes the smallest subunit of RNA polymerase II");
     mapping.setMolecularWeight(3.4);
-    mappings.put(189054652, mapping);
+    mappings.put("189054652", mapping);
 
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
@@ -267,14 +267,14 @@ public class ExcelDataWriterTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
-    mapping.setGeneId(1234);
+    mapping.setGeneId(1234L);
     mapping.setGeneName("POLR2A");
     mapping.setGeneSynonyms("RPB1|RPO2A");
     mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
     mapping.setMolecularWeight(20.0);
-    mappings.put(119627830, mapping);
+    mappings.put("119627830", mapping);
 
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
@@ -290,16 +290,16 @@ public class ExcelDataWriterTest {
       assertEquals("", getComputedValue(row.getCell(5)));
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(2);
-      assertEquals("119627830", getComputedValue(row.getCell(0), giFormat));
-      assertEquals("1234", getComputedValue(row.getCell(1), giFormat));
+      assertEquals("119627830", getComputedValue(row.getCell(0)));
+      assertEquals("1234", getComputedValue(row.getCell(1)));
       assertEquals("POLR2A", getComputedValue(row.getCell(2)));
       assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
       assertEquals("This gene encodes the largest subunit of RNA polymerase II",
           getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5)));
+      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
-      assertEquals("119580583", getComputedValue(row.getCell(0), giFormat));
+      assertEquals("119580583", getComputedValue(row.getCell(0)));
       assertEquals("", getComputedValue(row.getCell(1)));
       assertEquals("", getComputedValue(row.getCell(2)));
       assertEquals("", getComputedValue(row.getCell(3)));
@@ -318,21 +318,21 @@ public class ExcelDataWriterTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
-    mapping.setGeneId(1234);
+    mapping.setGeneId(1234L);
     mapping.setGeneName("POLR2A");
     mapping.setGeneSynonyms("RPB1|RPO2A");
     mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
     mapping.setMolecularWeight(20.0);
-    mappings.put(119627830, mapping);
+    mappings.put("119627830", mapping);
     mapping = new ProteinMapping();
-    mapping.setGeneId(4567);
+    mapping.setGeneId(4567L);
     mapping.setGeneName("POLR2B");
     mapping.setGeneSynonyms("RPB2|RPO2B");
     mapping.setGeneSummary("This gene encodes the smallest subunit of RNA polymerase II");
     mapping.setMolecularWeight(3.4);
-    mappings.put(189054652, mapping);
+    mappings.put("189054652", mapping);
 
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
@@ -358,7 +358,7 @@ public class ExcelDataWriterTest {
       assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
-      assertEquals("119580583", getComputedValue(row.getCell(0), giFormat));
+      assertEquals("119580583", getComputedValue(row.getCell(0)));
       assertEquals("", getComputedValue(row.getCell(1)));
       assertEquals("", getComputedValue(row.getCell(2)));
       assertEquals("", getComputedValue(row.getCell(3)));
@@ -377,21 +377,21 @@ public class ExcelDataWriterTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<Integer, ProteinMapping> mappings = new HashMap<>();
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
     ProteinMapping mapping = new ProteinMapping();
-    mapping.setGeneId(1234);
+    mapping.setGeneId(1234L);
     mapping.setGeneName("POLR2A");
     mapping.setGeneSynonyms("RPB1|RPO2A");
     mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
     mapping.setMolecularWeight(20.0);
-    mappings.put(119627830, mapping);
+    mappings.put("119627830", mapping);
     mapping = new ProteinMapping();
-    mapping.setGeneId(4567);
+    mapping.setGeneId(4567L);
     mapping.setGeneName("POLR2B");
     mapping.setGeneSynonyms("RPB2|RPO2B");
     mapping.setGeneSummary("This gene encodes the smallest subunit of RNA polymerase II");
     mapping.setMolecularWeight(3.4);
-    mappings.put(189054652, mapping);
+    mappings.put("189054652", mapping);
 
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
@@ -415,15 +415,66 @@ public class ExcelDataWriterTest {
           "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
           getComputedValue(row.getCell(4)));
       assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
-      assertEquals("119621462", getComputedValue(row.getCell(6), giFormat));
+      assertEquals("119621462", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
-      assertEquals("119580583", getComputedValue(row.getCell(0), giFormat));
+      assertEquals("119580583", getComputedValue(row.getCell(0)));
       assertEquals("", getComputedValue(row.getCell(1)));
       assertEquals("", getComputedValue(row.getCell(2)));
       assertEquals("", getComputedValue(row.getCell(3)));
       assertEquals("", getComputedValue(row.getCell(4)));
       assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("119572880", getComputedValue(row.getCell(6), giFormat));
+      assertEquals("119572880", getComputedValue(row.getCell(6)));
+    }
+  }
+
+  @Test
+  public void writeGene_Uniprot() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_uniprot.xlsx").toURI());
+    final File output = temporaryFolder.newFile("data.xlsx");
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    mapping.setGeneId(1234L);
+    mapping.setGeneName("POLR2A");
+    mapping.setGeneSynonyms("RPB1|RPO2A");
+    mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setMolecularWeight(20.0);
+    mappings.put("P11171", mapping);
+
+    excelDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (InputStream inputStream = new FileInputStream(output)) {
+      Workbook workbook = new XSSFWorkbook(inputStream);
+      Sheet sheet = workbook.getSheetAt(0);
+      Row row = sheet.getRow(0);
+      assertEquals("human", getComputedValue(row.getCell(0)));
+      assertEquals("", getComputedValue(row.getCell(1)));
+      assertEquals("", getComputedValue(row.getCell(2)));
+      assertEquals("", getComputedValue(row.getCell(3)));
+      assertEquals("", getComputedValue(row.getCell(4)));
+      assertEquals("", getComputedValue(row.getCell(5)));
+      assertEquals("", getComputedValue(row.getCell(6)));
+      row = sheet.getRow(2);
+      assertEquals("sp|P11171", getComputedValue(row.getCell(0)));
+      assertEquals("1234", getComputedValue(row.getCell(1)));
+      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+          getComputedValue(row.getCell(4)));
+      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+      assertEquals("", getComputedValue(row.getCell(6)));
+      row = sheet.getRow(3);
+      assertEquals("sp|Q08211", getComputedValue(row.getCell(0)));
+      assertEquals("", getComputedValue(row.getCell(1)));
+      assertEquals("", getComputedValue(row.getCell(2)));
+      assertEquals("", getComputedValue(row.getCell(3)));
+      assertEquals("", getComputedValue(row.getCell(4)));
+      assertEquals("", getComputedValue(row.getCell(5)));
+      assertEquals("", getComputedValue(row.getCell(6)));
     }
   }
 }

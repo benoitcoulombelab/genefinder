@@ -1,6 +1,6 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class GuessDataWriter implements DataWriter {
 
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
-      Map<Integer, ProteinMapping> mappings) throws IOException, InterruptedException {
+      Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
     if (EXCEL_FILENAME_PATTERN.matcher(input.getName()).matches()) {
       excelDataWriter.writeGene(input, output, parameters, mappings);
     } else {

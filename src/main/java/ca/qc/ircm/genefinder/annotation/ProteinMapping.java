@@ -1,11 +1,11 @@
-package ca.qc.ircm.genefinder.ncbi;
+package ca.qc.ircm.genefinder.annotation;
 
 /**
  * Protein linked to a gene.
  */
 public class ProteinMapping {
-  private Integer gi;
-  private Integer geneId;
+  private String proteinId;
+  private Long geneId;
   private String geneName;
   private String geneSynonyms;
   private String geneSummary;
@@ -17,7 +17,7 @@ public class ProteinMapping {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((gi == null) ? 0 : gi.hashCode());
+    result = prime * result + ((proteinId == null) ? 0 : proteinId.toUpperCase().hashCode());
     return result;
   }
 
@@ -33,11 +33,11 @@ public class ProteinMapping {
       return false;
     }
     ProteinMapping other = (ProteinMapping) obj;
-    if (gi == null) {
-      if (other.gi != null) {
+    if (proteinId == null) {
+      if (other.proteinId != null) {
         return false;
       }
-    } else if (!gi.equals(other.gi)) {
+    } else if (!proteinId.equalsIgnoreCase(other.proteinId)) {
       return false;
     }
     return true;
@@ -45,23 +45,23 @@ public class ProteinMapping {
 
   @Override
   public String toString() {
-    return "ProteinMapping [gi=" + gi + ", geneId=" + geneId + ", geneName=" + geneName
-        + ", taxonomyId=" + taxonomyId + "]";
+    return "ProteinMapping [proteinId=" + proteinId + ", geneId=" + geneId + ", geneName="
+        + geneName + ", taxonomyId=" + taxonomyId + "]";
   }
 
-  public Integer getGi() {
-    return gi;
+  public String getProteinId() {
+    return proteinId;
   }
 
-  public void setGi(Integer gi) {
-    this.gi = gi;
+  public void setProteinId(String proteinId) {
+    this.proteinId = proteinId;
   }
 
-  public Integer getGeneId() {
+  public Long getGeneId() {
     return geneId;
   }
 
-  public void setGeneId(Integer geneId) {
+  public void setGeneId(Long geneId) {
     this.geneId = geneId;
   }
 

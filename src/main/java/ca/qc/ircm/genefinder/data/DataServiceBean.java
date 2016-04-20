@@ -1,8 +1,7 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.ncbi.NcbiService;
-import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
-import ca.qc.ircm.genefinder.ncbi.ProteinMappingParametersFromFindGenesParameters;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.ProteinMappingService;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progress_bar.ProgressBar;
@@ -23,15 +22,15 @@ import javax.inject.Inject;
 
 public class DataServiceBean implements DataService {
   @Inject
-  private NcbiService ncbiService;
+  private ProteinMappingService proteinMappingService;
   @Inject
   private DataWriter dataWriter;
 
   protected DataServiceBean() {
   }
 
-  public DataServiceBean(NcbiService ncbiService, DataWriter dataWriter) {
-    this.ncbiService = ncbiService;
+  public DataServiceBean(ProteinMappingService proteinMappingService, DataWriter dataWriter) {
+    this.proteinMappingService = proteinMappingService;
     this.dataWriter = dataWriter;
   }
 
@@ -42,11 +41,10 @@ public class DataServiceBean implements DataService {
     ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);
     progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
     ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
-    List<ProteinMapping> rawMappings = ncbiService.allProteinMappings(organism,
-        new ProteinMappingParametersFromFindGenesParameters(parameters), progressBar.step(0.8),
-        locale);
-    Map<Integer, ProteinMapping> mappings = rawMappings.stream()
-        .collect(Collectors.toMap(ProteinMapping::getGi, Function.<ProteinMapping>identity()));
+    List<ProteinMapping> rawMappings =
+        proteinMappingService.allProteinMappings(organism, progressBar.step(0.8), locale);
+    Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
+        Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
     progressBar.setProgress(0.8);
     double step = 0.2 / Math.max(files.size(), 1);
     int count = 0;

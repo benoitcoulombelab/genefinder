@@ -1,6 +1,6 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -26,24 +26,24 @@ import java.util.regex.Matcher;
 
 public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
   private static final Logger logger = LoggerFactory.getLogger(ExcelDataWriter.class);
+  private static final NumberFormat doubleFormat;
+
+  static {
+    doubleFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
+    doubleFormat.setMinimumFractionDigits(1);
+    doubleFormat.setGroupingUsed(false);
+  }
+
   private static final NumberFormat numberFormat;
 
   static {
     numberFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
-    numberFormat.setMinimumFractionDigits(1);
     numberFormat.setGroupingUsed(false);
-  }
-
-  private static final NumberFormat giFormat;
-
-  static {
-    giFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
-    giFormat.setGroupingUsed(false);
   }
 
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
-      Map<Integer, ProteinMapping> mappings) throws IOException, InterruptedException {
+      Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
     try (InputStream inputStream = new FileInputStream(input)) {
       Workbook workbook;
       if (input.getName().endsWith(".xlsx")) {
@@ -59,9 +59,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
       }
       for (int i = 0; i <= sheet.getLastRowNum(); i++) {
         Row row = sheet.getRow(i);
-        Cell cell = row.getCell(header.giColumnIndex);
-        String value = getComputedValue(cell, giFormat);
-        List<Integer> gis = parseGis(value);
+        Cell cell = row.getCell(header.proteinIdColumnIndex);
+        String value = getComputedValue(cell);
+        List<String> proteinIds = parseProteinIds(value);
         int addedCount = 0;
         if (parameters.isGeneId()) {
           addedCount++;
@@ -78,18 +78,19 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         if (parameters.isProteinMolecularWeight()) {
           addedCount++;
         }
-        shitCells(row, header.giColumnIndex, addedCount);
-        int index = header.giColumnIndex + 1;
+        shitCells(row, header.proteinIdColumnIndex, addedCount);
+        int index = header.proteinIdColumnIndex + 1;
         if (parameters.isGeneId()) {
           cell = row.getCell(index++);
-          String newValue = formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneId() != null
-                  ? mappings.get(gi).getGeneId().toString() : "");
+          String newValue = formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneId() != null
+                      ? mappings.get(proteinId).getGeneId().toString() : "");
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
-          if (gis.size() == 1) {
-            Integer gi = gis.get(0);
-            ProteinMapping mapping = mappings.get(gi);
+          if (proteinIds.size() == 1) {
+            String proteinId = proteinIds.get(0);
+            ProteinMapping mapping = mappings.get(proteinId);
             if (mapping != null && mapping.getGeneId() != null) {
               cell.setCellType(Cell.CELL_TYPE_NUMERIC);
               cell.setCellValue(mapping.getGeneId());
@@ -97,39 +98,43 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           }
         }
         if (parameters.isGeneName()) {
-          String newValue = formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneName() != null
-                  ? mappings.get(gi).getGeneName() : "");
+          String newValue = formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneName() != null
+                      ? mappings.get(proteinId).getGeneName() : "");
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isGeneSynonyms()) {
-          String newValue = formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneSynonyms() != null
-                  ? mappings.get(gi).getGeneSynonyms() : "");
+          String newValue = formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneSynonyms() != null
+                      ? mappings.get(proteinId).getGeneSynonyms() : "");
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isGeneSummary()) {
-          String newValue = formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneSummary() != null
-                  ? mappings.get(gi).getGeneSummary() : "");
+          String newValue = formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneSummary() != null
+                      ? mappings.get(proteinId).getGeneSummary() : "");
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isProteinMolecularWeight()) {
-          String newValue = formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getMolecularWeight() != null
-                  ? numberFormat.format(mappings.get(gi).getMolecularWeight()) : "");
+          String newValue = formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getMolecularWeight() != null
+                      ? doubleFormat.format(mappings.get(proteinId).getMolecularWeight()) : "");
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
-          if (gis.size() == 1) {
-            Integer gi = gis.get(0);
-            ProteinMapping mapping = mappings.get(gi);
+          if (proteinIds.size() == 1) {
+            String proteinId = proteinIds.get(0);
+            ProteinMapping mapping = mappings.get(proteinId);
             if (mapping != null && mapping.getMolecularWeight() != null) {
               cell.setCellType(Cell.CELL_TYPE_NUMERIC);
               cell.setCellValue(mapping.getMolecularWeight());
@@ -190,9 +195,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         Cell cell = row.getCell(j);
         if (cell != null) {
           String value = getComputedValue(cell);
-          Matcher matcher = GI_PATTERN.matcher(value);
+          Matcher matcher = PROTEIN_PATTERN.matcher(value);
           if (matcher.find()) {
-            header.giColumnIndex = j;
+            header.proteinIdColumnIndex = j;
             break;
           }
         }

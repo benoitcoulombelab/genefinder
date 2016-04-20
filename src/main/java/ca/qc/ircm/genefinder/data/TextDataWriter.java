@@ -1,6 +1,6 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
 
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
-      Map<Integer, ProteinMapping> mappings) throws IOException, InterruptedException {
+      Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
     Header header = parseHeader(input);
     if (!finishedHeader(header)) {
       logger.warn("Could not find GI column in file {}", input);
@@ -45,8 +45,8 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] columns = line.split("\t", -1);
-        List<Integer> gis = parseGis(columns[header.giColumnIndex]);
-        for (int i = 0; i <= header.giColumnIndex; i++) {
+        List<String> proteinIds = parseProteinIds(columns[header.proteinIdColumnIndex]);
+        for (int i = 0; i <= header.proteinIdColumnIndex; i++) {
           if (i > 0) {
             writer.write("\t");
           }
@@ -54,38 +54,40 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
         }
         if (parameters.isGeneId()) {
           writer.write("\t");
-          writer.write(formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneId() != null
-                  ? mappings.get(gi).getGeneId().toString() : ""));
+          writer.write(formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneId() != null
+                      ? mappings.get(proteinId).getGeneId().toString() : ""));
         }
         if (parameters.isGeneName()) {
           writer.write("\t");
-          writer.write(formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneName() != null
-                  ? mappings.get(gi).getGeneName() : ""));
+          writer.write(formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneName() != null
+                      ? mappings.get(proteinId).getGeneName() : ""));
         }
         if (parameters.isGeneSynonyms()) {
           writer.write("\t");
-          writer.write(formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneSynonyms() != null
-                  ? mappings.get(gi).getGeneSynonyms() : ""));
+          writer.write(formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneSynonyms() != null
+                      ? mappings.get(proteinId).getGeneSynonyms() : ""));
         }
         if (parameters.isGeneSummary()) {
           writer.write("\t");
-          writer.write(formatCollection(gis,
-              gi -> mappings.get(gi) != null && mappings.get(gi).getGeneSummary() != null
-                  ? mappings.get(gi).getGeneSummary() : ""));
+          writer.write(formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getGeneSummary() != null
+                      ? mappings.get(proteinId).getGeneSummary() : ""));
         }
         if (parameters.isProteinMolecularWeight()) {
           writer.write("\t");
-          writer
-              .write(
-                  formatCollection(gis,
-                      gi -> mappings.get(gi) != null
-                          && mappings.get(gi).getMolecularWeight() != null
-                              ? numberFormat.format(mappings.get(gi).getMolecularWeight()) : ""));
+          writer.write(formatCollection(proteinIds,
+              proteinId -> mappings.get(proteinId) != null
+                  && mappings.get(proteinId).getMolecularWeight() != null
+                      ? numberFormat.format(mappings.get(proteinId).getMolecularWeight()) : ""));
         }
-        for (int i = header.giColumnIndex + 1; i < columns.length; i++) {
+        for (int i = header.proteinIdColumnIndex + 1; i < columns.length; i++) {
           writer.write("\t");
           writer.write(columns[i]);
         }
@@ -102,9 +104,9 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
       while ((line = reader.readLine()) != null && !finishedHeader(header)) {
         String[] columns = line.split("\t", -1);
         for (int i = 0; i < columns.length; i++) {
-          Matcher matcher = GI_PATTERN.matcher(columns[i]);
+          Matcher matcher = PROTEIN_PATTERN.matcher(columns[i]);
           if (matcher.find()) {
-            header.giColumnIndex = i;
+            header.proteinIdColumnIndex = i;
             break;
           }
         }

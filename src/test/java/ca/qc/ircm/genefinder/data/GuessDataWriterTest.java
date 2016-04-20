@@ -2,7 +2,7 @@ package ca.qc.ircm.genefinder.data;
 
 import static org.mockito.Mockito.verify;
 
-import ca.qc.ircm.genefinder.ncbi.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.test.config.Rules;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +24,7 @@ public class GuessDataWriterTest {
   @Mock
   private FindGenesParameters parameters;
   @Mock
-  private Map<Integer, ProteinMapping> mappings;
+  private Map<String, ProteinMapping> mappings;
   @Rule
   public RuleChain rules = Rules.defaultRules(this);
 

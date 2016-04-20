@@ -9,8 +9,6 @@ import ca.qc.ircm.genefinder.data.DataWriter;
 import ca.qc.ircm.genefinder.data.FindGenesInDataTask;
 import ca.qc.ircm.genefinder.data.FindGenesInDataTaskFactory;
 import ca.qc.ircm.genefinder.data.GuessDataWriter;
-import ca.qc.ircm.genefinder.ncbi.NcbiService;
-import ca.qc.ircm.genefinder.ncbi.NcbiServiceBean;
 import ca.qc.ircm.genefinder.organism.OrganismService;
 import ca.qc.ircm.genefinder.organism.OrganismServiceBean;
 import ca.qc.ircm.protein.ProteinService;
@@ -28,7 +26,6 @@ public class ApplicationModule extends AbstractModule {
     install(
         new FactoryModuleBuilder().implement(FindGenesInDataTask.class, FindGenesInDataTask.class)
             .build(FindGenesInDataTaskFactory.class));
-    bind(NcbiService.class).to(NcbiServiceBean.class);
     bind(OrganismService.class).to(OrganismServiceBean.class);
     bind(ProteinService.class).to(ProteinServiceDefault.class);
   }

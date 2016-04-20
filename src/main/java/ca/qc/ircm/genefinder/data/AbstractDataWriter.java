@@ -11,18 +11,29 @@ import java.util.regex.Matcher;
 
 public abstract class AbstractDataWriter implements DataWriter {
   protected class Header {
-    protected Integer giColumnIndex;
+    protected Integer proteinIdColumnIndex;
   }
 
-  protected List<Integer> parseGis(String content) throws IOException {
-    Set<Integer> gis = new LinkedHashSet<>();
-    int start = 0;
-    Matcher matcher = GI_PATTERN.matcher(content);
-    while (matcher.find(start)) {
-      gis.add(Integer.parseInt(matcher.group(1)));
-      start = matcher.end();
+  private String getProteinIdFromMatcher(Matcher matcher) {
+    String proteinId = null;
+    int index = 1;
+    while (proteinId == null && index < matcher.groupCount()) {
+      proteinId = matcher.group(index++);
     }
-    return new ArrayList<>(gis);
+    return proteinId;
+  }
+
+  protected List<String> parseProteinIds(String content) throws IOException {
+    String[] rawProteins = content.split(";", -1);
+    Set<String> proteinIds = new LinkedHashSet<>();
+    for (String rawProtein : rawProteins) {
+      Matcher matcher = PROTEIN_PATTERN.matcher(rawProtein);
+      if (matcher.find()) {
+        String protein = getProteinIdFromMatcher(matcher);
+        proteinIds.add(protein);
+      }
+    }
+    return new ArrayList<>(proteinIds);
   }
 
   protected <E> String formatCollection(Collection<E> elements, Function<E, String> toString) {
@@ -38,6 +49,6 @@ public abstract class AbstractDataWriter implements DataWriter {
   }
 
   protected boolean finishedHeader(Header header) {
-    return header.giColumnIndex != null;
+    return header.proteinIdColumnIndex != null;
   }
 }
