@@ -17,7 +17,7 @@ public abstract class AbstractDataWriter implements DataWriter {
   private String getProteinIdFromMatcher(Matcher matcher) {
     String proteinId = null;
     int index = 1;
-    while (proteinId == null && index < matcher.groupCount()) {
+    while (proteinId == null && index <= matcher.groupCount()) {
       proteinId = matcher.group(index++);
     }
     return proteinId;

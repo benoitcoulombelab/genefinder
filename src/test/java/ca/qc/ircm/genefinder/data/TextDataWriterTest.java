@@ -474,4 +474,62 @@ public class TextDataWriterTest {
       assertEquals("", columns[6]);
     }
   }
+
+  @Test
+  public void writeGene_Refseq() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_refseq.txt").toURI());
+    final File output = temporaryFolder.newFile();
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    mapping.setGeneId(1234L);
+    mapping.setGeneName("POLR2A");
+    mapping.setGeneSynonyms("RPB1|RPO2A");
+    mapping.setGeneSummary("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setMolecularWeight(20.0);
+    mappings.put("NP_001159477.1", mapping);
+
+    textDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (LineNumberReader reader =
+        new LineNumberReader(new InputStreamReader(new FileInputStream(output)))) {
+      String line;
+      line = reader.readLine();
+      assertNotNull(line);
+      String[] columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("human", columns[0]);
+      assertEquals("", columns[1]);
+      assertEquals("", columns[2]);
+      assertEquals("", columns[3]);
+      assertEquals("", columns[4]);
+      assertEquals("", columns[5]);
+      assertEquals("", columns[6]);
+      line = reader.readLine();
+      line = reader.readLine();
+      columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("ref|NP_001159477.1", columns[0]);
+      assertEquals("1234", columns[1]);
+      assertEquals("POLR2A", columns[2]);
+      assertEquals("RPB1|RPO2A", columns[3]);
+      assertEquals("This gene encodes the largest subunit of RNA polymerase II", columns[4]);
+      assertEquals("20.0", columns[5]);
+      assertEquals("", columns[6]);
+      line = reader.readLine();
+      columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("ref|NP_001348.2", columns[0]);
+      assertEquals("", columns[1]);
+      assertEquals("", columns[2]);
+      assertEquals("", columns[3]);
+      assertEquals("", columns[4]);
+      assertEquals("", columns[5]);
+      assertEquals("", columns[6]);
+    }
+  }
 }

@@ -180,7 +180,7 @@ public class DownloadProteinMappingServiceBeanTest {
     verify(client).retrieveFile(eq(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.idmapping.gz"),
         any(OutputStream.class));
     verify(client).retrieveFile(eq(NCBI_GENE_INFO), any(OutputStream.class));
-    assertEquals(44, mappings.size());
+    assertEquals(49, mappings.size());
     ProteinMapping mapping = findMapping(mappings, "A0A024RAP8");
     assertNotNull(mapping);
     assertEquals((Integer) 9606, mapping.getTaxonomyId());
@@ -196,6 +196,17 @@ public class DownloadProteinMappingServiceBeanTest {
     assertNotNull(mapping);
     assertEquals((Integer) 9606, mapping.getTaxonomyId());
     assertEquals("315221164", mapping.getProteinId());
+    assertEquals("MGWIRGRRSRHSWEMSEFHNYNLDLKKSDFSTRWQKQRCPVVKSKCRENASPFFFCCFIAVAMGIRFIIMVTIWSAVFL"
+        + "NSLFNQEVQIPLTESYCGPCPKNWICYKNNCYQFFDESKNWYESQASCMSQNASLLKVYSKEDQDLLKLVKSYHWMGLV"
+        + "HIPTNGSWQWEDGSILSPNLLTIIEMQKGDCALYASSFKGYIENCSTPNTYICMQRTV", mapping.getSequence());
+    assertEquals((Long) 22914L, mapping.getGeneId());
+    assertEquals("KLRK1", mapping.getGeneName());
+    assertEquals("killer cell lectin like receptor K1", mapping.getGeneSummary());
+    assertEquals("CD314|D12S2489E|KLR|NKG2-D|NKG2D", mapping.getGeneSynonyms());
+    mapping = findMapping(mappings, "NP_001186734.1");
+    assertNotNull(mapping);
+    assertEquals((Integer) 9606, mapping.getTaxonomyId());
+    assertEquals("NP_001186734.1", mapping.getProteinId());
     assertEquals("MGWIRGRRSRHSWEMSEFHNYNLDLKKSDFSTRWQKQRCPVVKSKCRENASPFFFCCFIAVAMGIRFIIMVTIWSAVFL"
         + "NSLFNQEVQIPLTESYCGPCPKNWICYKNNCYQFFDESKNWYESQASCMSQNASLLKVYSKEDQDLLKLVKSYHWMGLV"
         + "HIPTNGSWQWEDGSILSPNLLTIIEMQKGDCALYASSFKGYIENCSTPNTYICMQRTV", mapping.getSequence());
@@ -228,6 +239,17 @@ public class DownloadProteinMappingServiceBeanTest {
     assertNotNull(mapping);
     assertEquals((Integer) 9606, mapping.getTaxonomyId());
     assertEquals("528881443", mapping.getProteinId());
+    assertEquals("MVNSVVFFEITRDGKPLGRISIKLFADKIPKTAENFRALSTGEKGFRYKGSCFHRIIPGFMCQGGDFTRPNGTGDKSIY"
+        + "GEKFDDENLIRKHTGSGILSMANAGPNTNGSQFFICAAKTEWLDGKHVAFGKVKERVNIVEAMEHFGYRNSKTSKKITI"
+        + "ADCGQF", mapping.getSequence());
+    assertEquals((Long) 728945L, mapping.getGeneId());
+    assertEquals("PPIAL4F", mapping.getGeneName());
+    assertEquals("peptidylprolyl isomerase A like 4F", mapping.getGeneSummary());
+    assertTrue(mapping.getGeneSynonyms().isEmpty());
+    mapping = findMapping(mappings, "NP_001137504.2");
+    assertNotNull(mapping);
+    assertEquals((Integer) 9606, mapping.getTaxonomyId());
+    assertEquals("NP_001137504.2", mapping.getProteinId());
     assertEquals("MVNSVVFFEITRDGKPLGRISIKLFADKIPKTAENFRALSTGEKGFRYKGSCFHRIIPGFMCQGGDFTRPNGTGDKSIY"
         + "GEKFDDENLIRKHTGSGILSMANAGPNTNGSQFFICAAKTEWLDGKHVAFGKVKERVNIVEAMEHFGYRNSKTSKKITI"
         + "ADCGQF", mapping.getSequence());
@@ -374,7 +396,7 @@ public class DownloadProteinMappingServiceBeanTest {
     verify(client, atLeastOnce()).login(eq("anonymous"), anyString());
     verify(client, atLeastOnce()).listFiles();
     verify(client, never()).retrieveFile(anyString(), any(OutputStream.class));
-    assertEquals(44, mappings.size());
+    assertEquals(49, mappings.size());
     ProteinMapping mapping = findMapping(mappings, "A0A024RAP8");
     assertNotNull(mapping);
     assertEquals((Integer) 9606, mapping.getTaxonomyId());
@@ -393,6 +415,17 @@ public class DownloadProteinMappingServiceBeanTest {
         + "HIPTNGSWQWEDGSILSPNLLTIIEMQKGDCALYASSFKGYIENCSTPNTYICMQRTV", mapping.getSequence());
     assertEquals((Long) 22914L, mapping.getGeneId());
     assertEquals("KLRK1", mapping.getGeneName());
+    mapping = findMapping(mappings, "NP_001186734.1");
+    assertNotNull(mapping);
+    assertEquals((Integer) 9606, mapping.getTaxonomyId());
+    assertEquals("NP_001186734.1", mapping.getProteinId());
+    assertEquals("MGWIRGRRSRHSWEMSEFHNYNLDLKKSDFSTRWQKQRCPVVKSKCRENASPFFFCCFIAVAMGIRFIIMVTIWSAVFL"
+        + "NSLFNQEVQIPLTESYCGPCPKNWICYKNNCYQFFDESKNWYESQASCMSQNASLLKVYSKEDQDLLKLVKSYHWMGLV"
+        + "HIPTNGSWQWEDGSILSPNLLTIIEMQKGDCALYASSFKGYIENCSTPNTYICMQRTV", mapping.getSequence());
+    assertEquals((Long) 22914L, mapping.getGeneId());
+    assertEquals("KLRK1", mapping.getGeneName());
+    assertEquals("killer cell lectin like receptor K1", mapping.getGeneSummary());
+    assertEquals("CD314|D12S2489E|KLR|NKG2-D|NKG2D", mapping.getGeneSynonyms());
     mapping = findMapping(mappings, "A0A075B6I6");
     assertNotNull(mapping);
     assertEquals((Integer) 9606, mapping.getTaxonomyId());
@@ -419,6 +452,17 @@ public class DownloadProteinMappingServiceBeanTest {
         + "ADCGQF", mapping.getSequence());
     assertEquals((Long) 728945L, mapping.getGeneId());
     assertEquals("PPIAL4F", mapping.getGeneName());
+    mapping = findMapping(mappings, "NP_001137504.2");
+    assertNotNull(mapping);
+    assertEquals((Integer) 9606, mapping.getTaxonomyId());
+    assertEquals("NP_001137504.2", mapping.getProteinId());
+    assertEquals("MVNSVVFFEITRDGKPLGRISIKLFADKIPKTAENFRALSTGEKGFRYKGSCFHRIIPGFMCQGGDFTRPNGTGDKSIY"
+        + "GEKFDDENLIRKHTGSGILSMANAGPNTNGSQFFICAAKTEWLDGKHVAFGKVKERVNIVEAMEHFGYRNSKTSKKITI"
+        + "ADCGQF", mapping.getSequence());
+    assertEquals((Long) 728945L, mapping.getGeneId());
+    assertEquals("PPIAL4F", mapping.getGeneName());
+    assertEquals("peptidylprolyl isomerase A like 4F", mapping.getGeneSummary());
+    assertTrue(mapping.getGeneSynonyms().isEmpty());
     mapping = findMapping(mappings, "A0AV96");
     assertNotNull(mapping);
     assertEquals((Integer) 9606, mapping.getTaxonomyId());

@@ -1,0 +1,4 @@
+human	
+accession number	
+ref|NP_001159477.1	
+ref|NP_001348.2	

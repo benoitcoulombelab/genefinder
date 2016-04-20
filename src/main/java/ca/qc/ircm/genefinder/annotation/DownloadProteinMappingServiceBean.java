@@ -64,6 +64,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
   private static final String NCBI_GENE_INFO = "/gene/DATA/GENE_INFO/All_Data.gene_info.gz";
   private static final String UNIPROT_FILE_PATTERN = "UP\\d+_(\\d+)[\\._].+";
   private static final String GI_MAPPING_TYPE = "GI";
+  private static final String REFSEQ_MAPPING_TYPE = "RefSeq";
   private static final String ORGANISM_ID_MAPPING_TYPE = "NCBI_TaxID";
   private static final String GENE_ID_MAPPING_TYPE = "GeneID";
   private static final String MAPPINGS_FILENAME = "mappings.txt";
@@ -133,8 +134,8 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
     final List<Path> idMappingsFiles = downloadIdMappings(
         applicationProperties.getAnnotationsFolder(), progressBar.step(0.1), includeOrganisms);
     progressBar.setProgress(0.2);
-    final List<Path> sequencesFiles = downloadSequences(applicationProperties.getAnnotationsFolder(),
-        progressBar.step(0.1), includeOrganisms);
+    final List<Path> sequencesFiles = downloadSequences(
+        applicationProperties.getAnnotationsFolder(), progressBar.step(0.1), includeOrganisms);
     progressBar.setProgress(0.3);
 
     progressBar.setMessage(messageResource.message("database"));
@@ -536,9 +537,14 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
             && !idMapping.getMappings().get(GENE_ID_MAPPING_TYPE).isEmpty()) {
           geneId = minLong(idMapping.getMappings().get(GENE_ID_MAPPING_TYPE));
         }
+        List<String> otherProteinIds = new ArrayList<>();
         List<String> gis = idMapping.getMappings().get(GI_MAPPING_TYPE);
-        if (gis == null) {
-          gis = new ArrayList<>();
+        if (gis != null) {
+          otherProteinIds.addAll(gis);
+        }
+        List<String> refseqs = idMapping.getMappings().get(REFSEQ_MAPPING_TYPE);
+        if (refseqs != null) {
+          otherProteinIds.addAll(refseqs);
         }
         String proteinId = idMapping.getProtein();
         mappings.get(organism).put(proteinId, new ArrayList<ProteinMapping>());
@@ -547,10 +553,10 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
         mapping.setProteinId(proteinId);
         mapping.setGeneId(geneId);
         mappings.get(organism).get(proteinId).add(mapping);
-        for (String gi : gis) {
+        for (String otherProteinId : otherProteinIds) {
           mapping = new ProteinMapping();
           mapping.setTaxonomyId(organism);
-          mapping.setProteinId(gi);
+          mapping.setProteinId(otherProteinId);
           mapping.setGeneId(geneId);
           mappings.get(organism).get(proteinId).add(mapping);
         }
