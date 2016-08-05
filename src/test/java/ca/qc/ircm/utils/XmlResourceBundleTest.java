@@ -4,21 +4,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import ca.qc.ircm.genefinder.test.config.Rules;
-import org.junit.Rule;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 public class XmlResourceBundleTest {
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
   @Mock
   private ResourceBundle parent;
+
+  @Before
+  public void beforeTest() {
+    MockitoAnnotations.initMocks(this);
+  }
+
+  @After
+  public void afterTest() {
+    Mockito.validateMockitoUsage();
+  }
 
   @Test
   public void getString() throws Throwable {

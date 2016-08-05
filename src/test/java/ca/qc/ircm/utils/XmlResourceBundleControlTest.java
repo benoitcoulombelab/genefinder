@@ -3,10 +3,7 @@ package ca.qc.ircm.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import ca.qc.ircm.genefinder.test.config.Rules;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
 
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -15,9 +12,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public class XmlResourceBundleControlTest {
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
-
   private Set<String> convertKeys(Enumeration<String> keys) {
     Set<String> set = new HashSet<String>();
     while (keys.hasMoreElements()) {

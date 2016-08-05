@@ -2,18 +2,12 @@ package ca.qc.ircm.utils;
 
 import static org.junit.Assert.assertEquals;
 
-import ca.qc.ircm.genefinder.test.config.Rules;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
 
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class MessageResourcesTest {
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
-
   @Test
   public void message() {
     MessageResources messageResources =
