@@ -81,7 +81,7 @@ public class GeneFinderPresenter {
   @FXML
   private void initialize() {
     fileChooser.getExtensionFilters()
-        .add(new ExtensionFilter(resources.getString("file.description"), "*"));
+        .add(new ExtensionFilter(resources.getString("file.description"), "*", "*.*"));
 
     files.setCellFactory(new FileListCellFactory());
     files.setOnDragDetected(new DragFileOnListDetectedHandler(files));
@@ -147,7 +147,7 @@ public class GeneFinderPresenter {
 
   private void removeSelectedFiles() {
     List<Integer> selections =
-        new ArrayList<Integer>(files.getSelectionModel().getSelectedIndices());
+        new ArrayList<>(files.getSelectionModel().getSelectedIndices());
     Collections.sort(selections);
     Collections.reverse(selections);
     for (Integer selection : selections) {
@@ -160,7 +160,7 @@ public class GeneFinderPresenter {
   @FXML
   private void start() {
     if (validate()) {
-      List<File> files = new ArrayList<File>(this.files.getItems());
+      List<File> files = new ArrayList<>(this.files.getItems());
       Organism organism = this.organism.getSelectionModel().getSelectedItem();
       final Window window = this.files.getScene().getWindow();
       final FindGenesInDataTask task = findGenesInDataTaskFactory.create(organism, files,
@@ -194,7 +194,7 @@ public class GeneFinderPresenter {
     files.getStyleClass().remove("error");
     organismLabel.getStyleClass().remove("error");
     organism.getStyleClass().remove("error");
-    List<String> errors = new ArrayList<String>();
+    List<String> errors = new ArrayList<>();
     if (files.getItems().isEmpty()) {
       errors.add(resources.getString("error.files.required"));
       filesLabel.getStyleClass().add("error");
