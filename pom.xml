@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>ca.qc.ircm.coulombe</groupId>
-    <artifactId>coulombe-parent</artifactId>
-    <version>5.0.0</version>
-    <relativePath>../coulombe-parent/pom.xml</relativePath>
+    <groupId>ca.qc.ircm</groupId>
+    <artifactId>ircm-parent</artifactId>
+    <version>2.2</version>
+    <relativePath>../ircm-parent/pom.xml</relativePath>
   </parent>
   <artifactId>genefinder</artifactId>
   <version>1.0.0-SNAPSHOT</version>
@@ -231,11 +231,6 @@
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
       <version>${commons-net.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ca.qc.ircm.utils</groupId>
-      <artifactId>progress_bar</artifactId>
-      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
