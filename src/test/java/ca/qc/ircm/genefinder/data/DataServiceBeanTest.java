@@ -10,7 +10,7 @@ import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.ProteinMappingService;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.Rules;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,7 +64,7 @@ public class DataServiceBeanTest {
     FileUtils.copyFile(file, input);
     final File output = new File(temporaryFolder.getRoot(), "proteinGroupsWithGene.txt");
     final List<File> files = Arrays.asList(input);
-    List<ProteinMapping> mappings = new ArrayList<ProteinMapping>();
+    List<ProteinMapping> mappings = new ArrayList<>();
     mappings.add(getProteinMapping("4262120", "ABC"));
     mappings.add(getProteinMapping("58201131", "ABC"));
     mappings.add(getProteinMapping("270297794", "ABC"));

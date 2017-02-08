@@ -19,7 +19,7 @@ import ca.qc.ircm.genefinder.ApplicationProperties;
 import ca.qc.ircm.genefinder.net.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.Rules;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;

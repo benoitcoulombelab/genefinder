@@ -1,7 +1,7 @@
 package ca.qc.ircm.genefinder.data;
 
 import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,5 +14,5 @@ import java.util.Locale;
 public interface DataService {
   public void findGeneNames(Organism organism, Collection<File> files,
       FindGenesParameters findGenesParameter, ProgressBar progressBar, Locale locale)
-          throws IOException, InterruptedException;
+      throws IOException, InterruptedException;
 }

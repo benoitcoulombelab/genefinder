@@ -4,7 +4,7 @@ import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.ProteinMappingService;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class DataServiceBean implements DataService {
   @Override
   public void findGeneNames(Organism organism, Collection<File> files,
       FindGenesParameters parameters, ProgressBar progressBar, Locale locale)
-          throws IOException, InterruptedException {
+      throws IOException, InterruptedException {
     ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);
     progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
     ExceptionUtils.throwIfInterrupted("Interrupted gene finding");

@@ -3,8 +3,7 @@ package ca.qc.ircm.genefinder.data;
 import com.google.inject.assistedinject.Assisted;
 
 import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.progress_bar.ConcurrentProgressBar;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.JavafxProgressBar;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,21 +18,6 @@ import javax.inject.Inject;
  * Task that download protein database and find genes for MaxQuant file.
  */
 public class FindGenesInDataTask extends Task<Void> {
-  private class TaskProgessBar extends ConcurrentProgressBar {
-    private static final long serialVersionUID = -7524127914872361603L;
-
-    @Override
-    public void progressChanged(double newProgress) {
-      updateProgress(newProgress, Math.max(newProgress, 1.0));
-    }
-
-    @Override
-    public void messageChanged(String newMessage) {
-      updateMessage(newMessage);
-      logger.trace("updateMessage {}", newMessage);
-    }
-  }
-
   private static final Logger logger = LoggerFactory.getLogger(FindGenesInDataTask.class);
   private Organism organism;
   private DataService dataService;
@@ -43,7 +27,7 @@ public class FindGenesInDataTask extends Task<Void> {
 
   /**
    * Creates find genes in data task.
-   * 
+   *
    * @param organism
    *          organism
    * @param dataService
@@ -68,7 +52,14 @@ public class FindGenesInDataTask extends Task<Void> {
 
   @Override
   protected Void call() throws Exception {
-    ProgressBar progressBar = new TaskProgessBar();
+    JavafxProgressBar progressBar = new JavafxProgressBar();
+    progressBar.message().addListener((observable, oldValue, newValue) -> {
+      updateMessage(newValue);
+      logger.trace("updateMessage {}", newValue);
+    });
+    progressBar.progress().addListener((observable, oldValue, newValue) -> {
+      updateProgress(newValue.doubleValue(), Math.max(newValue.doubleValue(), 1.0));
+    });
     dataService.findGeneNames(organism, files, findGenesParameter, progressBar, locale);
     logger.debug("completed files {}", files);
     return null;

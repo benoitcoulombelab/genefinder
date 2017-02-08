@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.RetryOnFail;
 import ca.qc.ircm.genefinder.test.config.Rules;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
@@ -51,7 +51,7 @@ public class FindGeneInDataTaskTest extends GuiTest {
   private ArgumentCaptor<ObservableValue<String>> observableMessageCaptor;
   @Captor
   private ArgumentCaptor<ObservableValue<Number>> observableProgressCaptor;
-  private List<File> dataFiles = new ArrayList<File>();
+  private List<File> dataFiles = new ArrayList<>();
   private Locale locale;
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule

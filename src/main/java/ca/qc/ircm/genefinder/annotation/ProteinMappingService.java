@@ -1,7 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 
 import java.io.IOException;
 import java.util.List;

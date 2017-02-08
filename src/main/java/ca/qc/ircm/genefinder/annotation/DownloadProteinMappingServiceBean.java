@@ -4,7 +4,7 @@ import ca.qc.ircm.genefinder.ApplicationProperties;
 import ca.qc.ircm.genefinder.net.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTP;
