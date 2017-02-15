@@ -26,7 +26,7 @@
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
-    <testFx.version>3.1.2</testFx.version>
+    <testFx.version>4.0.4-alpha</testFx.version>
     <jboss-jsp-api_2.3_spec.version>1.0.1.Final</jboss-jsp-api_2.3_spec.version>
     <resteasy.jaxrs-api.version>2.3.5.Final</resteasy.jaxrs-api.version>
     <staticweave-maven-plugin.version>1.0.0</staticweave-maven-plugin.version>
@@ -67,8 +67,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.loadui</groupId>
-      <artifactId>testFx</artifactId>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-core</artifactId>
+      <version>${testFx.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit</artifactId>
       <version>${testFx.version}</version>
       <scope>test</scope>
     </dependency>

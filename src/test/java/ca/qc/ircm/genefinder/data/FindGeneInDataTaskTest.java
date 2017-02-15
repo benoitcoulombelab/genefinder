@@ -9,27 +9,26 @@ import static org.mockito.Mockito.verify;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.RetryOnFail;
 import ca.qc.ircm.genefinder.test.config.RetryOnFailRule;
-import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
+import ca.qc.ircm.genefinder.test.config.TestFxTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Parent;
-import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.loadui.testfx.GuiTest;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.testfx.framework.junit.ApplicationTest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,8 +36,8 @@ import java.util.List;
 import java.util.Locale;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ServiceTestAnnotations
-public class FindGeneInDataTaskTest extends GuiTest {
+@TestFxTestAnnotations
+public class FindGeneInDataTaskTest extends ApplicationTest {
   private FindGenesInDataTask findGenesInDataTask;
   @Mock
   private Organism organism;
@@ -64,8 +63,7 @@ public class FindGeneInDataTaskTest extends GuiTest {
   public RuleChain ruleChain = RuleChain.outerRule(retryOnFailRule).around(temporaryFolder);
 
   @Override
-  protected Parent getRootNode() {
-    return new Label("test");
+  public void start(Stage stage) throws Exception {
   }
 
   /**
