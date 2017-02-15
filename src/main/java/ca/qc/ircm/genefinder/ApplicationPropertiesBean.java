@@ -1,5 +1,7 @@
 package ca.qc.ircm.genefinder;
 
+import org.springframework.stereotype.Component;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import javax.annotation.PostConstruct;
 /**
  * Default implementation for {@link ApplicationProperties}.
  */
+@Component
 public class ApplicationPropertiesBean implements ApplicationProperties {
   private static final String ANNOTATIONS_FOLDER = "annotations";
   private Properties properties;

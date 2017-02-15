@@ -1,5 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import org.springframework.stereotype.Component;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -13,6 +15,7 @@ import java.util.function.Consumer;
 /**
  * Parses NCBI gene info files.
  */
+@Component
 public class GeneInfoParser {
   private static final String DATE_FORMAT_PATTERN = "yyyyMMdd";
 

@@ -1,6 +1,8 @@
 package ca.qc.ircm.genefinder.data;
 
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +11,8 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+@Component
+@Primary
 public class GuessDataWriter implements DataWriter {
   private static final Pattern EXCEL_FILENAME_PATTERN = Pattern.compile(".+\\.xls(\\w?)");
 

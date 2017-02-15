@@ -6,6 +6,7 @@ import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+@Service
 public class DataServiceBean implements DataService {
   @Inject
   private ProteinMappingService proteinMappingService;

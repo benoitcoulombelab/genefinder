@@ -13,6 +13,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -51,6 +52,7 @@ import javax.inject.Inject;
 /**
  * Services for downloading protein mappings.
  */
+@Service
 public class DownloadProteinMappingServiceBean implements ProteinMappingService {
   private static final Pattern UNIPROT_PROTEIN_ID_PATTERN =
       Pattern.compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?"

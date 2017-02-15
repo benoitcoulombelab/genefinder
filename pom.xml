@@ -13,61 +13,103 @@
   <description>Finds genes based on a list of GIs</description>
   <properties>
     <javac.version>1.8</javac.version>
-    <slf4j.version>1.7.7</slf4j.version>
-    <logback.version>1.1.2</logback.version>
-    <guice.version>4.0</guice.version>
+    <start-class>ca.qc.ircm.pdd.Main</start-class>
+    <spring-boot.version>1.5.1.RELEASE</spring-boot.version>
+    <javax.inject.version>1</javax.inject.version>
+    <eclipselink.version>2.6.2</eclipselink.version>
+    <javax.persistence.version>2.1.1</javax.persistence.version>
+    <querydsl.version>4.0.7</querydsl.version>
+    <afterburner.fx.version>1.6.1</afterburner.fx.version>
     <poi.version>3.10.1</poi.version>
     <commons-net.version>3.4</commons-net.version>
-    <mainClass>ca.qc.ircm.genefinder.Main</mainClass>
-    <javafx.ant>${java.home}/../lib/ant-javafx.jar</javafx.ant>
-    <javafx.finalName>${project.build.finalName}-jar-with-dependencies.jar</javafx.finalName>
+    <commons-vfs2.version>2.0</commons-vfs2.version>
+    <commons-lang3.version>3.1</commons-lang3.version>
+    <commons-io.version>2.4</commons-io.version>
+    <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
+    <testFx.version>3.1.2</testFx.version>
+    <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.loadui</groupId>
+      <artifactId>testFx</artifactId>
+      <version>${testFx.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>javax.persistence</artifactId>
+      <version>${javax.persistence.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>eclipselink</artifactId>
+      <version>${eclipselink.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-jpa</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>${guice.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.inject.extensions</groupId>
-      <artifactId>guice-assistedinject</artifactId>
-      <version>${guice.version}</version>
     </dependency>
     <dependency>
       <groupId>com.airhacks</groupId>
       <artifactId>afterburner.fx</artifactId>
-      <version>1.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.3</version>
+      <version>${afterburner.fx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.1</version>
+      <version>${commons-lang3.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.4</version>
+      <version>${commons-io.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
@@ -82,7 +124,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-vfs2</artifactId>
-      <version>2.0</version>
+      <version>${commons-vfs2.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-net</groupId>
@@ -90,27 +132,22 @@
       <version>${commons-net.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
-      <version>2.0.1</version>
+      <version>${findbugs.annotations.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>1.9.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.loadui</groupId>
-      <artifactId>testFx</artifactId>
-      <version>3.1.2</version>
-      <scope>test</scope>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <optional>true</optional>
     </dependency>
   </dependencies>
   <build>
@@ -144,9 +181,6 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-        </plugin>
-        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <excludes>
@@ -162,80 +196,18 @@
           </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot-maven-plugin.version}</version>
+          <configuration>
+            <mainClass>${start-class}</mainClass>
+            <executable>true</executable>
+          </configuration>
           <executions>
             <execution>
-              <id>javafx-assembly</id>
-              <phase>package</phase>
               <goals>
-                <goal>run</goal>
+                <goal>repackage</goal>
               </goals>
-              <configuration>
-                <target xmlns:fx="javafx:com.sun.javafx.tools.ant">
-                  <echo message="Packaging jar with JavaFX" />
-                  <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
-                    uri="javafx:com.sun.javafx.tools.ant" classpath="${javafx.ant}" />
-                  <fx:application id="fx-application"
-                    name="${project.artifactId}" mainClass="${mainClass}" />
-                  <fx:jar
-                    destfile="${project.build.directory}/${javafx.finalName}">
-                    <fx:application refId="fx-application" />
-                    <fileset dir="${project.build.outputDirectory}" />
-                    <fileset dir="${project.build.directory}/dependency" />
-                    <manifest>
-                      <attribute name="Built-By" value="${user.name}" />
-                      <attribute name="Build-Jdk" value="${java.version}" />
-                      <attribute name="Specification-Title"
-                        value="${project.name}" />
-                      <attribute name="Specification-Version"
-                        value="${project.version}" />
-                      <attribute name="Specification-Vendor"
-                        value="${project.organization.name}" />
-                      <attribute name="Implementation-Title"
-                        value="${project.name}" />
-                      <attribute name="Implementation-Version"
-                        value="${project.version}" />
-                      <attribute name="Implementation-Vendor-Id"
-                        value="${project.groupId}" />
-                      <attribute name="Implementation-Vendor"
-                        value="${project.organization.name}" />
-                      <attribute name="Implementation-Build"
-                        value="${buildNumber}" />
-                      <attribute name="X-Compile-Source-JDK"
-                        value="${javac.version}" />
-                      <attribute name="X-Compile-Target-JDK"
-                        value="${javac.version}" />
-                    </manifest>
-                  </fx:jar>
-
-                  <echo message="Attach JavaFX jar" />
-                  <attachartifact
-                    file="${project.build.directory}/${javafx.finalName}"
-                    classifier="all" type="jar" />
-
-                  <!-- <echo message="Produce native bundles" /> <fx:deploy 
-                    nativeBundles="all" outdir="${project.build.directory}/native" outfile="${project.artifactId}"> 
-                    <fx:application refId="fx-application" /> <fx:resources> <fx:fileset file="${project.build.directory}/${javafx.finalName}" 
-                    /> </fx:resources> <fx:info title="${project.name}" description="${project.description}" 
-                    copyright="${project.copyright}" /> <fx:preferences shortcut="true" menu="true" 
-                    /> </fx:deploy> -->
-                </target>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>unpack-dependencies</id>
-              <phase>package</phase>
-              <goals>
-                <goal>unpack-dependencies</goal>
-              </goals>
-              <configuration>
-                <includeScope>runtime</includeScope>
-              </configuration>
             </execution>
           </executions>
         </plugin>
@@ -260,6 +232,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

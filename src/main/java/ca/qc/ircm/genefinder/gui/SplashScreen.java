@@ -14,13 +14,16 @@ public class SplashScreen {
 
   /**
    * Creates splash screen window.
+   *
+   * @param stage
+   *          stage
    */
-  public SplashScreen() {
+  public SplashScreen(Stage stage) {
+    this.stage = stage;
+    stage.initStyle(StageStyle.UNDECORATED);
     SplashScreenView view = new SplashScreenView();
     Parent viewNode = view.getView();
     viewNode.setCursor(Cursor.WAIT);
-    stage = new Stage();
-    stage.initStyle(StageStyle.UNDECORATED);
     Scene scene = new Scene(viewNode);
     stage.setScene(scene);
   }

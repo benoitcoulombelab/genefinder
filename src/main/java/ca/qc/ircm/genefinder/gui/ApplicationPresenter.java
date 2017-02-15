@@ -7,12 +7,17 @@ import ca.qc.ircm.genefinder.organism.gui.ManageOrganismsView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.Region;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
 
 /**
  * Main application controller.
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ApplicationPresenter {
   @FXML
   private ResourceBundle resources;

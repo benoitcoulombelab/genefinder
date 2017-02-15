@@ -23,6 +23,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.util.Callback;
 import javafx.util.converter.IntegerStringConverter;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,10 +37,12 @@ import javax.inject.Inject;
 /**
  * Manage organism controller.
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ManageOrganismsPresenter {
-  private ListProperty<Organism> organismsProperty = new SimpleListProperty<Organism>();
+  private ListProperty<Organism> organismsProperty = new SimpleListProperty<>();
   private StringProperty nameProperty = new SimpleStringProperty();
-  private ObjectProperty<Integer> idProperty = new SimpleObjectProperty<Integer>();
+  private ObjectProperty<Integer> idProperty = new SimpleObjectProperty<>();
   @FXML
   private ResourceBundle resources;
   @FXML
@@ -77,7 +82,7 @@ public class ManageOrganismsPresenter {
         });
     name.textProperty().bindBidirectional(nameProperty);
     id.textProperty().bindBidirectional(idProperty,
-        new NullOnExceptionConverter<Integer>(new IntegerStringConverter()));
+        new NullOnExceptionConverter<>(new IntegerStringConverter()));
     organisms.setItems(organismsProperty);
 
     // Default values.
@@ -114,7 +119,7 @@ public class ManageOrganismsPresenter {
     name.getStyleClass().remove("error");
     idLabel.getStyleClass().remove("error");
     id.getStyleClass().remove("error");
-    List<String> errors = new ArrayList<String>();
+    List<String> errors = new ArrayList<>();
     if (nameProperty.get() == null || nameProperty.get().isEmpty()) {
       errors.add(resources.getString("error.name.required"));
       nameLabel.getStyleClass().add("error");

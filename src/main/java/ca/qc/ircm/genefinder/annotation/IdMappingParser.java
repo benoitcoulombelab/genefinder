@@ -1,5 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import org.springframework.stereotype.Component;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.function.Consumer;
 /**
  * Parses UniProt's id mapping files.
  */
+@Component
 public class IdMappingParser {
   /**
    * Parses id mapping file.

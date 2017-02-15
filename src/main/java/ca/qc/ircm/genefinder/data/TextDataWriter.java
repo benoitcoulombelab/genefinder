@@ -4,6 +4,7 @@ import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+@Component
 public class TextDataWriter extends AbstractDataWriter implements DataWriter {
   private static final Logger logger = LoggerFactory.getLogger(TextDataWriter.class);
   private static final NumberFormat numberFormat;

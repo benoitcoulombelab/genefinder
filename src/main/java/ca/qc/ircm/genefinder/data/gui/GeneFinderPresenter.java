@@ -33,6 +33,9 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,6 +49,8 @@ import javax.inject.Inject;
 /**
  * Gene finder controller.
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GeneFinderPresenter {
   private static final Logger logger = LoggerFactory.getLogger(GeneFinderPresenter.class);
   private ListProperty<Organism> organismsProperty = new SimpleListProperty<>();
@@ -146,8 +151,7 @@ public class GeneFinderPresenter {
   }
 
   private void removeSelectedFiles() {
-    List<Integer> selections =
-        new ArrayList<>(files.getSelectionModel().getSelectedIndices());
+    List<Integer> selections = new ArrayList<>(files.getSelectionModel().getSelectedIndices());
     Collections.sort(selections);
     Collections.reverse(selections);
     for (Integer selection : selections) {

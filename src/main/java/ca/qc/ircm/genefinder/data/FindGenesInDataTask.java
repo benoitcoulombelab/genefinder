@@ -1,7 +1,5 @@
 package ca.qc.ircm.genefinder.data;
 
-import com.google.inject.assistedinject.Assisted;
-
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.progressbar.JavafxProgressBar;
 import javafx.concurrent.Task;
@@ -40,9 +38,8 @@ public class FindGenesInDataTask extends Task<Void> {
    *          locale
    */
   @Inject
-  public FindGenesInDataTask(@Assisted Organism organism, DataService dataService,
-      @Assisted Collection<File> files, @Assisted FindGenesParameters findGenesParameter,
-      @Assisted Locale locale) {
+  public FindGenesInDataTask(Organism organism, DataService dataService, Collection<File> files,
+      FindGenesParameters findGenesParameter, Locale locale) {
     this.organism = organism;
     this.dataService = dataService;
     this.files = files;

@@ -8,6 +8,7 @@ import ca.qc.ircm.genefinder.ApplicationProperties;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+@Service
 public class OrganismServiceBean implements OrganismService {
   private static final Logger logger = LoggerFactory.getLogger(OrganismServiceBean.class);
   @Inject
@@ -82,8 +84,8 @@ public class OrganismServiceBean implements OrganismService {
       organisms = null;
     }
     List<Organism> cacheOrganisms = organisms != null ? organisms : Collections.emptyList();
-    organismsCache = new SoftReference<List<Organism>>(cacheOrganisms);
-    organismsByIdCache = new SoftReference<Map<Integer, Organism>>(
+    organismsCache = new SoftReference<>(cacheOrganisms);
+    organismsByIdCache = new SoftReference<>(
         cacheOrganisms.stream().collect(Collectors.toMap(Organism::getId, Function.identity())));
     return organisms;
   }
@@ -128,7 +130,7 @@ public class OrganismServiceBean implements OrganismService {
       return getOrganisms();
     } catch (IOException e) {
       logger.error("Could not read organism data file", e);
-      return new ArrayList<Organism>();
+      return new ArrayList<>();
     }
   }
 
