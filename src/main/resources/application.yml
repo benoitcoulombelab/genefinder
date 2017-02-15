@@ -1,0 +1,35 @@
+application:
+  home: ${user.dir}
+
+spring:
+  application:
+    name: genefinder
+# Database.
+  datasource:
+    platform: h2
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:./genefinder
+    username: test
+    password: 
+    tomcat:
+      test-on-borrow: true
+      validationQuery: SELECT 1
+
+annotations:
+  ncbi:
+    gene2accession: ftp://ftp.ncbi.nih.gov/gene/DATA/gene2accession.gz
+    gene_info: ftp://ftp.ncbi.nih.gov/gene/DATA/gene_info.gz
+    gi_taxid: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/gi_taxid_prot.dmp.gz
+    nr: ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz
+
+logging:
+  file: ${spring.application.name}.log
+
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+logging:
+  file: test.log

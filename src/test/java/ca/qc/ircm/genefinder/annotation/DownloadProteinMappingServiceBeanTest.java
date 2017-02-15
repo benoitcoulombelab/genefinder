@@ -15,7 +15,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ca.qc.ircm.genefinder.ApplicationProperties;
+import ca.qc.ircm.genefinder.ApplicationConfiguration;
 import ca.qc.ircm.genefinder.net.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.Rules;
@@ -66,7 +66,7 @@ public class DownloadProteinMappingServiceBeanTest {
   @Mock
   private ProgressBar progressBar;
   @Mock
-  private ApplicationProperties applicationProperties;
+  private ApplicationConfiguration applicationConfiguration;
   @Captor
   private ArgumentCaptor<Command> commandCaptor;
   @Captor
@@ -84,7 +84,7 @@ public class DownloadProteinMappingServiceBeanTest {
   @Before
   public void beforeTest() throws Throwable {
     downloadProteinMappingServiceBean = new DownloadProteinMappingServiceBean(ftpClientFactory,
-        new IdMappingParser(), new GeneInfoParser(), applicationProperties);
+        new IdMappingParser(), new GeneInfoParser(), applicationConfiguration);
     when(ftpClientFactory.create()).thenReturn(client);
     annotationsFolder = temporaryFolder.newFolder("annotations").toPath();
     fasta = temporaryFolder.getRoot().toPath().resolve("human.fasta.gz");
@@ -103,7 +103,7 @@ public class DownloadProteinMappingServiceBeanTest {
         geneInfo);
     retrieveFileAnswer(NCBI_GENE_INFO, geneInfo);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
-    when(applicationProperties.getAnnotationsFolder()).thenReturn(annotationsFolder);
+    when(applicationConfiguration.annotationsFolder()).thenReturn(annotationsFolder);
   }
 
   private ProteinMapping findMapping(Collection<ProteinMapping> mappings, String proteinId) {

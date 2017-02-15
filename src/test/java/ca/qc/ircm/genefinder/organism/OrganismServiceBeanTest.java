@@ -1,167 +1,180 @@
+/*
+ * Copyright (c) 2006 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder.organism;
 
+import static ca.qc.ircm.genefinder.organism.QOrganism.organism;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import ca.qc.ircm.genefinder.ApplicationProperties;
-import ca.qc.ircm.genefinder.test.config.Rules;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class OrganismServiceBeanTest {
-  private OrganismServiceBean organismServiceBean;
-  @Mock
-  private ApplicationProperties applicationProperties;
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
-  private Path data;
+  private OrganismServiceBean organismService;
+  @PersistenceContext
+  private EntityManager entityManager;
+  @Inject
+  private JPAQueryFactory jpaQueryFactory;
 
   /**
    * Before test.
    */
   @Before
   public void beforeTest() throws Throwable {
-    organismServiceBean = new OrganismServiceBean(applicationProperties);
-    data = temporaryFolder.getRoot().toPath().resolve("organisms.json");
-    Path originalData = Paths.get(getClass().getResource("/organism/organisms.json").toURI());
-    Files.copy(originalData, data);
-    when(applicationProperties.getOrganismData()).thenReturn(data);
+    organismService = new OrganismServiceBean(entityManager, jpaQueryFactory);
   }
 
-  private List<Organism> load() throws IOException {
-    List<Organism> organisms;
-    Gson gson = new Gson();
-    Type collectionType = new TypeToken<Collection<Organism>>() {}.getType();
-    try (Reader reader =
-        new BufferedReader(new InputStreamReader(Files.newInputStream(data), "UTF-8"))) {
-      organisms = gson.fromJson(reader, collectionType);
-    }
-    return organisms;
+  private Optional<Organism> find(Collection<Organism> organisms, int id) {
+    return organisms.stream().filter(o -> o.getId() == id).findAny();
   }
 
   @Test
-  public void get() {
-    Organism organism = organismServiceBean.get(9606);
+  public void get_9606() {
+    Organism organism = organismService.get(9606);
     assertEquals((Integer) 9606, organism.getId());
     assertEquals("Homo Sapiens", organism.getName());
+  }
+
+  @Test
+  public void get_10090() {
+    Organism organism = organismService.get(10090);
+    assertEquals((Integer) 10090, organism.getId());
+    assertEquals("Mus Musculus", organism.getName());
   }
 
   @Test
   public void get_Null() {
-    assertNull(organismServiceBean.get(null));
+    assertNull(organismService.get(null));
+  }
+
+  @Test
+  public void all() {
+    List<Organism> organisms = organismService.all();
+
+    assertEquals(2, organisms.size());
+    Optional<Organism> optionalOrganism = find(organisms, 9606);
+    assertTrue(optionalOrganism.isPresent());
+    Organism organism = optionalOrganism.get();
+    assertEquals((Integer) 9606, organism.getId());
+    assertEquals("Homo Sapiens", organism.getName());
+    optionalOrganism = find(organisms, 10090);
+    assertTrue(optionalOrganism.isPresent());
+    organism = optionalOrganism.get();
+    assertEquals((Integer) 10090, organism.getId());
+    assertEquals("Mus Musculus", organism.getName());
+  }
+
+  @Test
+  public void containsAny_False() {
+    jpaQueryFactory.delete(organism).execute();
+
+    boolean value = organismService.containsAny();
+
+    assertFalse(value);
+  }
+
+  @Test
+  public void containsAny_True() {
+    boolean value = organismService.containsAny();
+
+    assertTrue(value);
   }
 
   @Test
   public void insert() throws Throwable {
-    Organism organism = new Organism(9796, "Equus caballus");
+    Integer id = 9796;
+    String name = "Equus caballus";
+    Organism organism = new Organism(id, name);
 
-    organismServiceBean.insert(organism);
+    organismService.insert(organism);
 
-    List<Organism> organisms = load();
-    assertEquals(3, organisms.size());
-    organism = organisms.get(0);
-    assertEquals((Integer) 9606, organism.getId());
-    assertEquals("Homo Sapiens", organism.getName());
-    organism = organisms.get(1);
-    assertEquals((Integer) 10090, organism.getId());
-    assertEquals("Mus Musculus", organism.getName());
-    organism = organisms.get(2);
-    assertEquals((Integer) 9796, organism.getId());
-    assertEquals("Equus caballus", organism.getName());
+    entityManager.flush();
+    organism = entityManager.find(Organism.class, id);
+    assertNotNull(organism);
+    assertEquals(id, organism.getId());
+    assertEquals(name, organism.getName());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = PersistenceException.class)
   public void insert_Duplicate() throws Throwable {
     Organism organism = new Organism(9606, "Homo Sapiens");
 
-    organismServiceBean.insert(organism);
+    organismService.insert(organism);
+
+    entityManager.flush();
   }
 
   @Test
-  public void insert_ThenAll() throws Throwable {
-    Organism organism = new Organism(9796, "Equus caballus");
-    organismServiceBean.all();
+  public void update() throws Throwable {
+    Integer id = 9606;
+    String name = "Equus caballus";
+    Organism organism = organismService.get(id);
+    organism.setName(name);
 
-    organismServiceBean.insert(organism);
+    organismService.update(organism);
 
-    List<Organism> organisms = organismServiceBean.all();
-    assertEquals(3, organisms.size());
-    organism = organisms.get(0);
-    assertEquals((Integer) 9606, organism.getId());
-    assertEquals("Homo Sapiens", organism.getName());
-    organism = organisms.get(1);
-    assertEquals((Integer) 10090, organism.getId());
-    assertEquals("Mus Musculus", organism.getName());
-    organism = organisms.get(2);
-    assertEquals((Integer) 9796, organism.getId());
-    assertEquals("Equus caballus", organism.getName());
-    assertNotNull(organismServiceBean.get(9606));
-    assertNotNull(organismServiceBean.get(10090));
-    assertNotNull(organismServiceBean.get(9796));
+    entityManager.flush();
+    organism = entityManager.find(Organism.class, id);
+    assertNotNull(organism);
+    assertEquals(id, organism.getId());
+    assertEquals(name, organism.getName());
   }
 
   @Test
   public void delete_One() throws Throwable {
-    List<Organism> organisms = new ArrayList<Organism>();
-    organisms.add(new Organism(9606, "Homo Sapiens"));
+    List<Organism> organisms = new ArrayList<>();
+    organisms.add(organismService.get(9606));
 
-    organismServiceBean.delete(organisms);
+    organismService.delete(organisms);
 
-    organisms = load();
-    assertEquals(1, organisms.size());
-    Organism organism = organisms.get(0);
-    assertEquals((Integer) 10090, organism.getId());
-    assertEquals("Mus Musculus", organism.getName());
+    entityManager.flush();
+    assertNull(entityManager.find(Organism.class, 9606));
   }
 
   @Test
   public void delete_Multiple() throws Throwable {
-    List<Organism> organisms = new ArrayList<Organism>();
-    organisms.add(new Organism(9606, "Homo Sapiens"));
-    organisms.add(new Organism(10090, "Mus Musculus"));
+    List<Organism> organisms = new ArrayList<>();
+    organisms.add(organismService.get(9606));
+    organisms.add(organismService.get(10090));
 
-    organismServiceBean.delete(organisms);
+    organismService.delete(organisms);
 
-    organisms = load();
-    assertEquals(0, organisms.size());
-  }
-
-  @Test
-  public void delete_ThenAll() throws Throwable {
-    List<Organism> organisms = new ArrayList<Organism>();
-    organisms.add(new Organism(9606, "Homo Sapiens"));
-    organismServiceBean.all();
-
-    organismServiceBean.delete(organisms);
-
-    organisms = organismServiceBean.all();
-    assertEquals(1, organisms.size());
-    Organism organism = organisms.get(0);
-    assertEquals((Integer) 10090, organism.getId());
-    assertEquals("Mus Musculus", organism.getName());
-    assertNotNull(organismServiceBean.get(10090));
-    assertNull(organismServiceBean.get(9606));
+    entityManager.flush();
+    assertNull(entityManager.find(Organism.class, 9606));
+    assertNull(entityManager.find(Organism.class, 10090));
   }
 }

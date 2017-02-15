@@ -2,11 +2,21 @@ package ca.qc.ircm.genefinder.organism;
 
 import ca.qc.ircm.genefinder.Named;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * An organism.
  */
+@Entity
+@Table(name = "organism")
 public class Organism implements Named {
+  @Id
+  @Column(name = "id", unique = true, nullable = false)
   private Integer id;
+  @Column(name = "name", unique = true, nullable = false)
   private String name;
 
   public Organism() {

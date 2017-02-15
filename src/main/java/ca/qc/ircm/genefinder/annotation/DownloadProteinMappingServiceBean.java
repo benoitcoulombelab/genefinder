@@ -1,6 +1,6 @@
 package ca.qc.ircm.genefinder.annotation;
 
-import ca.qc.ircm.genefinder.ApplicationProperties;
+import ca.qc.ircm.genefinder.ApplicationConfiguration;
 import ca.qc.ircm.genefinder.net.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
@@ -90,7 +90,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
   @Inject
   private GeneInfoParser geneInfoMappingParser;
   @Inject
-  private ApplicationProperties applicationProperties;
+  private ApplicationConfiguration applicationConfiguration;
 
   protected DownloadProteinMappingServiceBean() {
   }
@@ -104,16 +104,16 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
    *          id mapping parser
    * @param geneInfoMappingParser
    *          gene info mapping parser
-   * @param applicationProperties
-   *          application properties
+   * @param applicationConfiguration
+   *          application configuration
    */
   public DownloadProteinMappingServiceBean(FtpClientFactory ftpClientFactory,
       IdMappingParser idMappingParser, GeneInfoParser geneInfoMappingParser,
-      ApplicationProperties applicationProperties) {
+      ApplicationConfiguration applicationConfiguration) {
     this.ftpClientFactory = ftpClientFactory;
     this.idMappingParser = idMappingParser;
     this.geneInfoMappingParser = geneInfoMappingParser;
-    this.applicationProperties = applicationProperties;
+    this.applicationConfiguration = applicationConfiguration;
   }
 
   @Override
@@ -129,15 +129,15 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
     MessageResources messageResource =
         new MessageResources(DownloadProteinMappingServiceBean.class, locale);
     progressBar.setMessage(messageResource.message("geneInfo.download"));
-    final Path geneInfoFile = downloadGeneInfo(applicationProperties.getAnnotationsFolder());
+    final Path geneInfoFile = downloadGeneInfo(applicationConfiguration.annotationsFolder());
     Map<Integer, Path> geneInfoFiles = splitGeneInfo(geneInfoFile);
     progressBar.setProgress(0.1);
     progressBar.setMessage(messageResource.message("idMapping.download"));
     final List<Path> idMappingsFiles = downloadIdMappings(
-        applicationProperties.getAnnotationsFolder(), progressBar.step(0.1), includeOrganisms);
+        applicationConfiguration.annotationsFolder(), progressBar.step(0.1), includeOrganisms);
     progressBar.setProgress(0.2);
     final List<Path> sequencesFiles = downloadSequences(
-        applicationProperties.getAnnotationsFolder(), progressBar.step(0.1), includeOrganisms);
+        applicationConfiguration.annotationsFolder(), progressBar.step(0.1), includeOrganisms);
     progressBar.setProgress(0.3);
 
     progressBar.setMessage(messageResource.message("database"));
@@ -179,7 +179,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
         organismFilesList.add(organismFiles);
       }
     }
-    Path mappingsPath = applicationProperties.getAnnotationsFolder().resolve(MAPPINGS_FILENAME);
+    Path mappingsPath = applicationConfiguration.annotationsFolder().resolve(MAPPINGS_FILENAME);
     double step = 0.5 / Math.max(organismFilesList.size(), 1);
     List<ProteinMapping> returnedMappings = new ArrayList<>();
     try (Writer writer = Files.newBufferedWriter(mappingsPath, Charset.forName("UTF-8"))) {

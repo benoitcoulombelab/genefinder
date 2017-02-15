@@ -27,6 +27,10 @@
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <testFx.version>3.1.2</testFx.version>
+    <jboss-jsp-api_2.3_spec.version>1.0.1.Final</jboss-jsp-api_2.3_spec.version>
+    <resteasy.jaxrs-api.version>2.3.5.Final</resteasy.jaxrs-api.version>
+    <staticweave-maven-plugin.version>1.0.0</staticweave-maven-plugin.version>
+    <apt-maven-plugin.version>1.1.1</apt-maven-plugin.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
@@ -53,10 +57,32 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.loadui</groupId>
       <artifactId>testFx</artifactId>
       <version>${testFx.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -196,6 +222,64 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>de.empulse.eclipselink</groupId>
+          <artifactId>staticweave-maven-plugin</artifactId>
+          <version>${staticweave-maven-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>eclipselink-staticweave</id>
+              <phase>process-classes</phase>
+              <goals>
+                <goal>weave</goal>
+              </goals>
+              <configuration>
+                <goals>install</goals>
+                <tagNameFormat>@{project.version}</tagNameFormat>
+              </configuration>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.persistence</groupId>
+              <artifactId>eclipselink</artifactId>
+              <version>${eclipselink.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.spec.javax.servlet.jsp</groupId>
+              <artifactId>jboss-jsp-api_2.3_spec</artifactId>
+              <version>${jboss-jsp-api_2.3_spec.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.resteasy</groupId>
+              <artifactId>jaxrs-api</artifactId>
+              <version>${resteasy.jaxrs-api.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>com.mysema.maven</groupId>
+          <artifactId>apt-maven-plugin</artifactId>
+          <version>${apt-maven-plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>process</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>target/generated-sources/querydsl</outputDirectory>
+                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+              </configuration>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>com.querydsl</groupId>
+              <artifactId>querydsl-apt</artifactId>
+              <version>${querydsl.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot-maven-plugin.version}</version>
@@ -224,14 +308,16 @@
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>de.empulse.eclipselink</groupId>
+        <artifactId>staticweave-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.mysema.maven</groupId>
+        <artifactId>apt-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -243,7 +329,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.16</version>
         <configuration>
           <reportsDirectories>
             <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
@@ -254,7 +339,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.0</version>
       </plugin>
     </plugins>
   </reporting>
