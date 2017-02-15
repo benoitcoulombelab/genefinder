@@ -31,8 +31,8 @@ import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
-public class DataServiceBeanTest {
-  private DataServiceBean dataServiceBean;
+public class DataServiceTest {
+  private DataService dataServiceBean;
   @Mock
   private ProteinMappingService proteinMappingService;
   @Mock
@@ -53,7 +53,7 @@ public class DataServiceBeanTest {
    */
   @Before
   public void beforeTest() {
-    dataServiceBean = new DataServiceBean(proteinMappingService, dataWriter);
+    dataServiceBean = new DataService(proteinMappingService, dataWriter);
     locale = Locale.getDefault();
     when(organism.getId()).thenReturn(organismId);
     when(progressBar.step(any(Double.class))).thenReturn(progressBar);

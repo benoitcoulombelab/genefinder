@@ -10,8 +10,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
-public class FtpClientFactoryBeanTest {
-  private FtpClientFactoryBean ftpClientFactoryBean = new FtpClientFactoryBean();
+public class FtpClientFactoryTest {
+  private FtpClientFactory ftpClientFactoryBean = new FtpClientFactory();
 
   @Test
   public void create() {

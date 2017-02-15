@@ -43,8 +43,8 @@ import javax.persistence.PersistenceException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
-public class OrganismServiceBeanTest {
-  private OrganismServiceBean organismService;
+public class OrganismServiceTest {
+  private OrganismService organismService;
   @PersistenceContext
   private EntityManager entityManager;
   @Inject
@@ -55,7 +55,7 @@ public class OrganismServiceBeanTest {
    */
   @Before
   public void beforeTest() throws Throwable {
-    organismService = new OrganismServiceBean(entityManager, jpaQueryFactory);
+    organismService = new OrganismService(entityManager, jpaQueryFactory);
   }
 
   private Optional<Organism> find(Collection<Organism> organisms, int id) {

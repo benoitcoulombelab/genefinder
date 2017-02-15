@@ -10,12 +10,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
-public class ProteinServiceDefaultTest {
-  private ProteinServiceDefault proteinServiceDefault;
+public class ProteinServiceTest {
+  private ProteinService proteinServiceDefault;
 
   @Before
   public void beforeTest() throws Throwable {
-    proteinServiceDefault = new ProteinServiceDefault();
+    proteinServiceDefault = new ProteinService();
   }
 
   @Test
