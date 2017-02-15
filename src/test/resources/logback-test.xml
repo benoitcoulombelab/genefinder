@@ -20,6 +20,8 @@
   <include resource="org/springframework/boot/logging/logback/base.xml"/>
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator" />
 
-  <logger name="ca.qc.ircm.genefinder" level="DEBUG" />
+  <logger name="ca.qc.ircm.genefinder" level="TRACE" />
+  <logger name="ca.qc.ircm.genefinder.test.config" level="INFO" />
+  <logger name="ca.qc.ircm.genefinder.test.config.DatabaseCleaner" level="DEBUG" />
   <logger name="org.springframework" level="INFO"/>
 </configuration>
