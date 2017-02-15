@@ -21,10 +21,9 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
   version="2.1">
-  <persistence-unit name="protein-database-downloader"
+  <persistence-unit name="genefinder"
     transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-    <jta-data-source>protein-database-downloader</jta-data-source>
     <class>ca.qc.ircm.genefinder.organism.Organism</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <shared-cache-mode>NONE</shared-cache-mode>

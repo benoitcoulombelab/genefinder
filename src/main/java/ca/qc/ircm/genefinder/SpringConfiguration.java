@@ -48,7 +48,7 @@ public class SpringConfiguration {
   @Bean
   public EntityManagerFactory entityManagerFactory() {
     LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-    factory.setPersistenceUnitName("protein-database-downloader");
+    factory.setPersistenceUnitName("genefinder");
     factory.setDataSource(dataSource);
     factory.afterPropertiesSet();
     return factory.getObject();

@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,7 @@ import javax.persistence.PersistenceContext;
  * Services for {@link Organism}.
  */
 @Service
+@Transactional
 public class OrganismService {
   private static final Logger logger = LoggerFactory.getLogger(OrganismService.class);
   @PersistenceContext
