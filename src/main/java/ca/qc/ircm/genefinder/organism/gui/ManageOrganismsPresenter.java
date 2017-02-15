@@ -8,20 +8,17 @@ import ca.qc.ircm.util.javafx.message.MessageDialog;
 import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -50,7 +47,7 @@ public class ManageOrganismsPresenter {
   @FXML
   private TableColumn<Organism, String> nameColumn;
   @FXML
-  private TableColumn<Organism, Number> idColumn;
+  private TableColumn<Organism, Integer> idColumn;
   @FXML
   private Label nameLabel;
   @FXML
@@ -64,22 +61,35 @@ public class ManageOrganismsPresenter {
 
   @FXML
   private void initialize() {
-    nameColumn.setCellValueFactory(
-        new Callback<CellDataFeatures<Organism, String>, ObservableValue<String>>() {
-          @Override
-          public ObservableValue<String> call(CellDataFeatures<Organism, String> organismFeatures) {
-            return new SimpleStringProperty(organismFeatures.getValue(), "name",
-                organismFeatures.getValue().getName());
-          }
-        });
-    idColumn.setCellValueFactory(
-        new Callback<CellDataFeatures<Organism, Number>, ObservableValue<Number>>() {
-          @Override
-          public ObservableValue<Number> call(CellDataFeatures<Organism, Number> organismFeatures) {
-            return new SimpleIntegerProperty(organismFeatures.getValue(), "id",
-                organismFeatures.getValue().getId());
-          }
-        });
+    organisms.setEditable(true);
+    nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+    nameColumn.setCellValueFactory(organismFeatures -> {
+      return new SimpleStringProperty(organismFeatures.getValue(), "name",
+          organismFeatures.getValue().getName());
+    });
+    nameColumn.setOnEditCommit(event -> {
+      Organism organism = event.getTableView().getItems().get(event.getTablePosition().getRow());
+      organism.setName(event.getNewValue());
+      organismService.update(organism);
+      updateOrganisms();
+    });
+    idColumn.setCellFactory(TextFieldTableCell
+        .forTableColumn(new NullOnExceptionConverter<>(new IntegerStringConverter())));
+    idColumn.setCellValueFactory(organismFeatures -> {
+      return new SimpleObjectProperty<>(organismFeatures.getValue(), "id",
+          organismFeatures.getValue().getId());
+    });
+    idColumn.setOnEditCommit(event -> {
+      if (event.getNewValue() != null) {
+        Organism organism = event.getTableView().getItems().get(event.getTablePosition().getRow());
+        organism.setId(event.getNewValue());
+        organismService.update(organism);
+        updateOrganisms();
+      } else {
+        organisms.getColumns().get(0).setVisible(false);
+        organisms.getColumns().get(0).setVisible(true);
+      }
+    });
     name.textProperty().bindBidirectional(nameProperty);
     id.textProperty().bindBidirectional(idProperty,
         new NullOnExceptionConverter<>(new IntegerStringConverter()));
