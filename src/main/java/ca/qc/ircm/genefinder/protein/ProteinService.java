@@ -1,4 +1,4 @@
-package ca.qc.ircm.protein;
+package ca.qc.ircm.genefinder.protein;
 
 import java.util.HashMap;
 import java.util.Map;

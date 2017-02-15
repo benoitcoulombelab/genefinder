@@ -1,7 +1,8 @@
-package ca.qc.ircm.protein;
+package ca.qc.ircm.genefinder.protein;
 
 import static org.junit.Assert.assertEquals;
 
+import ca.qc.ircm.genefinder.protein.ProteinService;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.junit.Before;
 import org.junit.Test;
