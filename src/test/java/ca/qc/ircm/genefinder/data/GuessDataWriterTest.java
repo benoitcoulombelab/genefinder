@@ -3,16 +3,18 @@ package ca.qc.ircm.genefinder.data;
 import static org.mockito.Mockito.verify;
 
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
-import ca.qc.ircm.genefinder.test.config.Rules;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.util.Map;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class GuessDataWriterTest {
   private GuessDataWriter guessDataWriter;
   @Mock
@@ -25,8 +27,6 @@ public class GuessDataWriterTest {
   private FindGenesParameters parameters;
   @Mock
   private Map<String, ProteinMapping> mappings;
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
 
   @Before
   public void beforeTest() {

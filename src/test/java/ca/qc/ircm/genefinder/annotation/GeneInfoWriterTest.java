@@ -2,11 +2,11 @@ package ca.qc.ircm.genefinder.annotation;
 
 import static org.junit.Assert.assertEquals;
 
-import ca.qc.ircm.genefinder.test.config.Rules;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class GeneInfoWriterTest {
   private GeneInfoWriter geneInfoWriter;
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
   private StringWriter stringWriter = new StringWriter();
 
   @Before

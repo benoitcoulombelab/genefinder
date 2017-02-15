@@ -12,9 +12,9 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface RetryOnFail {
   /**
-   * Returns number of retries to do before test fails.
-   * 
-   * @return number of retries to do before test fails
+   * Returns the number of tries to do before a test fails.
+   *
+   * @return the number of tries to do before a test fails
    */
   public int value();
 }

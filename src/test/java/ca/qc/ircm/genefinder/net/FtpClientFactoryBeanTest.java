@@ -2,16 +2,16 @@ package ca.qc.ircm.genefinder.net;
 
 import static org.junit.Assert.assertTrue;
 
-import ca.qc.ircm.genefinder.test.config.Rules;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.apache.commons.net.ftp.FTPClient;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class FtpClientFactoryBeanTest {
   private FtpClientFactoryBean ftpClientFactoryBean = new FtpClientFactoryBean();
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
 
   @Test
   public void create() {

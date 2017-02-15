@@ -17,23 +17,22 @@
 
 package ca.qc.ircm.genefinder.test.config;
 
-import ca.qc.ircm.genefinder.Main;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.support.AbstractTestExecutionListener;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+/**
+ * Ensure Mockito is used correctly.
+ */
+public class MockitoTestExecutionListener extends AbstractTestExecutionListener {
+  @Override
+  public void beforeTestMethod(TestContext testContext) throws Exception {
+    MockitoAnnotations.initMocks(testContext.getTestInstance());
+  }
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(classes = Main.class)
-@ActiveProfiles("test")
-@Transactional
-@Sql("/database.sql")
-public @interface ServiceTestAnnotations {
-
+  @Override
+  public void afterTestMethod(TestContext testContext) throws Exception {
+    Mockito.validateMockitoUsage();
+  }
 }

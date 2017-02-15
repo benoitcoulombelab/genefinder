@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 import ca.qc.ircm.genefinder.ApplicationConfiguration;
 import ca.qc.ircm.genefinder.net.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.genefinder.test.config.Rules;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -28,8 +28,8 @@ import org.apache.maven.scm.command.Command;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -37,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,6 +49,8 @@ import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 
 // TODO Test geneSynonyms, geneSummary and molecularWeight
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class DownloadProteinMappingServiceBeanTest {
   private static final String UNIPROT_HOST = "ftp.uniprot.org";
   private static final String UNIPROT_FOLDER =
@@ -56,9 +59,8 @@ public class DownloadProteinMappingServiceBeanTest {
   private static final String NCBI_GENE_INFO = "/gene/DATA/GENE_INFO/All_Data.gene_info.gz";
   @InjectMocks
   private DownloadProteinMappingServiceBean downloadProteinMappingServiceBean;
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
-  public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Mock
   private FtpClientFactory ftpClientFactory;
   @Mock

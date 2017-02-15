@@ -3,10 +3,10 @@ package ca.qc.ircm.genefinder.annotation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import ca.qc.ircm.genefinder.test.config.Rules;
-import org.junit.Rule;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -15,10 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class FastaReaderTest {
-  @Rule
-  public RuleChain rules = Rules.defaultRules(this);
-
   @Test
   public void parse() throws Throwable {
     Path fasta =

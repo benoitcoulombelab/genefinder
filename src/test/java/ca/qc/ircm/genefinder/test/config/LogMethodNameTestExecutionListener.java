@@ -17,23 +17,20 @@
 
 package ca.qc.ircm.genefinder.test.config;
 
-import ca.qc.ircm.genefinder.Main;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.support.AbstractTestExecutionListener;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+/**
+ * Log test method name before test.
+ */
+public class LogMethodNameTestExecutionListener extends AbstractTestExecutionListener {
+  private static final Logger logger =
+      LoggerFactory.getLogger(LogMethodNameTestExecutionListener.class);
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(classes = Main.class)
-@ActiveProfiles("test")
-@Transactional
-@Sql("/database.sql")
-public @interface ServiceTestAnnotations {
-
+  @Override
+  public void beforeTestMethod(TestContext testContext) throws Exception {
+    logger.trace("Running test {}", testContext.getTestMethod().getName());
+  }
 }

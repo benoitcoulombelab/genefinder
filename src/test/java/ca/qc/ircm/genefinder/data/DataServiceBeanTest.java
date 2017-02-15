@@ -9,17 +9,18 @@ import static org.mockito.Mockito.when;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.ProteinMappingService;
 import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.genefinder.test.config.Rules;
+import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ServiceTestAnnotations
 public class DataServiceBeanTest {
   private DataServiceBean dataServiceBean;
   @Mock
@@ -40,9 +43,8 @@ public class DataServiceBeanTest {
   private ProgressBar progressBar;
   @Captor
   private ArgumentCaptor<Map<String, ProteinMapping>> mappingsCaptor;
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
-  public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private Locale locale;
   private Integer organismId = 9606;
 
