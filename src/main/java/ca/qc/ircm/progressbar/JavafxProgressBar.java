@@ -22,16 +22,11 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import java.io.Serializable;
-
 /**
  * Implementation of {@link ProgressBar} using JavaFX properties.
  */
-public class JavafxProgressBar implements Serializable, ProgressBar {
-  private static final long serialVersionUID = -3360870644198694945L;
-
-  private static class StepProgressBar implements Serializable, ProgressBar {
-    private static final long serialVersionUID = 1701613533457350681L;
+public class JavafxProgressBar implements ProgressBar {
+  private static class StepProgressBar implements ProgressBar {
     private final ProgressBar parent;
     private final double startProgress;
     private final double step;
