@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.ApplicationConfiguration;
-import ca.qc.ircm.genefinder.net.FtpClientFactory;
+import ca.qc.ircm.genefinder.ftp.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;

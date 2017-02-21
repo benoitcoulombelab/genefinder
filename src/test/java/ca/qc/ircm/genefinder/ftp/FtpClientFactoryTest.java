@@ -1,7 +1,8 @@
-package ca.qc.ircm.genefinder.net;
+package ca.qc.ircm.genefinder.ftp;
 
 import static org.junit.Assert.assertTrue;
 
+import ca.qc.ircm.genefinder.ftp.FtpClientFactory;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.apache.commons.net.ftp.FTPClient;
 import org.junit.Test;

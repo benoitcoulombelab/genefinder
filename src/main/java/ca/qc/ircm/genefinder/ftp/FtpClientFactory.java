@@ -1,4 +1,4 @@
-package ca.qc.ircm.genefinder.net;
+package ca.qc.ircm.genefinder.ftp;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.stereotype.Component;

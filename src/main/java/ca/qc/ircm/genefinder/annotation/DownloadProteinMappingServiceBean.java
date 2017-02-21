@@ -1,7 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.ApplicationConfiguration;
-import ca.qc.ircm.genefinder.net.FtpClientFactory;
+import ca.qc.ircm.genefinder.ftp.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
