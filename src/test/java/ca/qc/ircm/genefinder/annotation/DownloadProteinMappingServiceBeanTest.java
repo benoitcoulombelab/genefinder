@@ -46,17 +46,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 // TODO Test geneSynonyms, geneSummary and molecularWeight
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class DownloadProteinMappingServiceBeanTest {
-  private static final String UNIPROT_HOST = "ftp.uniprot.org";
-  private static final String UNIPROT_FOLDER =
+  private static final String UNIPROT_FTP = "ftp.uniprot.org";
+  private static final String UNIPROT_REFERENCE_PROTEOMES =
       "/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes";
-  private static final String NCBI_HOST = "ftp.ncbi.nlm.nih.gov";
-  private static final String NCBI_GENE_INFO = "/gene/DATA/GENE_INFO/All_Data.gene_info.gz";
+  private static final String NCBI_FTP = "ftp.ncbi.nlm.nih.gov";
+  private static final String NCBI_GENE_INFO = "/gene/DATA/gene_info.gz";
   @InjectMocks
   private DownloadProteinMappingServiceBean downloadProteinMappingServiceBean;
   @Rule
@@ -69,6 +70,10 @@ public class DownloadProteinMappingServiceBeanTest {
   private ProgressBar progressBar;
   @Mock
   private ApplicationConfiguration applicationConfiguration;
+  @Mock
+  private NcbiConfiguration ncbiConfiguration;
+  @Mock
+  private UniprotConfiguration uniprotConfiguration;
   @Captor
   private ArgumentCaptor<Command> commandCaptor;
   @Captor
@@ -86,7 +91,8 @@ public class DownloadProteinMappingServiceBeanTest {
   @Before
   public void beforeTest() throws Throwable {
     downloadProteinMappingServiceBean = new DownloadProteinMappingServiceBean(ftpClientFactory,
-        new IdMappingParser(), new GeneInfoParser(), applicationConfiguration);
+        new IdMappingParser(), new GeneInfoParser(), applicationConfiguration, ncbiConfiguration,
+        uniprotConfiguration);
     when(ftpClientFactory.create()).thenReturn(client);
     download = temporaryFolder.newFolder("download").toPath();
     fasta = temporaryFolder.getRoot().toPath().resolve("human.fasta.gz");
@@ -104,6 +110,19 @@ public class DownloadProteinMappingServiceBeanTest {
     copyAndCompress(Paths.get(getClass().getResource("/annotation/Homo_sapiens.gene_info").toURI()),
         geneInfo);
     retrieveFileAnswer(NCBI_GENE_INFO, geneInfo);
+    when(ncbiConfiguration.ftp()).thenReturn(NCBI_FTP);
+    when(ncbiConfiguration.geneInfo()).thenReturn(NCBI_GENE_INFO);
+    when(uniprotConfiguration.ftp()).thenReturn(UNIPROT_FTP);
+    when(uniprotConfiguration.referenceProteomes()).thenReturn(UNIPROT_REFERENCE_PROTEOMES);
+    when(uniprotConfiguration.filenamePattern())
+        .thenReturn(Pattern.compile("UP\\d+_(\\d+)[\\._].+"));
+    when(uniprotConfiguration.giMapping()).thenReturn("GI");
+    when(uniprotConfiguration.refseqMapping()).thenReturn("RefSeq");
+    when(uniprotConfiguration.taxonMapping()).thenReturn("NCBI_TaxID");
+    when(uniprotConfiguration.geneMapping()).thenReturn("GeneID");
+    when(uniprotConfiguration.proteinIdPattern()).thenReturn(
+        Pattern.compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?|"
+            + "^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?"));
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
     when(applicationConfiguration.download()).thenReturn(download);
   }
@@ -164,22 +183,25 @@ public class DownloadProteinMappingServiceBeanTest {
         new FTPFile[] { mammalian },
         new FTPFile[] { fasta1, additionalFasta1, gene2acc1, dna1, dnaMiss1, idMapping1 });
     when(client.changeWorkingDirectory(anyString())).thenReturn(true);
-    retrieveFileAnswer(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.fasta.gz", fasta);
-    retrieveFileAnswer(UNIPROT_FOLDER + "/mammalian/UP000005640_9606_additional.fasta.gz",
+    retrieveFileAnswer(UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606.fasta.gz", fasta);
+    retrieveFileAnswer(
+        UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606_additional.fasta.gz",
         additionalFasta);
-    retrieveFileAnswer(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.idmapping.gz", idMapping);
+    retrieveFileAnswer(UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606.idmapping.gz",
+        idMapping);
 
     final Collection<ProteinMapping> mappings = downloadProteinMappingServiceBean
         .allProteinMappings(new Organism(9606), progressBar, locale);
 
     verify(progressBar, atLeastOnce()).setProgress(anyDouble());
     verify(progressBar, atLeastOnce()).setMessage(anyString());
-    verify(client, atLeastOnce()).connect(UNIPROT_HOST);
-    verify(client, atLeastOnce()).connect(NCBI_HOST);
+    verify(client, atLeastOnce()).connect(UNIPROT_FTP);
+    verify(client, atLeastOnce()).connect(NCBI_FTP);
     verify(client, atLeast(2)).login(eq("anonymous"), anyString());
     verify(client, atLeastOnce()).listFiles();
     verify(client, atLeastOnce()).setFileType(FTP.BINARY_FILE_TYPE);
-    verify(client).retrieveFile(eq(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.idmapping.gz"),
+    verify(client).retrieveFile(
+        eq(UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606.idmapping.gz"),
         any(OutputStream.class));
     verify(client).retrieveFile(eq(NCBI_GENE_INFO), any(OutputStream.class));
     assertEquals(49, mappings.size());
@@ -387,14 +409,15 @@ public class DownloadProteinMappingServiceBeanTest {
         new FTPFile[] { mammalian },
         new FTPFile[] { fasta1, additionalFasta1, gene2acc1, dna1, dnaMiss1, idMapping1 });
     when(client.changeWorkingDirectory(anyString())).thenReturn(true);
-    retrieveFileAnswer(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.idmapping.gz", idMapping);
+    retrieveFileAnswer(UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606.idmapping.gz",
+        idMapping);
 
     final Collection<ProteinMapping> mappings = downloadProteinMappingServiceBean
         .allProteinMappings(new Organism(9606), progressBar, locale);
 
     verify(progressBar, atLeastOnce()).setProgress(anyDouble());
     verify(progressBar, atLeastOnce()).setMessage(anyString());
-    verify(client, atLeastOnce()).connect(UNIPROT_HOST);
+    verify(client, atLeastOnce()).connect(UNIPROT_FTP);
     verify(client, atLeastOnce()).login(eq("anonymous"), anyString());
     verify(client, atLeastOnce()).listFiles();
     verify(client, never()).retrieveFile(anyString(), any(OutputStream.class));
@@ -579,20 +602,22 @@ public class DownloadProteinMappingServiceBeanTest {
         new FTPFile[] { mammalian },
         new FTPFile[] { fasta1, additionalFasta1, gene2acc1, dna1, dnaMiss1, idMapping1 });
     when(client.changeWorkingDirectory(anyString())).thenReturn(true);
-    retrieveFileAnswer(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.idmapping.gz", idMapping);
+    retrieveFileAnswer(UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606.idmapping.gz",
+        idMapping);
 
     final Collection<ProteinMapping> mappings = downloadProteinMappingServiceBean
         .allProteinMappings(new Organism(10090), progressBar, locale);
 
     verify(progressBar, atLeastOnce()).setProgress(anyDouble());
     verify(progressBar, atLeastOnce()).setMessage(anyString());
-    verify(client, atLeastOnce()).connect(UNIPROT_HOST);
-    verify(client, atLeastOnce()).connect(NCBI_HOST);
+    verify(client, atLeastOnce()).connect(UNIPROT_FTP);
+    verify(client, atLeastOnce()).connect(NCBI_FTP);
     verify(client, atLeast(2)).login(eq("anonymous"), anyString());
     verify(client, atLeastOnce()).listFiles();
     verify(client, atLeastOnce()).setFileType(FTP.BINARY_FILE_TYPE);
     verify(client, never()).retrieveFile(
-        eq(UNIPROT_FOLDER + "/mammalian/UP000005640_9606.idmapping.gz"), any(OutputStream.class));
+        eq(UNIPROT_REFERENCE_PROTEOMES + "/mammalian/UP000005640_9606.idmapping.gz"),
+        any(OutputStream.class));
     verify(client).retrieveFile(eq(NCBI_GENE_INFO), any(OutputStream.class));
     assertEquals(0, mappings.size());
   }

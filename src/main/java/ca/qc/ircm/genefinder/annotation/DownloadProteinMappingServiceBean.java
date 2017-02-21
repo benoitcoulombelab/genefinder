@@ -54,21 +54,8 @@ import javax.inject.Inject;
  */
 @Service
 public class DownloadProteinMappingServiceBean implements ProteinMappingService {
-  private static final Pattern UNIPROT_PROTEIN_ID_PATTERN =
-      Pattern.compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?"
-          + "|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?");
   private static final String USERNAME = "anonymous";
   private static final String PASSWORD = "";
-  private static final String UNIPROT_HOST = "ftp.uniprot.org";
-  private static final String UNIPROT_FOLDER =
-      "/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes";
-  private static final String NCBI_HOST = "ftp.ncbi.nlm.nih.gov";
-  private static final String NCBI_GENE_INFO = "/gene/DATA/GENE_INFO/All_Data.gene_info.gz";
-  private static final String UNIPROT_FILE_PATTERN = "UP\\d+_(\\d+)[\\._].+";
-  private static final String GI_MAPPING_TYPE = "GI";
-  private static final String REFSEQ_MAPPING_TYPE = "RefSeq";
-  private static final String ORGANISM_ID_MAPPING_TYPE = "NCBI_TaxID";
-  private static final String GENE_ID_MAPPING_TYPE = "GeneID";
   private static final String MAPPINGS_FILENAME = "mappings.txt";
   private static final String INTERRUPTED_MESSAGE = "Interrupted database mapping update";
   private static final int CHUNK = 1000000;
@@ -91,29 +78,24 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
   private GeneInfoParser geneInfoMappingParser;
   @Inject
   private ApplicationConfiguration applicationConfiguration;
+  @Inject
+  private NcbiConfiguration ncbiConfiguration;
+  @Inject
+  private UniprotConfiguration uniprotConfiguration;
 
   protected DownloadProteinMappingServiceBean() {
   }
 
-  /**
-   * Creates instance of DownloadTargetMappingServiceBean.
-   *
-   * @param ftpClientFactory
-   *          FTP client factory
-   * @param idMappingParser
-   *          id mapping parser
-   * @param geneInfoMappingParser
-   *          gene info mapping parser
-   * @param applicationConfiguration
-   *          application configuration
-   */
-  public DownloadProteinMappingServiceBean(FtpClientFactory ftpClientFactory,
+  protected DownloadProteinMappingServiceBean(FtpClientFactory ftpClientFactory,
       IdMappingParser idMappingParser, GeneInfoParser geneInfoMappingParser,
-      ApplicationConfiguration applicationConfiguration) {
+      ApplicationConfiguration applicationConfiguration, NcbiConfiguration ncbiConfiguration,
+      UniprotConfiguration uniprotConfiguration) {
     this.ftpClientFactory = ftpClientFactory;
     this.idMappingParser = idMappingParser;
     this.geneInfoMappingParser = geneInfoMappingParser;
     this.applicationConfiguration = applicationConfiguration;
+    this.ncbiConfiguration = ncbiConfiguration;
+    this.uniprotConfiguration = uniprotConfiguration;
   }
 
   @Override
@@ -194,8 +176,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
   }
 
   private Integer parseOrganismFromFilename(Path file) {
-    Pattern uniProtFilePattern =
-        Pattern.compile(DownloadProteinMappingServiceBean.UNIPROT_FILE_PATTERN);
+    Pattern uniProtFilePattern = uniprotConfiguration.filenamePattern();
     Matcher matcher = uniProtFilePattern.matcher(file.getFileName().toString());
     if (matcher.matches()) {
       return Integer.valueOf(matcher.group(1));
@@ -208,7 +189,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
     FTPClient client = ftpClientFactory.create();
     client.connect(host);
     if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-      throw new IOException("Could not connect to server " + UNIPROT_HOST);
+      throw new IOException("Could not connect to server " + uniprotConfiguration.ftp());
     }
     client.enterLocalPassiveMode();
     client.setControlKeepAliveTimeout(300);
@@ -222,20 +203,20 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
   }
 
   private Path downloadGeneInfo(Path folder) throws IOException, InterruptedException {
-    Path destination = folder.resolve(Paths.get(NCBI_GENE_INFO).getFileName());
+    Path destination = folder.resolve(Paths.get(ncbiConfiguration.geneInfo()).getFileName());
     if (Files.exists(destination) && wasFileModifiedRecently(destination)) {
       // File already downloaded.
       return destination;
     }
 
-    FTPClient client = connect(NCBI_HOST);
+    FTPClient client = connect(ncbiConfiguration.ftp());
     try {
       ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
       login(client);
       ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
-      logger.trace("Download {} to {}", NCBI_GENE_INFO, folder);
+      logger.trace("Download {} to {}", ncbiConfiguration.geneInfo(), folder);
       try (OutputStream output = new BufferedOutputStream(Files.newOutputStream(destination))) {
-        download(client, NCBI_GENE_INFO, output);
+        download(client, ncbiConfiguration.geneInfo(), output);
       }
       return destination;
     } catch (IOException | InterruptedException e) {
@@ -343,7 +324,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
 
   private List<Path> downloadIdMappings(Path folder, ProgressBar progressBar,
       Set<Integer> includeOrganisms) throws IOException, InterruptedException {
-    FTPClient client = connect(UNIPROT_HOST);
+    FTPClient client = connect(uniprotConfiguration.ftp());
     try {
       ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
       login(client);
@@ -391,7 +372,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
 
   private List<Path> downloadSequences(Path folder, ProgressBar progressBar,
       Set<Integer> includeOrganisms) throws IOException, InterruptedException {
-    FTPClient client = connect(UNIPROT_HOST);
+    FTPClient client = connect(uniprotConfiguration.ftp());
     try {
       ExceptionUtils.throwIfInterrupted(INTERRUPTED_MESSAGE);
       login(client);
@@ -524,9 +505,10 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
           throw new RuntimeException(e);
         }
         Integer organism;
-        if (idMapping.getMappings().get(ORGANISM_ID_MAPPING_TYPE) != null
-            && !idMapping.getMappings().get(ORGANISM_ID_MAPPING_TYPE).isEmpty()) {
-          organism = Integer.valueOf(idMapping.getMappings().get(ORGANISM_ID_MAPPING_TYPE).get(0));
+        if (idMapping.getMappings().get(uniprotConfiguration.taxonMapping()) != null
+            && !idMapping.getMappings().get(uniprotConfiguration.taxonMapping()).isEmpty()) {
+          organism = Integer
+              .valueOf(idMapping.getMappings().get(uniprotConfiguration.taxonMapping()).get(0));
         } else {
           // Skip, no organism.
           return;
@@ -535,16 +517,16 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
           mappings.put(organism, new HashMap<String, List<ProteinMapping>>());
         }
         Long geneId = null;
-        if (idMapping.getMappings().get(GENE_ID_MAPPING_TYPE) != null
-            && !idMapping.getMappings().get(GENE_ID_MAPPING_TYPE).isEmpty()) {
-          geneId = minLong(idMapping.getMappings().get(GENE_ID_MAPPING_TYPE));
+        if (idMapping.getMappings().get(uniprotConfiguration.geneMapping()) != null
+            && !idMapping.getMappings().get(uniprotConfiguration.geneMapping()).isEmpty()) {
+          geneId = minLong(idMapping.getMappings().get(uniprotConfiguration.geneMapping()));
         }
         List<String> otherProteinIds = new ArrayList<>();
-        List<String> gis = idMapping.getMappings().get(GI_MAPPING_TYPE);
+        List<String> gis = idMapping.getMappings().get(uniprotConfiguration.giMapping());
         if (gis != null) {
           otherProteinIds.addAll(gis);
         }
-        List<String> refseqs = idMapping.getMappings().get(REFSEQ_MAPPING_TYPE);
+        List<String> refseqs = idMapping.getMappings().get(uniprotConfiguration.refseqMapping());
         if (refseqs != null) {
           otherProteinIds.addAll(refseqs);
         }
@@ -599,7 +581,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
 
   private List<String> listIdMappingFilenames(FTPClient client)
       throws InterruptedException, IOException {
-    List<String> files = listAllFilenames(client, UNIPROT_FOLDER);
+    List<String> files = listAllFilenames(client, uniprotConfiguration.referenceProteomes());
     List<String> fastas = new ArrayList<>();
     for (String file : files) {
       if (file.endsWith(".idmapping.gz")) {
@@ -611,7 +593,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
 
   private List<String> listFastaFilenames(FTPClient client)
       throws InterruptedException, IOException {
-    List<String> files = listAllFilenames(client, UNIPROT_FOLDER);
+    List<String> files = listAllFilenames(client, uniprotConfiguration.referenceProteomes());
     List<String> fastas = new ArrayList<>();
     for (String file : files) {
       if (file.endsWith(".fasta.gz") && !file.endsWith("_DNA.fasta.gz")) {
@@ -687,7 +669,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
   }
 
   private String proteinId(String sequenceName) {
-    Matcher matcher = UNIPROT_PROTEIN_ID_PATTERN.matcher(sequenceName);
+    Matcher matcher = uniprotConfiguration.proteinIdPattern().matcher(sequenceName);
     if (matcher.find()) {
       String proteinId = matcher.group(1);
       if (proteinId == null) {
@@ -696,6 +678,6 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
       return proteinId;
     }
     throw new IllegalStateException(
-        sequenceName + " does not match pattern " + UNIPROT_PROTEIN_ID_PATTERN);
+        sequenceName + " does not match pattern " + uniprotConfiguration.proteinIdPattern());
   }
 }
