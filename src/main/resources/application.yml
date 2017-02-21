@@ -1,5 +1,5 @@
 application:
-  download: ${user.dir} # Directory where downloaded files are saved. By default, current directory.
+  download: ${user.dir}/downloads # Directory where downloaded files are saved. By default, current directory.
 
 spring:
   application:

@@ -43,7 +43,8 @@ public class ApplicationConfigurationTest {
 
   @Test
   public void defaultProperties() throws Throwable {
-    assertEquals(Paths.get(System.getProperty("user.dir")), applicationConfiguration.download());
+    assertEquals(Paths.get(System.getProperty("user.dir")).resolve("downloads"),
+        applicationConfiguration.download());
   }
 
   @Test
