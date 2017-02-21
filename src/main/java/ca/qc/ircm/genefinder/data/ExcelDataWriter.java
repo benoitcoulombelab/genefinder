@@ -9,8 +9,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -23,11 +21,9 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 @Component
 public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
-  private static final Logger logger = LoggerFactory.getLogger(ExcelDataWriter.class);
   private static final NumberFormat doubleFormat;
 
   static {
@@ -54,14 +50,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         workbook = new HSSFWorkbook(inputStream);
       }
       Sheet sheet = workbook.getSheetAt(0);
-      Header header = parseHeader(sheet);
-      if (!finishedHeader(header)) {
-        logger.warn("Could not find GI column in file {}", input);
-        return;
-      }
       for (int i = 0; i <= sheet.getLastRowNum(); i++) {
         Row row = sheet.getRow(i);
-        Cell cell = row.getCell(header.proteinIdColumnIndex);
+        Cell cell = row.getCell(parameters.getProteinColumn());
         String value = getComputedValue(cell);
         List<String> proteinIds = parseProteinIds(value);
         int addedCount = 0;
@@ -80,8 +71,8 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         if (parameters.isProteinMolecularWeight()) {
           addedCount++;
         }
-        shitCells(row, header.proteinIdColumnIndex, addedCount);
-        int index = header.proteinIdColumnIndex + 1;
+        shitCells(row, parameters.getProteinColumn(), addedCount);
+        int index = parameters.getProteinColumn() + 1;
         if (parameters.isGeneId()) {
           cell = row.getCell(index++);
           String newValue = formatCollection(proteinIds,
@@ -187,25 +178,6 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           break;
       }
     }
-  }
-
-  private Header parseHeader(Sheet sheet) throws IOException {
-    Header header = new Header();
-    for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-      Row row = sheet.getRow(i);
-      for (int j = 0; j < row.getLastCellNum(); j++) {
-        Cell cell = row.getCell(j);
-        if (cell != null) {
-          String value = getComputedValue(cell);
-          Matcher matcher = PROTEIN_PATTERN.matcher(value);
-          if (matcher.find()) {
-            header.proteinIdColumnIndex = j;
-            break;
-          }
-        }
-      }
-    }
-    return header;
   }
 
   private String getComputedValue(Cell cell) {

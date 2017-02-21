@@ -4,11 +4,22 @@ package ca.qc.ircm.genefinder.data;
  * Parameters for finding genes in data files.
  */
 public class FindGenesParametersBean implements FindGenesParameters {
+  private int proteinColumn;
   private boolean geneId;
   private boolean geneName;
   private boolean geneSynonyms;
   private boolean geneSummary;
   private boolean proteinMolecularWeight;
+
+  @Override
+  public int getProteinColumn() {
+    return proteinColumn;
+  }
+
+  public FindGenesParametersBean proteinColumn(int proteinColumn) {
+    this.proteinColumn = proteinColumn;
+    return this;
+  }
 
   @Override
   public boolean isGeneId() {

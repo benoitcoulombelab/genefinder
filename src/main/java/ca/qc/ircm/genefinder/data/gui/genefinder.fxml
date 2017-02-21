@@ -16,6 +16,10 @@
 				<Label fx:id="organismLabel" text="%organism"/>
 				<ChoiceBox fx:id="organism"/>
 			</HBox>
+      <HBox styleClass="parameter,proteinColumn">
+        <Label fx:id="proteinColumnLabel" text="%proteinColumn"/>
+        <TextField fx:id="proteinColumn" promptText="%proteinColumn.prompt"/>
+      </HBox>
 			<HBox styleClass="parameter,geneId">
 				<CheckBox fx:id="geneId" text="%geneId"/>
 			</HBox>

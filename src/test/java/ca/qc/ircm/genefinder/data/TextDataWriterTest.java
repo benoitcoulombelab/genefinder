@@ -39,6 +39,7 @@ public class TextDataWriterTest {
   public void writeGene() throws Throwable {
     final File input = new File(getClass().getResource("/data/data.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -97,6 +98,7 @@ public class TextDataWriterTest {
   public void writeGene_Many() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -164,6 +166,7 @@ public class TextDataWriterTest {
   public void writeGene_ManyInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_manycolumns.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -231,6 +234,7 @@ public class TextDataWriterTest {
   public void writeGene_NoGi() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -289,6 +293,7 @@ public class TextDataWriterTest {
   public void writeGene_ManyNoGi() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi_many.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -356,6 +361,7 @@ public class TextDataWriterTest {
   public void writeGene_ManyNoGiInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi_manycolumns.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -423,6 +429,7 @@ public class TextDataWriterTest {
   public void writeGene_Uniprot() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_uniprot.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -481,6 +488,7 @@ public class TextDataWriterTest {
   public void writeGene_Trembl() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_trembl.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -539,6 +547,7 @@ public class TextDataWriterTest {
   public void writeGene_Refseq() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_refseq.txt").toURI());
     final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);

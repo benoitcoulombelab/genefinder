@@ -10,10 +10,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 
 public abstract class AbstractDataWriter implements DataWriter {
-  protected class Header {
-    protected Integer proteinIdColumnIndex;
-  }
-
   private String getProteinIdFromMatcher(Matcher matcher) {
     String proteinId = null;
     int index = 1;
@@ -46,9 +42,5 @@ public abstract class AbstractDataWriter implements DataWriter {
       builder.deleteCharAt(builder.length() - 1);
     }
     return builder.toString();
-  }
-
-  protected boolean finishedHeader(Header header) {
-    return header.proteinIdColumnIndex != null;
   }
 }

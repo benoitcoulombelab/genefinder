@@ -27,10 +27,12 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -69,6 +71,10 @@ public class GeneFinderPresenter {
   private Label organismLabel;
   @FXML
   private ChoiceBox<Organism> organism;
+  @FXML
+  private Label proteinColumnLabel;
+  @FXML
+  private TextField proteinColumn;
   @FXML
   private CheckBox geneId;
   @FXML
@@ -126,12 +132,31 @@ public class GeneFinderPresenter {
 
   private FindGenesParameters getFindGenesParameters() {
     FindGenesParametersBean parameters = new FindGenesParametersBean();
+    parameters.proteinColumn(parseProteinColumn());
     parameters.geneId(geneIdProperty.get());
     parameters.geneName(geneNameProperty.get());
     parameters.geneSynonyms(geneSynonymsProperty.get());
     parameters.geneSummary(geneSummaryProperty.get());
     parameters.proteinMolecularWeight(proteinMolecularWeightProperty.get());
     return parameters;
+  }
+
+  private int parseProteinColumn() {
+    try {
+      return Integer.parseInt(proteinColumn.getText()) - 1;
+    } catch (NumberFormatException e) {
+      if (!StringUtils.isAlpha(proteinColumn.getText())) {
+        int column = 0;
+        char[] chars = proteinColumn.getText().toUpperCase().toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+          char letter = chars[chars.length - i - 1];
+          column += Math.max(i * 26, 1) * (letter - 'A' + 1);
+        }
+        return column - 1;
+      } else {
+        return 0;
+      }
+    }
   }
 
   @FXML
@@ -198,6 +223,8 @@ public class GeneFinderPresenter {
     files.getStyleClass().remove("error");
     organismLabel.getStyleClass().remove("error");
     organism.getStyleClass().remove("error");
+    proteinColumnLabel.getStyleClass().remove("error");
+    proteinColumn.getStyleClass().remove("error");
     List<String> errors = new ArrayList<>();
     if (files.getItems().isEmpty()) {
       errors.add(resources.getString("error.files.required"));
@@ -208,6 +235,26 @@ public class GeneFinderPresenter {
       errors.add(resources.getString("error.organism.required"));
       organismLabel.getStyleClass().add("error");
       organism.getStyleClass().add("error");
+    }
+    if (proteinColumn.getText() == null || proteinColumn.getText().isEmpty()) {
+      errors.add(resources.getString("proteinColumn.empty"));
+      proteinColumnLabel.getStyleClass().add("error");
+      proteinColumn.getStyleClass().add("error");
+    } else {
+      try {
+        int column = Integer.parseInt(proteinColumn.getText());
+        if (column < 1) {
+          errors.add(resources.getString("proteinColumn.belowMinimum"));
+          proteinColumnLabel.getStyleClass().add("error");
+          proteinColumn.getStyleClass().add("error");
+        }
+      } catch (NumberFormatException e) {
+        if (!StringUtils.isAlpha(proteinColumn.getText())) {
+          errors.add(resources.getString("proteinColumn.invalid"));
+          proteinColumnLabel.getStyleClass().add("error");
+          proteinColumn.getStyleClass().add("error");
+        }
+      }
     }
     boolean valid = errors.isEmpty();
     if (!valid) {
