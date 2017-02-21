@@ -13,32 +13,24 @@ import java.nio.file.Path;
 @ConfigurationProperties(prefix = ApplicationConfigurationSpringBoot.PREFIX)
 public class ApplicationConfigurationSpringBoot implements ApplicationConfiguration {
   public static final String PREFIX = "application";
-  private static final String ANNOTATIONS_FOLDER = "annotations";
-  private Path home;
+  private Path download;
 
   @Override
-  public Path home() {
-    return home;
-  }
-
-  @Override
-  public Path annotationsFolder() {
-    String filename = ANNOTATIONS_FOLDER;
-    Path path = getHome().resolve(filename);
+  public Path download() {
     try {
-      Files.createDirectories(path);
+      Files.createDirectories(download);
     } catch (IOException e) {
       throw new IllegalStateException(
-          "Could not create directory to store saint file " + path.getParent());
+          "Could not create directory to store downloaded files " + download.getParent());
     }
-    return path;
+    return download;
   }
 
-  public Path getHome() {
-    return home;
+  public Path getDownload() {
+    return download;
   }
 
-  public void setHome(Path home) {
-    this.home = home;
+  public void setDownload(Path download) {
+    this.download = download;
   }
 }

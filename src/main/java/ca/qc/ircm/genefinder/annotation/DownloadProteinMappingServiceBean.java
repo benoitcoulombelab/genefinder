@@ -129,15 +129,15 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
     MessageResources messageResource =
         new MessageResources(DownloadProteinMappingServiceBean.class, locale);
     progressBar.setMessage(messageResource.message("geneInfo.download"));
-    final Path geneInfoFile = downloadGeneInfo(applicationConfiguration.annotationsFolder());
+    final Path geneInfoFile = downloadGeneInfo(applicationConfiguration.download());
     Map<Integer, Path> geneInfoFiles = splitGeneInfo(geneInfoFile);
     progressBar.setProgress(0.1);
     progressBar.setMessage(messageResource.message("idMapping.download"));
-    final List<Path> idMappingsFiles = downloadIdMappings(
-        applicationConfiguration.annotationsFolder(), progressBar.step(0.1), includeOrganisms);
+    final List<Path> idMappingsFiles = downloadIdMappings(applicationConfiguration.download(),
+        progressBar.step(0.1), includeOrganisms);
     progressBar.setProgress(0.2);
-    final List<Path> sequencesFiles = downloadSequences(
-        applicationConfiguration.annotationsFolder(), progressBar.step(0.1), includeOrganisms);
+    final List<Path> sequencesFiles = downloadSequences(applicationConfiguration.download(),
+        progressBar.step(0.1), includeOrganisms);
     progressBar.setProgress(0.3);
 
     progressBar.setMessage(messageResource.message("database"));
@@ -179,7 +179,7 @@ public class DownloadProteinMappingServiceBean implements ProteinMappingService 
         organismFilesList.add(organismFiles);
       }
     }
-    Path mappingsPath = applicationConfiguration.annotationsFolder().resolve(MAPPINGS_FILENAME);
+    Path mappingsPath = applicationConfiguration.download().resolve(MAPPINGS_FILENAME);
     double step = 0.5 / Math.max(organismFilesList.size(), 1);
     List<ProteinMapping> returnedMappings = new ArrayList<>();
     try (Writer writer = Files.newBufferedWriter(mappingsPath, Charset.forName("UTF-8"))) {

@@ -73,7 +73,7 @@ public class DownloadProteinMappingServiceBeanTest {
   private ArgumentCaptor<Command> commandCaptor;
   @Captor
   private ArgumentCaptor<Path> pathCaptor;
-  private Path annotationsFolder;
+  private Path download;
   private Path fasta;
   private Path additionalFasta;
   private Path idMapping;
@@ -88,7 +88,7 @@ public class DownloadProteinMappingServiceBeanTest {
     downloadProteinMappingServiceBean = new DownloadProteinMappingServiceBean(ftpClientFactory,
         new IdMappingParser(), new GeneInfoParser(), applicationConfiguration);
     when(ftpClientFactory.create()).thenReturn(client);
-    annotationsFolder = temporaryFolder.newFolder("annotations").toPath();
+    download = temporaryFolder.newFolder("download").toPath();
     fasta = temporaryFolder.getRoot().toPath().resolve("human.fasta.gz");
     copyAndCompress(Paths.get(getClass().getResource("/annotation/UP000005640_9606.fasta").toURI()),
         fasta);
@@ -105,7 +105,7 @@ public class DownloadProteinMappingServiceBeanTest {
         geneInfo);
     retrieveFileAnswer(NCBI_GENE_INFO, geneInfo);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
-    when(applicationConfiguration.annotationsFolder()).thenReturn(annotationsFolder);
+    when(applicationConfiguration.download()).thenReturn(download);
   }
 
   private ProteinMapping findMapping(Collection<ProteinMapping> mappings, String proteinId) {
@@ -355,10 +355,10 @@ public class DownloadProteinMappingServiceBeanTest {
 
   @Test
   public void downloadMappings_SkipDownloadOfRecentFiles() throws Throwable {
-    Files.copy(geneInfo, annotationsFolder.resolve(Paths.get(NCBI_GENE_INFO).getFileName()));
-    Files.copy(idMapping, annotationsFolder.resolve("UP000005640_9606.idmapping.gz"));
-    Files.copy(fasta, annotationsFolder.resolve("UP000005640_9606.fasta.gz"));
-    Files.copy(additionalFasta, annotationsFolder.resolve("UP000005640_9606_additional.fasta.gz"));
+    Files.copy(geneInfo, download.resolve(Paths.get(NCBI_GENE_INFO).getFileName()));
+    Files.copy(idMapping, download.resolve("UP000005640_9606.idmapping.gz"));
+    Files.copy(fasta, download.resolve("UP000005640_9606.fasta.gz"));
+    Files.copy(additionalFasta, download.resolve("UP000005640_9606_additional.fasta.gz"));
     when(client.getReplyCode()).thenReturn(FTPReply.COMMAND_OK);
     when(client.login(anyString(), anyString())).thenReturn(true);
     FTPFile mammalian = Mockito.mock(FTPFile.class);

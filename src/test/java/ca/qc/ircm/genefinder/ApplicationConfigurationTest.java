@@ -25,60 +25,52 @@ public class ApplicationConfigurationTest {
   private ApplicationConfiguration applicationConfiguration;
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  private Path originalHome;
+  private Path originalDownload;
 
   @Before
   public void beforeTest() {
-    originalHome = applicationConfiguration.home();
+    originalDownload = applicationConfiguration.download();
   }
 
   @After
   public void afterTest() {
-    setDataFolder(originalHome);
+    setDownload(originalDownload);
   }
 
-  private void setDataFolder(Path dataFolder) {
-    ((ApplicationConfigurationSpringBoot) applicationConfiguration).setHome(dataFolder);
-  }
-
-  private void setTemporaryFolderAsDataFolder() {
-    setDataFolder(temporaryFolder.getRoot().toPath());
-  }
-
-  private Path getDataFolder() {
-    return temporaryFolder.getRoot().toPath();
+  private void setDownload(Path download) {
+    ((ApplicationConfigurationSpringBoot) applicationConfiguration).setDownload(download);
   }
 
   @Test
   public void defaultProperties() throws Throwable {
-    assertEquals(Paths.get(System.getProperty("user.dir")), originalHome);
+    assertEquals(Paths.get(System.getProperty("user.dir")), applicationConfiguration.download());
   }
 
   @Test
-  public void annotationsFolder() throws Throwable {
-    setTemporaryFolderAsDataFolder();
-    Path annotationsHome = getDataFolder().resolve("annotations");
-    Files.createDirectories(annotationsHome);
+  public void download() throws Throwable {
+    Path download = temporaryFolder.getRoot().toPath().resolve("download");
+    setDownload(download);
+    Files.createDirectories(download);
 
-    assertEquals(annotationsHome, applicationConfiguration.annotationsFolder());
+    assertEquals(download, applicationConfiguration.download());
   }
 
   @Test
-  public void annotationsFolder_CreateDirectory() {
-    setTemporaryFolderAsDataFolder();
-    Path annotationsHome = getDataFolder().resolve("annotations");
+  public void download_CreateDirectory() {
+    Path download = temporaryFolder.getRoot().toPath().resolve("download");
+    setDownload(download);
 
-    applicationConfiguration.annotationsFolder();
+    applicationConfiguration.download();
 
-    assertTrue(Files.isDirectory(annotationsHome));
+    assertTrue(Files.isDirectory(download));
   }
 
   @Test(expected = IllegalStateException.class)
-  public void annotationsFolder_DirectoryIsFile() throws Throwable {
-    setTemporaryFolderAsDataFolder();
-    Path annotationsHome = getDataFolder().resolve("annotations");
-    Files.createFile(annotationsHome);
+  public void download_DirectoryIsFile() throws Throwable {
+    Path download = temporaryFolder.getRoot().toPath().resolve("download");
+    setDownload(download);
+    Files.createFile(download);
 
-    applicationConfiguration.annotationsFolder();
+    applicationConfiguration.download();
   }
 }

@@ -7,16 +7,9 @@ import java.nio.file.Path;
  */
 public interface ApplicationConfiguration {
   /**
-   * Returns home folder.
+   * Returns folder where to store remote files.
    *
-   * @return home folder
+   * @return folder where to store remote files
    */
-  public Path home();
-
-  /**
-   * Returns annotations folder where to store remote files.
-   *
-   * @return annotations folder where to store remote files
-   */
-  public Path annotationsFolder();
+  public Path download();
 }
