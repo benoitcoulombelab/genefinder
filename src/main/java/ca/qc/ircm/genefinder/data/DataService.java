@@ -1,8 +1,7 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
-import ca.qc.ircm.genefinder.organism.Organism;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.io.FilenameUtils;
@@ -34,19 +33,20 @@ public class DataService {
   protected DataService() {
   }
 
-  protected DataService(DownloadProteinMappingService downloadProteinMappingService, DataWriter dataWriter) {
+  protected DataService(DownloadProteinMappingService downloadProteinMappingService,
+      DataWriter dataWriter) {
     this.downloadProteinMappingService = downloadProteinMappingService;
     this.dataWriter = dataWriter;
   }
 
-  public void findGeneNames(Organism organism, Collection<File> files,
-      FindGenesParameters parameters, ProgressBar progressBar, Locale locale)
-      throws IOException, InterruptedException {
+  public void findGeneNames(Collection<File> files, FindGenesParameters parameters,
+      ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
     ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);
-    progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
+    progressBar.setMessage(
+        MessageFormat.format(bundle.getString("mappings"), parameters.getOrganism().getName()));
     ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
-    List<ProteinMapping> rawMappings =
-        downloadProteinMappingService.allProteinMappings(organism, progressBar.step(0.8), locale);
+    List<ProteinMapping> rawMappings = downloadProteinMappingService
+        .allProteinMappings(parameters.getOrganism(), progressBar.step(0.8), locale);
     Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
         Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
     progressBar.setProgress(0.8);

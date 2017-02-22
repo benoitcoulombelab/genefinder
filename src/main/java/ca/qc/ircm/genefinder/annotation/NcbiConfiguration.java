@@ -1,5 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import java.util.regex.Pattern;
+
 /**
  * NCBI's configuration.
  */
@@ -26,9 +28,44 @@ public interface NcbiConfiguration {
   public String taxonomyNodes();
 
   /**
+   * Returns gene2accession file on NCBI's FTP server.
+   *
+   * @return gene2accession file on NCBI's FTP server
+   */
+  public String gene2accession();
+
+  /**
    * Returns gene_info file on NCBI's FTP server.
    *
    * @return gene_info file on NCBI's FTP server
    */
   public String geneInfo();
+
+  /**
+   * Returns RefSeq's sequences folder on NCBI's FTP server.
+   *
+   * @return RefSeq's sequences folder on NCBI's FTP server
+   */
+  public String refseqSequences();
+
+  /**
+   * Returns RefSeq's sequences filename pattern.
+   *
+   * @return RefSeq's sequences filename pattern
+   */
+  public Pattern refseqSequencesFilenamePattern();
+
+  /**
+   * Returns NCBI's EUtils URL.
+   *
+   * @return NCBI's EUtils URL
+   */
+  public String eutils();
+
+  /**
+   * Returns max ids per request on NCBI's EUtils service.
+   *
+   * @return max ids per request on NCBI's EUtils service
+   */
+  public int maxIdsPerRequest();
 }

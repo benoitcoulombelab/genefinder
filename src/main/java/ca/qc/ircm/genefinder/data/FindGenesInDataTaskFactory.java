@@ -1,6 +1,5 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.organism.Organism;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -17,8 +16,8 @@ public class FindGenesInDataTaskFactory {
   @Inject
   private DataService dataService;
 
-  public FindGenesInDataTask create(Organism organism, Collection<File> files,
-      FindGenesParameters findGenesParameter, Locale locale) {
-    return new FindGenesInDataTask(organism, dataService, files, findGenesParameter, locale);
+  public FindGenesInDataTask create(Collection<File> files, FindGenesParameters findGenesParameter,
+      Locale locale) {
+    return new FindGenesInDataTask(dataService, files, findGenesParameter, locale);
   }
 }

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
+import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
@@ -77,8 +77,9 @@ public class DataServiceTest {
     mappings.add(getProteinMapping("17512236", "FAF"));
     when(proteinMappingService.allProteinMappings(any(), any(), any())).thenReturn(mappings);
     FindGenesParametersBean parameters = new FindGenesParametersBean();
+    parameters.organism(organism);
 
-    dataServiceBean.findGeneNames(organism, files, parameters, progressBar, locale);
+    dataServiceBean.findGeneNames(files, parameters, progressBar, locale);
 
     verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
     verify(progressBar, atLeastOnce()).setMessage(any(String.class));

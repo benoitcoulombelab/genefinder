@@ -1,6 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.ApplicationConfiguration;
+import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpClientFactory;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
@@ -104,6 +105,12 @@ public class DownloadProteinMappingServiceBean implements DownloadProteinMapping
     Set<Integer> includeOrganisms = new HashSet<>();
     includeOrganisms.add(organism.getId());
     return downloadMappings(locale, progressBar, includeOrganisms);
+  }
+
+  @Override
+  public List<ProteinMapping> downloadProteinMappings(FindGenesParameters parameters,
+      ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
+    throw new UnsupportedOperationException();
   }
 
   private List<ProteinMapping> downloadMappings(Locale locale, ProgressBar progressBar,

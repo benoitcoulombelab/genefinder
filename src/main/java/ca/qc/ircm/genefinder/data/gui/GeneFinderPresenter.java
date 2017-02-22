@@ -132,6 +132,7 @@ public class GeneFinderPresenter {
 
   private FindGenesParameters getFindGenesParameters() {
     FindGenesParametersBean parameters = new FindGenesParametersBean();
+    parameters.organism(organism.getSelectionModel().getSelectedItem());
     parameters.proteinColumn(parseProteinColumn());
     parameters.geneId(geneIdProperty.get());
     parameters.geneName(geneNameProperty.get());
@@ -190,10 +191,9 @@ public class GeneFinderPresenter {
   private void start() {
     if (validate()) {
       List<File> files = new ArrayList<>(this.files.getItems());
-      Organism organism = this.organism.getSelectionModel().getSelectedItem();
       final Window window = this.files.getScene().getWindow();
-      final FindGenesInDataTask task = findGenesInDataTaskFactory.create(organism, files,
-          getFindGenesParameters(), Locale.getDefault());
+      final FindGenesInDataTask task =
+          findGenesInDataTaskFactory.create(files, getFindGenesParameters(), Locale.getDefault());
       final ProgressDialog progressDialog = new ProgressDialog(window, task);
       task.stateProperty().addListener((observable, oldValue, newValue) -> {
         if (newValue == State.FAILED || newValue == State.SUCCEEDED

@@ -1,6 +1,5 @@
 package ca.qc.ircm.genefinder.data;
 
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.progressbar.JavafxProgressBar;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import javax.inject.Inject;
  */
 public class FindGenesInDataTask extends Task<Void> {
   private static final Logger logger = LoggerFactory.getLogger(FindGenesInDataTask.class);
-  private Organism organism;
   private DataService dataService;
   private Collection<File> files;
   private FindGenesParameters findGenesParameter;
@@ -26,8 +24,6 @@ public class FindGenesInDataTask extends Task<Void> {
   /**
    * Creates find genes in data task.
    *
-   * @param organism
-   *          organism
    * @param dataService
    *          data service
    * @param files
@@ -38,9 +34,8 @@ public class FindGenesInDataTask extends Task<Void> {
    *          locale
    */
   @Inject
-  public FindGenesInDataTask(Organism organism, DataService dataService, Collection<File> files,
+  public FindGenesInDataTask(DataService dataService, Collection<File> files,
       FindGenesParameters findGenesParameter, Locale locale) {
-    this.organism = organism;
     this.dataService = dataService;
     this.files = files;
     this.findGenesParameter = findGenesParameter;
@@ -57,7 +52,7 @@ public class FindGenesInDataTask extends Task<Void> {
     progressBar.progress().addListener((observable, oldValue, newValue) -> {
       updateProgress(newValue.doubleValue(), Math.max(newValue.doubleValue(), 1.0));
     });
-    dataService.findGeneNames(organism, files, findGenesParameter, progressBar, locale);
+    dataService.findGeneNames(files, findGenesParameter, progressBar, locale);
     logger.debug("completed files {}", files);
     return null;
   }

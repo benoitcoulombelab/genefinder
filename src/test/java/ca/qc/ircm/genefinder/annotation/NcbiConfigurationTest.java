@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -18,6 +20,14 @@ public class NcbiConfigurationTest {
   @Test
   public void defaultProperties() throws Throwable {
     assertEquals("ftp.ncbi.nlm.nih.gov", ncbiConfiguration.ftp());
+    assertEquals("/pub/taxonomy/taxdmp.zip", ncbiConfiguration.taxonomy());
+    assertEquals("nodes.dmp", ncbiConfiguration.taxonomyNodes());
+    assertEquals("/gene/DATA/gene2accession.gz", ncbiConfiguration.gene2accession());
     assertEquals("/gene/DATA/gene_info.gz", ncbiConfiguration.geneInfo());
+    assertEquals("/refseq/release/complete", ncbiConfiguration.refseqSequences());
+    assertEquals(Pattern.compile(".+\\.protein\\.faa\\.gz").pattern(),
+        ncbiConfiguration.refseqSequencesFilenamePattern().pattern());
+    assertEquals("http://eutils.ncbi.nlm.nih.gov/entrez/eutils", ncbiConfiguration.eutils());
+    assertEquals(1000, ncbiConfiguration.maxIdsPerRequest());
   }
 }

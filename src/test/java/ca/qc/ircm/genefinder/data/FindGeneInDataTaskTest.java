@@ -74,19 +74,18 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
     dataFiles.add(temporaryFolder.newFile("data1.txt"));
     dataFiles.add(temporaryFolder.newFile("data2.txt"));
     locale = Locale.getDefault();
-    findGenesInDataTask =
-        new FindGenesInDataTask(organism, dataService, dataFiles, parameters, locale);
+    findGenesInDataTask = new FindGenesInDataTask(dataService, dataFiles, parameters, locale);
     doAnswer(new Answer<Void>() {
       @Override
       public Void answer(InvocationOnMock invocation) throws Throwable {
-        ProgressBar progressBar = (ProgressBar) invocation.getArguments()[3];
+        ProgressBar progressBar = (ProgressBar) invocation.getArguments()[2];
         if (progressBar != null) {
           progressBar.setMessage("fillGeneDatabase");
           progressBar.setProgress(1.0);
         }
         return null;
       }
-    }).when(dataService).findGeneNames(any(), any(), any(), any(), any(Locale.class));
+    }).when(dataService).findGeneNames(any(), any(), any(), any(Locale.class));
   }
 
   @Test
@@ -96,8 +95,8 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
 
     findGenesInDataTask.call();
 
-    verify(dataService).findGeneNames(eq(organism), eq(dataFiles), eq(parameters),
-        any(ProgressBar.class), eq(locale));
+    verify(dataService).findGeneNames(eq(dataFiles), eq(parameters), any(ProgressBar.class),
+        eq(locale));
     verify(messageChangeListener, atLeastOnce()).changed(observableMessageCaptor.capture(),
         any(String.class), any(String.class));
     verify(progressChangeListener, atLeastOnce()).changed(observableProgressCaptor.capture(),

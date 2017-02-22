@@ -13,6 +13,13 @@ public class ProteinMapping {
   private String sequence;
   private Double molecularWeight;
 
+  public ProteinMapping() {
+  }
+
+  public ProteinMapping(String proteinId) {
+    this.proteinId = proteinId;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

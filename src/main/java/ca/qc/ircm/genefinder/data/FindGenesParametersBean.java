@@ -1,15 +1,41 @@
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
+import ca.qc.ircm.genefinder.organism.Organism;
+
 /**
  * Parameters for finding genes in data files.
  */
 public class FindGenesParametersBean implements FindGenesParameters {
+  private Organism organism;
+  private ProteinDatabase proteinDatabase;
   private int proteinColumn;
   private boolean geneId;
   private boolean geneName;
   private boolean geneSynonyms;
   private boolean geneSummary;
   private boolean proteinMolecularWeight;
+  private boolean sequence;
+
+  @Override
+  public Organism getOrganism() {
+    return organism;
+  }
+
+  public FindGenesParametersBean organism(Organism organism) {
+    this.organism = organism;
+    return this;
+  }
+
+  @Override
+  public ProteinDatabase getProteinDatabase() {
+    return proteinDatabase;
+  }
+
+  public FindGenesParametersBean proteinDatabase(ProteinDatabase proteinDatabase) {
+    this.proteinDatabase = proteinDatabase;
+    return this;
+  }
 
   @Override
   public int getProteinColumn() {
@@ -68,6 +94,16 @@ public class FindGenesParametersBean implements FindGenesParameters {
 
   public FindGenesParametersBean proteinMolecularWeight(boolean proteinMolecularWeight) {
     this.proteinMolecularWeight = proteinMolecularWeight;
+    return this;
+  }
+
+  @Override
+  public boolean isSequence() {
+    return sequence;
+  }
+
+  public FindGenesParametersBean sequence(boolean sequence) {
+    this.sequence = sequence;
     return this;
   }
 }

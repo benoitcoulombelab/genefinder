@@ -1,9 +1,16 @@
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
+import ca.qc.ircm.genefinder.organism.Organism;
+
 /**
  * Parameters for finding genes in data files.
  */
 public interface FindGenesParameters {
+  public Organism getOrganism();
+
+  public ProteinDatabase getProteinDatabase();
+
   public int getProteinColumn();
 
   public boolean isGeneId();
@@ -15,4 +22,6 @@ public interface FindGenesParameters {
   public boolean isGeneSummary();
 
   public boolean isProteinMolecularWeight();
+
+  public boolean isSequence();
 }
