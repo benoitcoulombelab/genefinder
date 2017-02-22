@@ -10,7 +10,7 @@ import java.util.Locale;
 /**
  * Service for {@link ProteinMapping}.
  */
-public interface ProteinMappingService {
+public interface DownloadProteinMappingService {
   public List<ProteinMapping> allProteinMappings(Organism organism, ProgressBar progressBar,
       Locale locale) throws IOException, InterruptedException;
 }

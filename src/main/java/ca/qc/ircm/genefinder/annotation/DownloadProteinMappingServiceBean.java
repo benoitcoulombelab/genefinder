@@ -53,7 +53,7 @@ import javax.inject.Inject;
  * Services for downloading protein mappings.
  */
 @Service
-public class DownloadProteinMappingServiceBean implements ProteinMappingService {
+public class DownloadProteinMappingServiceBean implements DownloadProteinMappingService {
   private static final String USERNAME = "anonymous";
   private static final String PASSWORD = "";
   private static final String MAPPINGS_FILENAME = "mappings.txt";

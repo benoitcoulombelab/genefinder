@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
-import ca.qc.ircm.genefinder.annotation.ProteinMappingService;
+import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
@@ -34,7 +34,7 @@ import java.util.Map;
 public class DataServiceTest {
   private DataService dataServiceBean;
   @Mock
-  private ProteinMappingService proteinMappingService;
+  private DownloadProteinMappingService proteinMappingService;
   @Mock
   private DataWriter dataWriter;
   @Mock

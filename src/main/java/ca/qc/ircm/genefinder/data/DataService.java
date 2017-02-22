@@ -1,7 +1,7 @@
 package ca.qc.ircm.genefinder.data;
 
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
-import ca.qc.ircm.genefinder.annotation.ProteinMappingService;
+import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
@@ -27,15 +27,15 @@ import javax.inject.Inject;
 @Service
 public class DataService {
   @Inject
-  private ProteinMappingService proteinMappingService;
+  private DownloadProteinMappingService downloadProteinMappingService;
   @Inject
   private DataWriter dataWriter;
 
   protected DataService() {
   }
 
-  protected DataService(ProteinMappingService proteinMappingService, DataWriter dataWriter) {
-    this.proteinMappingService = proteinMappingService;
+  protected DataService(DownloadProteinMappingService downloadProteinMappingService, DataWriter dataWriter) {
+    this.downloadProteinMappingService = downloadProteinMappingService;
     this.dataWriter = dataWriter;
   }
 
@@ -46,7 +46,7 @@ public class DataService {
     progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), organism.getName()));
     ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
     List<ProteinMapping> rawMappings =
-        proteinMappingService.allProteinMappings(organism, progressBar.step(0.8), locale);
+        downloadProteinMappingService.allProteinMappings(organism, progressBar.step(0.8), locale);
     Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
         Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
     progressBar.setProgress(0.8);
