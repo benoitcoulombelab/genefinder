@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Configuration;
 public class NcbiConfigurationSpringBoot implements NcbiConfiguration {
   public static final String PREFIX = "ncbi";
   private String ftp;
-  private Gene gene;
+  private String taxonomy;
+  private String taxonomyNodes;
+  private String geneInfo;
 
   @Override
   public String ftp() {
@@ -18,8 +20,18 @@ public class NcbiConfigurationSpringBoot implements NcbiConfiguration {
   }
 
   @Override
+  public String taxonomy() {
+    return taxonomy;
+  }
+
+  @Override
+  public String taxonomyNodes() {
+    return taxonomyNodes;
+  }
+
+  @Override
   public String geneInfo() {
-    return gene.geneInfo;
+    return geneInfo;
   }
 
   public String getFtp() {
@@ -30,23 +42,27 @@ public class NcbiConfigurationSpringBoot implements NcbiConfiguration {
     this.ftp = ftp;
   }
 
-  public Gene getGene() {
-    return gene;
+  public String getTaxonomy() {
+    return taxonomy;
   }
 
-  public void setGene(Gene gene) {
-    this.gene = gene;
+  public void setTaxonomy(String taxonomy) {
+    this.taxonomy = taxonomy;
   }
 
-  public static class Gene {
-    private String geneInfo;
+  public String getTaxonomyNodes() {
+    return taxonomyNodes;
+  }
 
-    public String getGeneInfo() {
-      return geneInfo;
-    }
+  public void setTaxonomyNodes(String taxonomyNodes) {
+    this.taxonomyNodes = taxonomyNodes;
+  }
 
-    public void setGeneInfo(String geneInfo) {
-      this.geneInfo = geneInfo;
-    }
+  public String getGeneInfo() {
+    return geneInfo;
+  }
+
+  public void setGeneInfo(String geneInfo) {
+    this.geneInfo = geneInfo;
   }
 }

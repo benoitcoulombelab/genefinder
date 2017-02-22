@@ -17,8 +17,9 @@ spring:
 
 ncbi:
   ftp: ftp.ncbi.nlm.nih.gov
-  gene:
-    geneInfo: /gene/DATA/gene_info.gz
+  taxonomy: /pub/taxonomy/taxdmp.zip
+  taxonomyNodes: nodes.dmp
+  geneInfo: /gene/DATA/gene_info.gz
 
 uniprot:
   ftp: ftp.uniprot.org
