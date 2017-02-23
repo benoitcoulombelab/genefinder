@@ -31,6 +31,10 @@ ncbi:
 
 uniprot:
   ftp: ftp.uniprot.org
+  search: http://www.uniprot.org/uniprot
+  idmapping: /pub/databases/uniprot/current_release/knowledgebase/idmapping/idmapping.dat.gz
+  swissprotFasta: /pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+  tremblFasta: /pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz
   referenceProteomes: /pub/databases/uniprot/current_release/knowledgebase/reference_proteomes
   filenamePattern: "UP\\d+_(\\d+)[\\._].+"
   giMapping: GI

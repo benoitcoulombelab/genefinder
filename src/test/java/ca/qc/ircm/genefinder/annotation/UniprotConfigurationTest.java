@@ -20,6 +20,15 @@ public class UniprotConfigurationTest {
   @Test
   public void defaultProperties() throws Throwable {
     assertEquals("ftp.uniprot.org", uniprotConfiguration.ftp());
+    assertEquals("http://www.uniprot.org/uniprot", uniprotConfiguration.search());
+    assertEquals("/pub/databases/uniprot/current_release/knowledgebase/idmapping/idmapping.dat.gz",
+        uniprotConfiguration.idmapping());
+    assertEquals(
+        "/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+        uniprotConfiguration.swissprotFasta());
+    assertEquals(
+        "/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz",
+        uniprotConfiguration.tremblFasta());
     assertEquals("/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes",
         uniprotConfiguration.referenceProteomes());
     assertEquals(Pattern.compile("UP\\d+_(\\d+)[\\._].+").pattern(),

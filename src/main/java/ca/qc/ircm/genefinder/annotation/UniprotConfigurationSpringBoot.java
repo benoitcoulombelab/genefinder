@@ -12,6 +12,10 @@ import java.util.regex.Pattern;
 public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
   public static final String PREFIX = "uniprot";
   private String ftp;
+  private String search;
+  private String idmapping;
+  private String swissprotFasta;
+  private String tremblFasta;
   private String referenceProteomes;
   private String filenamePattern;
   private String giMapping;
@@ -23,6 +27,26 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
   @Override
   public String ftp() {
     return ftp;
+  }
+
+  @Override
+  public String search() {
+    return search;
+  }
+
+  @Override
+  public String idmapping() {
+    return idmapping;
+  }
+
+  @Override
+  public String swissprotFasta() {
+    return swissprotFasta;
+  }
+
+  @Override
+  public String tremblFasta() {
+    return tremblFasta;
   }
 
   @Override
@@ -66,6 +90,22 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
 
   public void setFtp(String ftp) {
     this.ftp = ftp;
+  }
+
+  public String getSearch() {
+    return search;
+  }
+
+  public void setSearch(String search) {
+    this.search = search;
+  }
+
+  public String getIdmapping() {
+    return idmapping;
+  }
+
+  public void setIdmapping(String idmapping) {
+    this.idmapping = idmapping;
   }
 
   public String getReferenceProteomes() {
@@ -122,5 +162,21 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
 
   public void setProteinIdPattern(String proteinIdPattern) {
     this.proteinIdPattern = proteinIdPattern;
+  }
+
+  public String getSwissprotFasta() {
+    return swissprotFasta;
+  }
+
+  public void setSwissprotFasta(String swissprotFasta) {
+    this.swissprotFasta = swissprotFasta;
+  }
+
+  public String getTremblFasta() {
+    return tremblFasta;
+  }
+
+  public void setTremblFasta(String tremblFasta) {
+    this.tremblFasta = tremblFasta;
   }
 }

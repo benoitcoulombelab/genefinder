@@ -12,7 +12,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ca.qc.ircm.genefinder.ApplicationConfiguration;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.organism.Organism;
@@ -63,8 +62,6 @@ public class RefseqDownloadProteinMappingServiceTest {
 
   private RefseqDownloadProteinMappingService refseqDownloadProteinMappingService;
   @Mock
-  private ApplicationConfiguration applicationConfiguration;
-  @Mock
   private NcbiConfiguration ncbiConfiguration;
   @Mock
   private RestClientFactory restClientFactory;
@@ -105,10 +102,9 @@ public class RefseqDownloadProteinMappingServiceTest {
 
   @Before
   public void beforeTest() throws Throwable {
-    refseqDownloadProteinMappingService = new RefseqDownloadProteinMappingService(
-        applicationConfiguration, ncbiConfiguration, restClientFactory, ftpService, proteinService);
+    refseqDownloadProteinMappingService = new RefseqDownloadProteinMappingService(ncbiConfiguration,
+        restClientFactory, ftpService, proteinService);
     download = Files.createDirectory(temporaryFolder.getRoot().toPath().resolve("download"));
-    when(applicationConfiguration.download()).thenReturn(download);
     when(ncbiConfiguration.eutils()).thenReturn(eutils);
     when(ncbiConfiguration.maxIdsPerRequest()).thenReturn(MAX_IDS_PER_REQUEST);
     when(ncbiConfiguration.ftp()).thenReturn(ftp);
