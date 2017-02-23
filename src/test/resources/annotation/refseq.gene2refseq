@@ -1,4 +1,4 @@
 #tax_id	GeneID	status	RNA_nucleotide_accession.version	RNA_nucleotide_gi	protein_accession.version	protein_gi	genomic_nucleotide_accession.version	genomic_nucleotide_gi	start_position_on_the_genomic_accession	end_position_on_the_genomic_accession	orientation	assembly	mature_peptide_accession.version	mature_peptide_gi	Symbol
-9	1	PROVISIONAL	-	-	NP_001317102.1	10954455	NC_001911.1	10954454	348	1190	-	-	-	-	repA1
-9	4404	PROVISIONAL	-	-	NP_001317083.1	10954457	NC_001911.1	10954454	2157	2912	+	-	-	-	repA2
-9	4404	VALIDATED	-	-	NP_001317082.1	10954458	NC_001911.1	10954454	3040	4590	+	-	-	-	leuA
+9	1	PROVISIONAL	-	-	NP_001317102.1	829098688	NC_001911.1	10954454	348	1190	-	-	-	-	repA1
+9	4404	PROVISIONAL	-	-	NP_001317083.1	829098686	NC_001911.1	10954454	2157	2912	+	-	-	-	repA2
+9	4404	VALIDATED	-	-	NP_001317082.1	829098684	NC_001911.1	10954454	3040	4590	+	-	-	-	leuA

@@ -37,6 +37,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -53,6 +55,7 @@ import java.util.zip.ZipOutputStream;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class DownloadTaxonomyServiceTest {
+  private static final Logger logger = LoggerFactory.getLogger(DownloadTaxonomyServiceTest.class);
   private DownloadTaxonomyService downloadTaxonomyService;
   @Mock
   private NcbiConfiguration ncbiConfiguration;
@@ -89,7 +92,7 @@ public class DownloadTaxonomyServiceTest {
     when(ftpService.anonymousConnect(any())).thenReturn(ftpClient);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
     doAnswer(i -> {
-      System.out.println(i.getArguments()[0]);
+      logger.debug("{}", i.getArguments()[0]);
       return null;
     }).when(progressBar).setMessage(any());
   }

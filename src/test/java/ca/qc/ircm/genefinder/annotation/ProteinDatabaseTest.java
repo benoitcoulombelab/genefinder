@@ -25,16 +25,30 @@ import java.util.Locale;
 
 public class ProteinDatabaseTest {
   @Test
-  public void getLabel_Archaea() {
-    String label = ProteinDatabase.NCBI.getLabel(Locale.CANADA);
-
-    assertEquals("Whole NCBI (GenPept, RefSeq, Swiss-Prot, PIR, PRF, PDB, others...)", label);
-  }
-
-  @Test
-  public void getLabel_Bacteria() {
+  public void getLabel_Refseq() {
     String label = ProteinDatabase.REFSEQ.getLabel(Locale.CANADA);
 
     assertEquals("RefSeq", label);
+  }
+
+  @Test
+  public void getLabel_RefseqGi() {
+    String label = ProteinDatabase.REFSEQ_GI.getLabel(Locale.CANADA);
+
+    assertEquals("RefSeq (gi numbers)", label);
+  }
+
+  @Test
+  public void getLabel_Uniprot() {
+    String label = ProteinDatabase.UNIPROT.getLabel(Locale.CANADA);
+
+    assertEquals("UniProt", label);
+  }
+
+  @Test
+  public void getLabel_Swissprot() {
+    String label = ProteinDatabase.SWISSPROT.getLabel(Locale.CANADA);
+
+    assertEquals("Swiss-Prot (reviewed sequences only)", label);
   }
 }

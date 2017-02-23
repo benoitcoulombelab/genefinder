@@ -1,5 +1,7 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
+
 import ca.qc.ircm.genefinder.ApplicationConfiguration;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -129,27 +132,21 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
       Locale locale) throws IOException, InterruptedException {
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    SearchOutput searchOutput = search(parameters.getOrganism(), parameters.getProteinDatabase(),
-        progressBar.step(0.05), resources);
+    SearchOutput searchOutput = search(parameters.getOrganism(), progressBar.step(0.05), resources);
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    List<String> ids = downloadIds(searchOutput, progressBar.step(0.05), resources);
+    List<String> ids = downloadIds(searchOutput, parameters.getProteinDatabase(),
+        progressBar.step(0.05), resources);
     return ids;
   }
 
-  private SearchOutput search(Organism organism, ProteinDatabase proteinDatabase,
-      ProgressBar progressBar, MessageResources resources)
-      throws IOException, InterruptedException {
+  private SearchOutput search(Organism organism, ProgressBar progressBar,
+      MessageResources resources) throws IOException, InterruptedException {
     progressBar.setMessage(resources.message("search"));
     Client client = restClientFactory.createClient();
     WebTarget target = client.target(ncbiConfiguration.eutils());
     target = target.path("esearch.fcgi");
     target = target.queryParam("db", "protein");
-    if (proteinDatabase == ProteinDatabase.REFSEQ) {
-      target =
-          target.queryParam("term", "txid" + organism.getId() + "[Organism] AND refseq[filter]");
-    } else {
-      target = target.queryParam("term", "txid" + organism.getId() + "[Organism]");
-    }
+    target = target.queryParam("term", "txid" + organism.getId() + "[Organism] AND refseq[filter]");
     target = target.queryParam("usehistory", "y");
     try (InputStream searchInput = target.request().get(InputStream.class)) {
       ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
@@ -206,8 +203,9 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     return seachOutput;
   }
 
-  private List<String> downloadIds(SearchOutput searchOutput, ProgressBar progressBar,
-      MessageResources resources) throws IOException, InterruptedException {
+  private List<String> downloadIds(SearchOutput searchOutput, ProteinDatabase proteinDatabase,
+      ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
     final int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
     Client client = restClientFactory.createClient();
     WebTarget target = client.target(ncbiConfiguration.eutils());
@@ -215,7 +213,11 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     target = target.queryParam("db", "protein");
     target = target.queryParam("WebEnv", searchOutput.webEnv);
     target = target.queryParam("query_key", searchOutput.queryKey);
-    target = target.queryParam("rettype", "acc");
+    if (proteinDatabase == REFSEQ_GI) {
+      target = target.queryParam("rettype", "gi");
+    } else {
+      target = target.queryParam("rettype", "acc");
+    }
     target = target.queryParam("retmax", maxIdsPerRequest);
     Set<String> ids = new LinkedHashSet<>();
     for (int i = 0; i < searchOutput.count; i += maxIdsPerRequest) {
@@ -267,9 +269,13 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
           continue;
         }
         String[] columns = line.split("\t", -1);
-        String proteinId = columns[5];
-        if (mappingsById.containsKey(proteinId)) {
-          mappingsById.get(proteinId).setGeneId(Long.parseLong(columns[1]));
+        String accession = columns[5];
+        String gi = columns[6];
+        if (mappingsById.containsKey(accession)) {
+          mappingsById.get(accession).setGeneId(Long.parseLong(columns[1]));
+        }
+        if (mappingsById.containsKey(gi)) {
+          mappingsById.get(gi).setGeneId(Long.parseLong(columns[1]));
         }
       }
     }
@@ -358,6 +364,11 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
       FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
       throws IOException {
     Pattern refseqSequencesFilenamePattern = ncbiConfiguration.refseqSequencesFilenamePattern();
+    Function<ProteinMapping, Pattern> sequencePatternProvider = mapping -> Pattern
+        .compile("^>(.*\\|)?" + (parameters.getProteinDatabase() == REFSEQ_GI ? "gi" : "ref")
+            + "\\|" + Pattern.quote(mapping.getProteinId()) + "(\\|.*)?$");
+    Map<Pattern, ProteinMapping> sequenceNamePatterns =
+        mappings.stream().collect(Collectors.toMap(sequencePatternProvider, mapping -> mapping));
     List<Path> files = Files.list(sequences)
         .filter(
             file -> refseqSequencesFilenamePattern.matcher(file.getFileName().toString()).matches())
@@ -377,9 +388,9 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
             }
             mapping = null;
             builder.delete(0, builder.length());
-            for (ProteinMapping ma : mappings) {
-              if (line.contains(ma.getProteinId())) {
-                mapping = ma;
+            for (Pattern pattern : sequenceNamePatterns.keySet()) {
+              if (pattern.matcher(line).matches()) {
+                mapping = sequenceNamePatterns.get(pattern);
               }
             }
           } else if (mapping != null) {

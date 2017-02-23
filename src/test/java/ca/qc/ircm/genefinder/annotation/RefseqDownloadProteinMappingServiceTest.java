@@ -159,19 +159,19 @@ public class RefseqDownloadProteinMappingServiceTest {
     when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.REFSEQ);
     InputStream searchInput = getClass().getResourceAsStream("/annotation/esearch.fcgi.xml");
-    List<String> accessions =
+    List<String> proteinsIds =
         Files.readAllLines(Paths.get(getClass().getResource("/annotation/accessions.txt").toURI()));
-    InputStream[] accessionInputs = new InputStream[FETCH_COUNT];
+    InputStream[] proteinIdInputs = new InputStream[FETCH_COUNT];
     IntStream.range(0, FETCH_COUNT).forEach(i -> {
       int accsIndex = i * MAX_IDS_PER_REQUEST;
-      List<String> accs = accessions.subList(accsIndex,
-          Math.min(accsIndex + MAX_IDS_PER_REQUEST, accessions.size()));
+      List<String> accs = proteinsIds.subList(accsIndex,
+          Math.min(accsIndex + MAX_IDS_PER_REQUEST, proteinsIds.size()));
       String accsAsString = accs.stream().collect(Collectors.joining("\n"));
-      accessionInputs[i] = new ByteArrayInputStream(accsAsString.getBytes(UTF_8_CHARSET));
+      proteinIdInputs[i] = new ByteArrayInputStream(accsAsString.getBytes(UTF_8_CHARSET));
     });
     when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
-    when(invocationFetchIds.get(InputStream.class)).thenReturn(accessionInputs[0],
-        Arrays.copyOfRange(accessionInputs, 1, accessionInputs.length));
+    when(invocationFetchIds.get(InputStream.class)).thenReturn(proteinIdInputs[0],
+        Arrays.copyOfRange(proteinIdInputs, 1, proteinIdInputs.length));
 
     List<ProteinMapping> mappings = refseqDownloadProteinMappingService
         .downloadProteinMappings(parameters, progressBar, locale);
@@ -209,7 +209,7 @@ public class RefseqDownloadProteinMappingServiceTest {
     assertEquals(SEARCH_COUNT, mappings.size());
     Set<String> mappingsAccessions = new HashSet<>();
     for (ProteinMapping mapping : mappings) {
-      assertTrue(accessions.contains(mapping.getProteinId()));
+      assertTrue(proteinsIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
       assertNull(mapping.getGeneId());
@@ -233,12 +233,12 @@ public class RefseqDownloadProteinMappingServiceTest {
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
     InputStream searchInput = getClass().getResourceAsStream("/annotation/esearch3.fcgi.xml");
-    List<String> accessions = Files
+    List<String> proteinIds = Files
         .readAllLines(Paths.get(getClass().getResource("/annotation/accessions3.txt").toURI()));
-    InputStream accessionInput = new ByteArrayInputStream(
-        accessions.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
+    InputStream proteinIdInput = new ByteArrayInputStream(
+        proteinIds.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
     when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
-    when(invocationFetchIds.get(InputStream.class)).thenReturn(accessionInput);
+    when(invocationFetchIds.get(InputStream.class)).thenReturn(proteinIdInput);
     Path localGene2accession = download.resolve("refseq.gene2refseq.gz");
     gzip(Paths.get(getClass().getResource("/annotation/refseq.gene2refseq").toURI()),
         localGene2accession);
@@ -284,12 +284,12 @@ public class RefseqDownloadProteinMappingServiceTest {
     when(parameters.isSequence()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
     InputStream searchInput = getClass().getResourceAsStream("/annotation/esearch3.fcgi.xml");
-    List<String> accessions = Files
+    List<String> proteinIds = Files
         .readAllLines(Paths.get(getClass().getResource("/annotation/accessions3.txt").toURI()));
-    InputStream accessionInput = new ByteArrayInputStream(
-        accessions.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
+    InputStream proteinIdInput = new ByteArrayInputStream(
+        proteinIds.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
     when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
-    when(invocationFetchIds.get(InputStream.class)).thenReturn(accessionInput);
+    when(invocationFetchIds.get(InputStream.class)).thenReturn(proteinIdInput);
     String remoteSequence1 = "/refseq/refseq1.protein.faa.gz";
     String remoteSequence2 = "/refseq/refseq2.protein.faa.gz";
     List<String> refseqFiles = new ArrayList<>();
@@ -336,6 +336,204 @@ public class RefseqDownloadProteinMappingServiceTest {
         assertEquals(parseSequence(sequenceRessource1, 0), mapping.getSequence());
         assertEquals(sequenceWeight1, mapping.getMolecularWeight(), 0.001);
       } else if (mapping.getProteinId().equals("NP_001317083.1")) {
+        assertEquals(parseSequence(sequenceRessource2, 1), mapping.getSequence());
+        assertEquals(sequenceWeight2, mapping.getMolecularWeight(), 0.001);
+      } else {
+        assertEquals(parseSequence(sequenceRessource2, 2), mapping.getSequence());
+        assertEquals(sequenceWeight3, mapping.getMolecularWeight(), 0.001);
+      }
+      assertNull(mapping.getTaxonomyId());
+      assertNull(mapping.getGeneId());
+      assertNull(mapping.getGeneName());
+      assertNull(mapping.getGeneSummary());
+      assertNull(mapping.getGeneSynonyms());
+    }
+  }
+
+  @Test
+  public void downloadProteinMappings_Gi() throws Throwable {
+    int organismId = 9606;
+    when(organism.getId()).thenReturn(organismId);
+    when(parameters.getOrganism()).thenReturn(organism);
+    when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.REFSEQ_GI);
+    InputStream searchInput = getClass().getResourceAsStream("/annotation/esearch.fcgi.xml");
+    List<String> proteinIds =
+        Files.readAllLines(Paths.get(getClass().getResource("/annotation/gis.txt").toURI()));
+    InputStream[] proteinIdInputs = new InputStream[FETCH_COUNT];
+    IntStream.range(0, FETCH_COUNT).forEach(i -> {
+      int accsIndex = i * MAX_IDS_PER_REQUEST;
+      List<String> accs = proteinIds.subList(accsIndex,
+          Math.min(accsIndex + MAX_IDS_PER_REQUEST, proteinIds.size()));
+      String accsAsString = accs.stream().collect(Collectors.joining("\n"));
+      proteinIdInputs[i] = new ByteArrayInputStream(accsAsString.getBytes(UTF_8_CHARSET));
+    });
+    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    when(invocationFetchIds.get(InputStream.class)).thenReturn(proteinIdInputs[0],
+        Arrays.copyOfRange(proteinIdInputs, 1, proteinIdInputs.length));
+
+    List<ProteinMapping> mappings = refseqDownloadProteinMappingService
+        .downloadProteinMappings(parameters, progressBar, locale);
+
+    verify(parameters, atLeastOnce()).getOrganism();
+    verify(parameters, atLeastOnce()).getProteinDatabase();
+    verify(parameters, atLeastOnce()).isGeneId();
+    verify(parameters, atLeastOnce()).isGeneName();
+    verify(parameters, atLeastOnce()).isGeneSummary();
+    verify(parameters, atLeastOnce()).isGeneSynonyms();
+    verify(parameters, atLeastOnce()).isProteinMolecularWeight();
+    verify(parameters, atLeastOnce()).isSequence();
+    verify(organism, atLeastOnce()).getId();
+    verify(restClientFactory, times(2)).createClient();
+    verify(clientSearch).target(eutils);
+    verify(targetSearch).path("esearch.fcgi");
+    verify(targetSearch).queryParam("db", "protein");
+    verify(targetSearch).queryParam("term", "txid" + organismId + "[Organism] AND refseq[filter]");
+    verify(targetSearch).queryParam("usehistory", "y");
+    verify(targetSearch).request();
+    verify(invocationSearch).get(InputStream.class);
+    verify(clientFetchIds).target(eutils);
+    verify(targetFetchIds).path("efetch.fcgi");
+    verify(targetFetchIds).queryParam("db", "protein");
+    verify(targetFetchIds).queryParam("WebEnv",
+        "NCID_1_174988986_130.14.22.215_9001_1434470567_1270571334_0MetA0_S_MegaStore_F_1");
+    verify(targetFetchIds).queryParam("query_key", "1");
+    verify(targetFetchIds).queryParam("rettype", "gi");
+    verify(targetFetchIds).queryParam("retmax", MAX_IDS_PER_REQUEST);
+    for (int i = 0; i < SEARCH_COUNT; i += MAX_IDS_PER_REQUEST) {
+      verify(targetFetchIds).queryParam("retstart", i);
+    }
+    verify(targetFetchIds, times(FETCH_COUNT)).request();
+    verify(invocationFetchIds, times(FETCH_COUNT)).get(InputStream.class);
+    assertEquals(SEARCH_COUNT, mappings.size());
+    Set<String> mappingsAccessions = new HashSet<>();
+    for (ProteinMapping mapping : mappings) {
+      assertTrue(proteinIds.contains(mapping.getProteinId()));
+      mappingsAccessions.add(mapping.getProteinId());
+      assertNull(mapping.getTaxonomyId());
+      assertNull(mapping.getGeneId());
+      assertNull(mapping.getGeneName());
+      assertNull(mapping.getGeneSummary());
+      assertNull(mapping.getGeneSynonyms());
+      assertNull(mapping.getSequence());
+      assertNull(mapping.getMolecularWeight());
+    }
+    assertEquals(SEARCH_COUNT, mappingsAccessions.size());
+  }
+
+  @Test
+  public void downloadProteinMappings_Gi_Gene() throws Throwable {
+    int organismId = 9606;
+    when(organism.getId()).thenReturn(organismId);
+    when(parameters.getOrganism()).thenReturn(organism);
+    when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    InputStream searchInput = getClass().getResourceAsStream("/annotation/esearch3.fcgi.xml");
+    List<String> proteinIds =
+        Files.readAllLines(Paths.get(getClass().getResource("/annotation/gis3.txt").toURI()));
+    InputStream proteinIdInput = new ByteArrayInputStream(
+        proteinIds.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
+    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    when(invocationFetchIds.get(InputStream.class)).thenReturn(proteinIdInput);
+    Path localGene2accession = download.resolve("refseq.gene2refseq.gz");
+    gzip(Paths.get(getClass().getResource("/annotation/refseq.gene2refseq").toURI()),
+        localGene2accession);
+    when(ftpService.localFile(gene2accession)).thenReturn(localGene2accession);
+    Path localGeneInfo = download.resolve("refseq.gene_info.gz");
+    gzip(Paths.get(getClass().getResource("/annotation/refseq.gene_info").toURI()), localGeneInfo);
+    when(ftpService.localFile(geneInfo)).thenReturn(localGeneInfo);
+
+    List<ProteinMapping> mappings = refseqDownloadProteinMappingService
+        .downloadProteinMappings(parameters, progressBar, locale);
+
+    verify(ftpService, times(2)).anonymousConnect(ncbiConfiguration.ftp());
+    verify(ftpService).localFile(gene2accession);
+    verify(ftpService).downloadFile(ftpClient, gene2accession, localGene2accession, progressBar,
+        locale);
+    verify(ftpService).localFile(geneInfo);
+    verify(ftpService).downloadFile(ftpClient, geneInfo, localGeneInfo, progressBar, locale);
+    assertEquals(3, mappings.size());
+    for (ProteinMapping mapping : mappings) {
+      if (mapping.getProteinId().equals("829098688")) {
+        assertEquals((Long) 1L, mapping.getGeneId());
+        assertEquals("A1BG", mapping.getGeneName());
+        assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
+        assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
+      } else {
+        assertEquals((Long) 4404L, mapping.getGeneId());
+        assertEquals("MRX39", mapping.getGeneName());
+        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
+        assertEquals(null, mapping.getGeneSynonyms());
+      }
+      assertNull(mapping.getTaxonomyId());
+      assertNull(mapping.getSequence());
+      assertNull(mapping.getMolecularWeight());
+    }
+  }
+
+  @Test
+  public void downloadProteinMappings_Gi_Sequence() throws Throwable {
+    int organismId = 9606;
+    when(organism.getId()).thenReturn(organismId);
+    when(parameters.getOrganism()).thenReturn(organism);
+    when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.REFSEQ_GI);
+    when(parameters.isSequence()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    InputStream searchInput = getClass().getResourceAsStream("/annotation/esearch3.fcgi.xml");
+    List<String> proteinIds =
+        Files.readAllLines(Paths.get(getClass().getResource("/annotation/gis3.txt").toURI()));
+    InputStream proteinIdInput = new ByteArrayInputStream(
+        proteinIds.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
+    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    when(invocationFetchIds.get(InputStream.class)).thenReturn(proteinIdInput);
+    String remoteSequence1 = "/refseq/refseq1.protein.faa.gz";
+    String remoteSequence2 = "/refseq/refseq2.protein.faa.gz";
+    List<String> refseqFiles = new ArrayList<>();
+    refseqFiles.add(remoteSequence1);
+    refseqFiles.add("/refseq/refseq1.protein.gpff.gz");
+    refseqFiles.add("/refseq/refseq1.rna.fna.gz");
+    refseqFiles.add(remoteSequence2);
+    when(ftpService.walkTree(any(), any())).thenReturn(refseqFiles);
+    Path refseqSequencesFolder =
+        Files.createDirectories(download.resolve(refseqSequences.substring(1)));
+    Path sequenceRessource1 =
+        Paths.get(getClass().getResource("/annotation/refseq1.protein.faa").toURI());
+    Path sequenceRessource2 =
+        Paths.get(getClass().getResource("/annotation/refseq2.protein.faa").toURI());
+    Path localSequence1 = refseqSequencesFolder.resolve("refseq1.protein.faa.gz");
+    gzip(sequenceRessource1, localSequence1);
+    when(ftpService.localFile(remoteSequence1)).thenReturn(localSequence1);
+    Path localSequence2 = refseqSequencesFolder.resolve("refseq2.protein.faa.gz");
+    gzip(sequenceRessource2, localSequence2);
+    when(ftpService.localFile(remoteSequence2)).thenReturn(localSequence2);
+    double sequenceWeight1 = 127.3;
+    double sequenceWeight2 = 58.9;
+    double sequenceWeight3 = 41.4;
+    when(proteinService.weight(anyString())).thenReturn(sequenceWeight1, sequenceWeight2,
+        sequenceWeight3);
+
+    List<ProteinMapping> mappings = refseqDownloadProteinMappingService
+        .downloadProteinMappings(parameters, progressBar, locale);
+
+    verify(ftpService).anonymousConnect(ncbiConfiguration.ftp());
+    verify(ftpService).walkTree(ftpClient, refseqSequences);
+    verify(ftpService).localFile(remoteSequence1);
+    verify(ftpService).downloadFile(ftpClient, remoteSequence1, localSequence1, progressBar,
+        locale);
+    verify(ftpService).localFile(remoteSequence2);
+    verify(ftpService).downloadFile(ftpClient, remoteSequence2, localSequence2, progressBar,
+        locale);
+    verify(proteinService).weight(parseSequence(sequenceRessource1, 0));
+    verify(proteinService).weight(parseSequence(sequenceRessource2, 1));
+    verify(proteinService).weight(parseSequence(sequenceRessource2, 2));
+    assertEquals(3, mappings.size());
+    for (ProteinMapping mapping : mappings) {
+      if (mapping.getProteinId().equals("829098688")) {
+        assertEquals(parseSequence(sequenceRessource1, 0), mapping.getSequence());
+        assertEquals(sequenceWeight1, mapping.getMolecularWeight(), 0.001);
+      } else if (mapping.getProteinId().equals("829098686")) {
         assertEquals(parseSequence(sequenceRessource2, 1), mapping.getSequence());
         assertEquals(sequenceWeight2, mapping.getMolecularWeight(), 0.001);
       } else {
