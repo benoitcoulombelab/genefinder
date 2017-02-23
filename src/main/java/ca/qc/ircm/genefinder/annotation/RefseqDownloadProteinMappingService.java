@@ -351,7 +351,7 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
       ftpService.downloadFile(client, file, localFile, progressBar.step(step), locale);
     }
     progressBar.setProgress(1.0);
-    return downloadHome.resolve(refseqSequences);
+    return downloadHome.resolve(refseqSequences.replaceFirst("^/", ""));
   }
 
   private void parseSequences(Path sequences, List<ProteinMapping> mappings,

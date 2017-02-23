@@ -1,9 +1,9 @@
 package ca.qc.ircm.genefinder.annotation;
 
-import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -37,11 +37,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPOutputStream;
@@ -98,6 +100,8 @@ public class RefseqDownloadProteinMappingServiceTest {
   private String ftp = "ftp.ncbi.nlm.nih.gov";
   private String gene2accession = "/gene/DATA/gene2refseq.gz";
   private String geneInfo = "/gene/DATA/gene_info.gz";
+  private String refseqSequences = "/refseq/release/complete";
+  private Pattern refseqSequencesFilenamePattern = Pattern.compile(".+\\.protein\\.faa\\.gz");
 
   @Before
   public void beforeTest() throws Throwable {
@@ -110,6 +114,9 @@ public class RefseqDownloadProteinMappingServiceTest {
     when(ncbiConfiguration.ftp()).thenReturn(ftp);
     when(ncbiConfiguration.gene2accession()).thenReturn(gene2accession);
     when(ncbiConfiguration.geneInfo()).thenReturn(geneInfo);
+    when(ncbiConfiguration.refseqSequences()).thenReturn(refseqSequences);
+    when(ncbiConfiguration.refseqSequencesFilenamePattern())
+        .thenReturn(refseqSequencesFilenamePattern);
     when(restClientFactory.createClient()).thenReturn(clientSearch, clientFetchIds);
     when(clientSearch.target(anyString())).thenReturn(targetSearch);
     when(targetSearch.path(anyString())).thenReturn(targetSearch);
@@ -127,6 +134,22 @@ public class RefseqDownloadProteinMappingServiceTest {
     try (OutputStream out = new GZIPOutputStream(Files.newOutputStream(output))) {
       Files.copy(input, out);
     }
+  }
+
+  private String parseSequence(Path fasta, int sequenceIndex) throws IOException {
+    List<String> lines = Files.readAllLines(fasta);
+    int sequenceCount = -1;
+    int lineIndex = 0;
+    while (lineIndex < lines.size() && sequenceCount < sequenceIndex) {
+      if (lines.get(lineIndex++).startsWith(">")) {
+        sequenceCount++;
+      }
+    }
+    StringBuilder sequence = new StringBuilder();
+    while (lineIndex < lines.size() && !lines.get(lineIndex).startsWith(">")) {
+      sequence.append(lines.get(lineIndex++));
+    }
+    return sequence.toString();
   }
 
   @Test
@@ -254,7 +277,6 @@ public class RefseqDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Sequence() throws Throwable {
-    fail("Program test");
     int organismId = 9606;
     when(organism.getId()).thenReturn(organismId);
     when(parameters.getOrganism()).thenReturn(organism);
@@ -268,23 +290,63 @@ public class RefseqDownloadProteinMappingServiceTest {
         accessions.stream().collect(Collectors.joining("\n")).getBytes(UTF_8_CHARSET));
     when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
     when(invocationFetchIds.get(InputStream.class)).thenReturn(accessionInput);
+    String remoteSequence1 = "/refseq/refseq1.protein.faa.gz";
+    String remoteSequence2 = "/refseq/refseq2.protein.faa.gz";
+    List<String> refseqFiles = new ArrayList<>();
+    refseqFiles.add(remoteSequence1);
+    refseqFiles.add("/refseq/refseq1.protein.gpff.gz");
+    refseqFiles.add("/refseq/refseq1.rna.fna.gz");
+    refseqFiles.add(remoteSequence2);
+    when(ftpService.walkTree(any(), any())).thenReturn(refseqFiles);
+    Path refseqSequencesFolder =
+        Files.createDirectories(download.resolve(refseqSequences.substring(1)));
+    Path sequenceRessource1 =
+        Paths.get(getClass().getResource("/annotation/refseq1.protein.faa").toURI());
+    Path sequenceRessource2 =
+        Paths.get(getClass().getResource("/annotation/refseq2.protein.faa").toURI());
+    Path localSequence1 = refseqSequencesFolder.resolve("refseq1.protein.faa.gz");
+    gzip(sequenceRessource1, localSequence1);
+    when(ftpService.localFile(remoteSequence1)).thenReturn(localSequence1);
+    Path localSequence2 = refseqSequencesFolder.resolve("refseq2.protein.faa.gz");
+    gzip(sequenceRessource2, localSequence2);
+    when(ftpService.localFile(remoteSequence2)).thenReturn(localSequence2);
+    double sequenceWeight1 = 127.3;
+    double sequenceWeight2 = 58.9;
+    double sequenceWeight3 = 41.4;
+    when(proteinService.weight(anyString())).thenReturn(sequenceWeight1, sequenceWeight2,
+        sequenceWeight3);
 
     List<ProteinMapping> mappings = refseqDownloadProteinMappingService
         .downloadProteinMappings(parameters, progressBar, locale);
 
     verify(ftpService).anonymousConnect(ncbiConfiguration.ftp());
+    verify(ftpService).walkTree(ftpClient, refseqSequences);
+    verify(ftpService).localFile(remoteSequence1);
+    verify(ftpService).downloadFile(ftpClient, remoteSequence1, localSequence1, progressBar,
+        locale);
+    verify(ftpService).localFile(remoteSequence2);
+    verify(ftpService).downloadFile(ftpClient, remoteSequence2, localSequence2, progressBar,
+        locale);
+    verify(proteinService).weight(parseSequence(sequenceRessource1, 0));
+    verify(proteinService).weight(parseSequence(sequenceRessource2, 1));
+    verify(proteinService).weight(parseSequence(sequenceRessource2, 2));
     assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("NP_001317102.1")) {
+        assertEquals(parseSequence(sequenceRessource1, 0), mapping.getSequence());
+        assertEquals(sequenceWeight1, mapping.getMolecularWeight(), 0.001);
+      } else if (mapping.getProteinId().equals("NP_001317083.1")) {
+        assertEquals(parseSequence(sequenceRessource2, 1), mapping.getSequence());
+        assertEquals(sequenceWeight2, mapping.getMolecularWeight(), 0.001);
       } else {
+        assertEquals(parseSequence(sequenceRessource2, 2), mapping.getSequence());
+        assertEquals(sequenceWeight3, mapping.getMolecularWeight(), 0.001);
       }
       assertNull(mapping.getTaxonomyId());
       assertNull(mapping.getGeneId());
       assertNull(mapping.getGeneName());
       assertNull(mapping.getGeneSummary());
       assertNull(mapping.getGeneSynonyms());
-      assertNull(mapping.getSequence());
-      assertNull(mapping.getMolecularWeight());
     }
   }
 }
