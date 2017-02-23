@@ -68,8 +68,10 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
   protected RefseqDownloadProteinMappingService() {
   }
 
-  protected RefseqDownloadProteinMappingService(NcbiConfiguration ncbiConfiguration,
-      RestClientFactory restClientFactory, FtpService ftpService, ProteinService proteinService) {
+  protected RefseqDownloadProteinMappingService(ApplicationConfiguration applicationConfiguration,
+      NcbiConfiguration ncbiConfiguration, RestClientFactory restClientFactory,
+      FtpService ftpService, ProteinService proteinService) {
+    this.applicationConfiguration = applicationConfiguration;
     this.ncbiConfiguration = ncbiConfiguration;
     this.restClientFactory = restClientFactory;
     this.ftpService = ftpService;
@@ -115,7 +117,7 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
   }
 
   private BufferedReader newBufferedReader(Path file) throws IOException {
-    if (file.getFileName().endsWith(".gz")) {
+    if (file.getFileName().toString().endsWith(".gz")) {
       return new BufferedReader(
           new InputStreamReader(new GZIPInputStream(Files.newInputStream(file)), UTF_8_CHARSET));
     } else {
@@ -244,10 +246,9 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
 
   private Path downloadGene2Accession(ProgressBar progressBar, Locale locale) throws IOException {
     FTPClient client = ftpService.anonymousConnect(ncbiConfiguration.ftp());
-    Path downloadHome = applicationConfiguration.download();
     String gene2accession = ncbiConfiguration.gene2accession();
-    Path gene2accessionFile = downloadHome.resolve(gene2accession);
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
+    Path gene2accessionFile = ftpService.localFile(gene2accession);
     progressBar.setMessage(resources.message("download", gene2accession, gene2accessionFile));
     ftpService.downloadFile(client, gene2accession, gene2accessionFile, progressBar, locale);
     progressBar.setProgress(1.0);
@@ -262,6 +263,9 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     try (BufferedReader reader = newBufferedReader(gene2Accession)) {
       String line;
       while ((line = reader.readLine()) != null) {
+        if (line.startsWith("#")) {
+          continue;
+        }
         String[] columns = line.split("\t", -1);
         String proteinId = columns[5];
         if (mappingsById.containsKey(proteinId)) {
@@ -278,9 +282,8 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
 
   private Path downloadGeneInfo(ProgressBar progressBar, Locale locale) throws IOException {
     FTPClient client = ftpService.anonymousConnect(ncbiConfiguration.ftp());
-    Path downloadHome = applicationConfiguration.download();
     String geneInfo = ncbiConfiguration.geneInfo();
-    Path geneInfoFile = downloadHome.resolve(geneInfo);
+    Path geneInfoFile = ftpService.localFile(geneInfo);
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
     progressBar.setMessage(resources.message("download", geneInfo, geneInfoFile));
     ftpService.downloadFile(client, geneInfo, geneInfoFile, progressBar, locale);
@@ -302,12 +305,15 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     try (BufferedReader reader = newBufferedReader(geneInfo)) {
       String line;
       while ((line = reader.readLine()) != null) {
+        if (line.startsWith("#")) {
+          continue;
+        }
         String[] columns = line.split("\t", -1);
         Long geneId = Long.parseLong(columns[1]);
         if (mappingsByGene.containsKey(geneId)) {
           String name = columns[2];
-          String synonyms = columns[4];
-          String summary = columns[8];
+          String synonyms = columns[4].equals("-") ? null : columns[4];
+          String summary = columns[8].equals("-") ? null : columns[8];
           mappingsByGene.get(geneId).forEach(mapping -> {
             if (parameters.isGeneName()) {
               mapping.setGeneName(name);
@@ -326,7 +332,7 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
   }
 
   private boolean isDownloaSequences(FindGenesParameters parameters) {
-    return parameters.isProteinMolecularWeight();
+    return parameters.isSequence() || parameters.isProteinMolecularWeight();
   }
 
   private Path downloadSequences(ProgressBar progressBar, Locale locale) throws IOException {
@@ -340,7 +346,7 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
     double step = 1.0 / Math.max(files.size(), 1);
     for (String file : files) {
-      Path localFile = downloadHome.resolve(file);
+      Path localFile = ftpService.localFile(file);
       progressBar.setMessage(resources.message("download", file, localFile));
       ftpService.downloadFile(client, file, localFile, progressBar.step(step), locale);
     }

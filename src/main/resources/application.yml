@@ -22,7 +22,7 @@ ncbi:
   ftp: ftp.ncbi.nlm.nih.gov
   taxonomy: /pub/taxonomy/taxdmp.zip
   taxonomyNodes: nodes.dmp
-  gene2accession: /gene/DATA/gene2accession.gz
+  gene2accession: /gene/DATA/gene2refseq.gz
   geneInfo: /gene/DATA/gene_info.gz
   refseq-sequences: /refseq/release/complete
   refseq-sequences-filename-pattern: '.+\.protein\.faa\.gz'

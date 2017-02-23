@@ -22,7 +22,7 @@ public class NcbiConfigurationTest {
     assertEquals("ftp.ncbi.nlm.nih.gov", ncbiConfiguration.ftp());
     assertEquals("/pub/taxonomy/taxdmp.zip", ncbiConfiguration.taxonomy());
     assertEquals("nodes.dmp", ncbiConfiguration.taxonomyNodes());
-    assertEquals("/gene/DATA/gene2accession.gz", ncbiConfiguration.gene2accession());
+    assertEquals("/gene/DATA/gene2refseq.gz", ncbiConfiguration.gene2accession());
     assertEquals("/gene/DATA/gene_info.gz", ncbiConfiguration.geneInfo());
     assertEquals("/refseq/release/complete", ncbiConfiguration.refseqSequences());
     assertEquals(Pattern.compile(".+\\.protein\\.faa\\.gz").pattern(),
