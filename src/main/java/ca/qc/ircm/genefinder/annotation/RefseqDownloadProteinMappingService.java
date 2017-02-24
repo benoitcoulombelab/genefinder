@@ -14,6 +14,7 @@ import ca.qc.ircm.utils.MessageResources;
 import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -46,6 +47,7 @@ import javax.xml.parsers.SAXParserFactory;
 /**
  * Download protein mappings from RefSeq database.
  */
+@Component
 public class RefseqDownloadProteinMappingService implements DownloadProteinMappingService {
   private static class SearchOutput {
     private String webEnv;

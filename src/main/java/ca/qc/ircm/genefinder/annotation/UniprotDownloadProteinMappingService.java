@@ -13,6 +13,7 @@ import ca.qc.ircm.utils.MessageResources;
 import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import javax.ws.rs.client.WebTarget;
 /**
  * Download protein mappings from RefSeq database.
  */
+@Component
 public class UniprotDownloadProteinMappingService implements DownloadProteinMappingService {
   private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
   private static final Logger logger =

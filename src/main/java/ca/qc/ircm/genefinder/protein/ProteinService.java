@@ -1,11 +1,14 @@
 package ca.qc.ircm.genefinder.protein;
 
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Services for proteins.
  */
+@Component
 public class ProteinService {
   private static final Map<Character, Double> AMINO_ACID_WEIGHTS;
 
