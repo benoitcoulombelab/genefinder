@@ -1,5 +1,6 @@
 package ca.qc.ircm.genefinder.data.gui;
 
+import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
 import ca.qc.ircm.genefinder.data.FindGenesInDataTask;
 import ca.qc.ircm.genefinder.data.FindGenesInDataTaskFactory;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
@@ -19,6 +20,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
@@ -68,13 +70,17 @@ public class GeneFinderPresenter {
   @FXML
   private ListView<File> files;
   @FXML
+  private Label proteinColumnLabel;
+  @FXML
+  private TextField proteinColumn;
+  @FXML
   private Label organismLabel;
   @FXML
   private ChoiceBox<Organism> organism;
   @FXML
-  private Label proteinColumnLabel;
+  private Label proteinDatabaseLabel;
   @FXML
-  private TextField proteinColumn;
+  private ChoiceBox<ProteinDatabase> proteinDatabase;
   @FXML
   private CheckBox geneId;
   @FXML
@@ -116,12 +122,15 @@ public class GeneFinderPresenter {
         }
       }
     });
+    proteinDatabase.setItems(FXCollections.observableArrayList(ProteinDatabase.values()));
+    proteinDatabase.setConverter(new ProteinDatabaseStringConverter(Locale.getDefault()));
     geneIdProperty.bind(geneId.selectedProperty());
     geneNameProperty.bind(geneName.selectedProperty());
     geneSynonymsProperty.bind(geneSynonyms.selectedProperty());
     geneSummaryProperty.bind(geneSummary.selectedProperty());
     proteinMolecularWeightProperty.bind(proteinMolecularWeight.selectedProperty());
 
+    proteinDatabase.setValue(ProteinDatabase.values()[0]);
     geneId.setSelected(true);
     geneName.setSelected(true);
   }
@@ -134,6 +143,7 @@ public class GeneFinderPresenter {
     FindGenesParametersBean parameters = new FindGenesParametersBean();
     parameters.organism(organism.getSelectionModel().getSelectedItem());
     parameters.proteinColumn(parseProteinColumn());
+    parameters.proteinDatabase(proteinDatabase.getSelectionModel().getSelectedItem());
     parameters.geneId(geneIdProperty.get());
     parameters.geneName(geneNameProperty.get());
     parameters.geneSynonyms(geneSynonymsProperty.get());
@@ -221,20 +231,17 @@ public class GeneFinderPresenter {
   private boolean validate() {
     filesLabel.getStyleClass().remove("error");
     files.getStyleClass().remove("error");
-    organismLabel.getStyleClass().remove("error");
-    organism.getStyleClass().remove("error");
     proteinColumnLabel.getStyleClass().remove("error");
     proteinColumn.getStyleClass().remove("error");
+    organismLabel.getStyleClass().remove("error");
+    organism.getStyleClass().remove("error");
+    proteinDatabaseLabel.getStyleClass().remove("error");
+    proteinDatabase.getStyleClass().remove("error");
     List<String> errors = new ArrayList<>();
     if (files.getItems().isEmpty()) {
       errors.add(resources.getString("error.files.required"));
       filesLabel.getStyleClass().add("error");
       files.getStyleClass().add("error");
-    }
-    if (organism.getSelectionModel().getSelectedItem() == null) {
-      errors.add(resources.getString("error.organism.required"));
-      organismLabel.getStyleClass().add("error");
-      organism.getStyleClass().add("error");
     }
     if (proteinColumn.getText() == null || proteinColumn.getText().isEmpty()) {
       errors.add(resources.getString("proteinColumn.empty"));
@@ -255,6 +262,16 @@ public class GeneFinderPresenter {
           proteinColumn.getStyleClass().add("error");
         }
       }
+    }
+    if (organism.getSelectionModel().getSelectedItem() == null) {
+      errors.add(resources.getString("error.organism.required"));
+      organismLabel.getStyleClass().add("error");
+      organism.getStyleClass().add("error");
+    }
+    if (proteinDatabase.getSelectionModel().getSelectedItem() == null) {
+      errors.add(resources.getString("proteinDatabase.required"));
+      proteinDatabaseLabel.getStyleClass().add("error");
+      proteinDatabase.getStyleClass().add("error");
     }
     boolean valid = errors.isEmpty();
     if (!valid) {

@@ -63,7 +63,7 @@ public class DownloadProteinMappingServiceDispatcherTest {
   }
 
   @Test
-  public void downloadProteinMappings_Refseqgi() throws Throwable {
+  public void downloadProteinMappings_RefseqGi() throws Throwable {
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
 
     downloadProteinMappingServiceDispatcher.downloadProteinMappings(parameters, progressBar,

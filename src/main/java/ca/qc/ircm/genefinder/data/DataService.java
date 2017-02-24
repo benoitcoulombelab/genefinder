@@ -46,7 +46,7 @@ public class DataService {
         MessageFormat.format(bundle.getString("mappings"), parameters.getOrganism().getName()));
     ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
     List<ProteinMapping> rawMappings = downloadProteinMappingService
-        .allProteinMappings(parameters.getOrganism(), progressBar.step(0.8), locale);
+        .downloadProteinMappings(parameters, progressBar.step(0.8), locale);
     Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
         Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
     progressBar.setProgress(0.8);

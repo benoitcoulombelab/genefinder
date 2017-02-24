@@ -75,7 +75,7 @@ public class DataServiceTest {
     mappings.add(getProteinMapping("63100331", "FAF"));
     mappings.add(getProteinMapping("30583211", "FAF"));
     mappings.add(getProteinMapping("17512236", "FAF"));
-    when(proteinMappingService.allProteinMappings(any(), any(), any())).thenReturn(mappings);
+    when(proteinMappingService.downloadProteinMappings(any(), any(), any())).thenReturn(mappings);
     FindGenesParametersBean parameters = new FindGenesParametersBean();
     parameters.organism(organism);
 
@@ -83,7 +83,8 @@ public class DataServiceTest {
 
     verify(progressBar, atLeastOnce()).setProgress(any(Double.class));
     verify(progressBar, atLeastOnce()).setMessage(any(String.class));
-    verify(proteinMappingService).allProteinMappings(eq(organism), eq(progressBar), eq(locale));
+    verify(proteinMappingService).downloadProteinMappings(eq(parameters), eq(progressBar),
+        eq(locale));
     verify(dataWriter).writeGene(eq(input), eq(output), eq(parameters), mappingsCaptor.capture());
   }
 
