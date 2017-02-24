@@ -131,7 +131,6 @@ public class GeneFinderPresenter {
     proteinMolecularWeightProperty.bind(proteinMolecularWeight.selectedProperty());
 
     proteinDatabase.setValue(ProteinDatabase.values()[0]);
-    geneId.setSelected(true);
     geneName.setSelected(true);
   }
 
