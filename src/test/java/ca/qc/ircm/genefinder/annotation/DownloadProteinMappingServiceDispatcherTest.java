@@ -28,8 +28,6 @@ public class DownloadProteinMappingServiceDispatcherTest {
   @Mock
   private UniprotDownloadProteinMappingService uniprotDownloadProteinMappingService;
   @Mock
-  private DownloadProteinMappingServiceBean downloadProteinMappingServiceBean;
-  @Mock
   private FindGenesParameters parameters;
   @Mock
   private Organism organism;
@@ -39,16 +37,8 @@ public class DownloadProteinMappingServiceDispatcherTest {
 
   @Before
   public void beforeTest() {
-    downloadProteinMappingServiceDispatcher =
-        new DownloadProteinMappingServiceDispatcher(refseqDownloadProteinMappingService,
-            uniprotDownloadProteinMappingService, downloadProteinMappingServiceBean);
-  }
-
-  @Test
-  public void allProteinMappings() throws Throwable {
-    downloadProteinMappingServiceDispatcher.allProteinMappings(organism, progressBar, locale);
-
-    verify(downloadProteinMappingServiceBean).allProteinMappings(organism, progressBar, locale);
+    downloadProteinMappingServiceDispatcher = new DownloadProteinMappingServiceDispatcher(
+        refseqDownloadProteinMappingService, uniprotDownloadProteinMappingService);
   }
 
   @Test

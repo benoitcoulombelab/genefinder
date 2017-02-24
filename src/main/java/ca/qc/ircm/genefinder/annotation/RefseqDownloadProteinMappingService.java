@@ -79,12 +79,6 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
   }
 
   @Override
-  public List<ProteinMapping> allProteinMappings(Organism organism, ProgressBar progressBar,
-      Locale locale) throws IOException, InterruptedException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public List<ProteinMapping> downloadProteinMappings(FindGenesParameters parameters,
       ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);

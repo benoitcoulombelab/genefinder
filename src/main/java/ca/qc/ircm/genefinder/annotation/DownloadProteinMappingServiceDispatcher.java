@@ -1,7 +1,6 @@
 package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -22,25 +21,15 @@ public class DownloadProteinMappingServiceDispatcher implements DownloadProteinM
   private RefseqDownloadProteinMappingService refseqDownloadProteinMappingService;
   @Inject
   private UniprotDownloadProteinMappingService uniprotDownloadProteinMappingService;
-  @Inject
-  private DownloadProteinMappingServiceBean downloadProteinMappingServiceBean;
 
   protected DownloadProteinMappingServiceDispatcher() {
   }
 
   protected DownloadProteinMappingServiceDispatcher(
       RefseqDownloadProteinMappingService refseqDownloadProteinMappingService,
-      UniprotDownloadProteinMappingService uniprotDownloadProteinMappingService,
-      DownloadProteinMappingServiceBean downloadProteinMappingServiceBean) {
+      UniprotDownloadProteinMappingService uniprotDownloadProteinMappingService) {
     this.refseqDownloadProteinMappingService = refseqDownloadProteinMappingService;
     this.uniprotDownloadProteinMappingService = uniprotDownloadProteinMappingService;
-    this.downloadProteinMappingServiceBean = downloadProteinMappingServiceBean;
-  }
-
-  @Override
-  public List<ProteinMapping> allProteinMappings(Organism organism, ProgressBar progressBar,
-      Locale locale) throws IOException, InterruptedException {
-    return downloadProteinMappingServiceBean.allProteinMappings(organism, progressBar, locale);
   }
 
   @Override

@@ -4,7 +4,6 @@ import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.protein.ProteinService;
 import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
@@ -68,12 +67,6 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     this.restClientFactory = restClientFactory;
     this.ftpService = ftpService;
     this.proteinService = proteinService;
-  }
-
-  @Override
-  public List<ProteinMapping> allProteinMappings(Organism organism, ProgressBar progressBar,
-      Locale locale) throws IOException, InterruptedException {
-    throw new UnsupportedOperationException();
   }
 
   @Override
