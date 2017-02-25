@@ -9,5 +9,5 @@ public interface RestConfiguration {
    *
    * @return timeout for REST requests
    */
-  public long timeout();
+  public int timeout();
 }

@@ -9,18 +9,18 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = RestConfigurationSpringBoot.PREFIX)
 public class RestConfigurationSpringBoot implements RestConfiguration {
   public static final String PREFIX = "rest";
-  private long timeout;
+  private int timeout;
 
   @Override
-  public long timeout() {
+  public int timeout() {
     return timeout;
   }
 
-  public long getTimeout() {
+  public int getTimeout() {
     return timeout;
   }
 
-  public void setTimeout(long timeout) {
+  public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
 }

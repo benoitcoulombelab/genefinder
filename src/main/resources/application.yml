@@ -16,7 +16,7 @@ spring:
       validationQuery: SELECT 1
 
 rest:
-  timeout: 1200
+  timeout: 120000
 
 ncbi:
   ftp: ftp.ncbi.nlm.nih.gov

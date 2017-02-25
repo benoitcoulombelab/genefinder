@@ -28,7 +28,7 @@ public class RestClientFactoryTest {
 
   @Test
   public void createClient() {
-    long timeout = 2000;
+    int timeout = 2000;
     when(restConfiguration.timeout()).thenReturn(timeout);
 
     Client client = restClientFactory.createClient();

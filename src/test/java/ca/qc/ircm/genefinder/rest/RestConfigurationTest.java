@@ -17,6 +17,6 @@ public class RestConfigurationTest {
 
   @Test
   public void defaultProperties() throws Throwable {
-    assertEquals(1200, restConfiguration.timeout());
+    assertEquals(120000, restConfiguration.timeout());
   }
 }
