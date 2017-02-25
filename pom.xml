@@ -21,7 +21,7 @@
     <querydsl.version>4.0.7</querydsl.version>
     <afterburner.fx.version>1.6.1</afterburner.fx.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
-    <jersey-client.version>2.18</jersey-client.version>
+    <jersey-client.version>2.25</jersey-client.version>
     <poi.version>3.10.1</poi.version>
     <commons-net.version>3.4</commons-net.version>
     <commons-vfs2.version>2.0</commons-vfs2.version>
@@ -143,6 +143,11 @@
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
       <artifactId>jersey-client</artifactId>
+      <version>${jersey-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
       <version>${jersey-client.version}</version>
     </dependency>
     <dependency>
@@ -360,4 +365,21 @@
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>uniprot-repository</id>
+      <activation>
+        <property>
+          <name>uniprot-repository</name>
+          <value>!false</value>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>uniprot-repository</id>
+          <url>http://www.ebi.ac.uk/~maven/m2repo</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
 </project>
