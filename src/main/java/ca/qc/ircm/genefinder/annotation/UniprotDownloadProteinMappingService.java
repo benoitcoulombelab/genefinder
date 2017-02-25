@@ -119,6 +119,7 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     target = target.queryParam("query", "organism:" + parameters.getOrganism().getId()
         + (parameters.getProteinDatabase() == SWISSPROT ? "+AND+reviewed:yes" : ""));
     target = target.queryParam("format", "list");
+    logger.debug("get ids at URL {}", target.getUri());
     Set<String> ids = new LinkedHashSet<>();
     try (BufferedReader reader = new BufferedReader(
         new InputStreamReader(target.request().get(InputStream.class), UTF_8_CHARSET))) {
