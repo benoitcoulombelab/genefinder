@@ -24,4 +24,5 @@
   <logger name="ca.qc.ircm.genefinder.test.config" level="INFO" />
   <logger name="ca.qc.ircm.genefinder.test.config.DatabaseCleaner" level="DEBUG" />
   <logger name="org.springframework" level="INFO"/>
+  <logger name="org.glassfish.jersey" level="INFO"/>
 </configuration>
