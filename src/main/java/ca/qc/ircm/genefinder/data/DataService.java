@@ -28,38 +28,43 @@ public class DataService {
   @Inject
   private DownloadProteinMappingService downloadProteinMappingService;
   @Inject
+  private ProteinParser proteinParser;
+  @Inject
   private DataWriter dataWriter;
 
   protected DataService() {
   }
 
   protected DataService(DownloadProteinMappingService downloadProteinMappingService,
-      DataWriter dataWriter) {
+      ProteinParser proteinParser, DataWriter dataWriter) {
     this.downloadProteinMappingService = downloadProteinMappingService;
+    this.proteinParser = proteinParser;
     this.dataWriter = dataWriter;
   }
 
   public void findGeneNames(Collection<File> files, FindGenesParameters parameters,
       ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
     ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);
-    progressBar.setMessage(
-        MessageFormat.format(bundle.getString("mappings"), parameters.getOrganism().getName()));
-    ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
-    List<ProteinMapping> rawMappings = downloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar.step(0.8), locale);
-    Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
-        Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
-    progressBar.setProgress(0.8);
-    double step = 0.2 / Math.max(files.size(), 1);
+    double step = 1.0 / Math.max(files.size(), 1);
     int count = 0;
     for (File file : files) {
+      progressBar.setMessage(
+          MessageFormat.format(bundle.getString("mappings"), parameters.getOrganism().getName()));
+      ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
+      List<String> proteinIds = proteinParser.parseProteinIds(file, parameters);
+      ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
+      List<ProteinMapping> rawMappings = downloadProteinMappingService
+          .downloadProteinMappings(proteinIds, parameters, progressBar.step(0.8), locale);
+      Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
+          Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
+      ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
       progressBar.setMessage(MessageFormat.format(bundle.getString("finding"), file.getName()));
       String extension = FilenameUtils.getExtension(file.getName());
       String filename = MessageFormat.format(bundle.getString("output.filename"),
           FilenameUtils.getBaseName(file.getName()), extension.isEmpty() ? 0 : 1, extension);
       File output = new File(file.getParentFile(), filename);
       dataWriter.writeGene(file, output, parameters, mappings);
-      progressBar.setProgress(0.5 + 0.5 * step * count++);
+      progressBar.setProgress(step * count++);
     }
     progressBar.setProgress(1.0);
   }

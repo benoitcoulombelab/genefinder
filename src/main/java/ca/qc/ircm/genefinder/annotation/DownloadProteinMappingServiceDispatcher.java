@@ -33,17 +33,18 @@ public class DownloadProteinMappingServiceDispatcher implements DownloadProteinM
   }
 
   @Override
-  public List<ProteinMapping> downloadProteinMappings(FindGenesParameters parameters,
-      ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
+  public List<ProteinMapping> downloadProteinMappings(List<String> proteinIds,
+      FindGenesParameters parameters, ProgressBar progressBar, Locale locale)
+      throws IOException, InterruptedException {
     switch (parameters.getProteinDatabase()) {
       case REFSEQ:
       case REFSEQ_GI:
-        return refseqDownloadProteinMappingService.downloadProteinMappings(parameters, progressBar,
-            locale);
+        return refseqDownloadProteinMappingService.downloadProteinMappings(proteinIds, parameters,
+            progressBar, locale);
       case UNIPROT:
       case SWISSPROT:
-        return uniprotDownloadProteinMappingService.downloadProteinMappings(parameters, progressBar,
-            locale);
+        return uniprotDownloadProteinMappingService.downloadProteinMappings(proteinIds, parameters,
+            progressBar, locale);
       default:
         throw new AssertionError(ProteinDatabase.class.getSimpleName() + " "
             + parameters.getProteinDatabase() + " not covered in switch");

@@ -1,11 +1,8 @@
 package ca.qc.ircm.genefinder.annotation;
 
-import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
-
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
-import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
@@ -16,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -24,19 +20,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
 
 /**
  * Download protein mappings from RefSeq database.
@@ -44,14 +36,13 @@ import javax.ws.rs.client.WebTarget;
 @Component
 public class UniprotDownloadProteinMappingService implements DownloadProteinMappingService {
   private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+  @SuppressWarnings("unused")
   private static final Logger logger =
       LoggerFactory.getLogger(UniprotDownloadProteinMappingService.class);
   @Inject
   private UniprotConfiguration uniprotConfiguration;
   @Inject
   private NcbiConfiguration ncbiConfiguration;
-  @Inject
-  private RestClientFactory restClientFactory;
   @Inject
   private FtpService ftpService;
   @Inject
@@ -61,28 +52,26 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
   }
 
   protected UniprotDownloadProteinMappingService(UniprotConfiguration uniprotConfiguration,
-      NcbiConfiguration ncbiConfiguration, RestClientFactory restClientFactory,
-      FtpService ftpService, ProteinService proteinService) {
+      NcbiConfiguration ncbiConfiguration, FtpService ftpService, ProteinService proteinService) {
     this.uniprotConfiguration = uniprotConfiguration;
     this.ncbiConfiguration = ncbiConfiguration;
-    this.restClientFactory = restClientFactory;
     this.ftpService = ftpService;
     this.proteinService = proteinService;
   }
 
   @Override
-  public List<ProteinMapping> downloadProteinMappings(FindGenesParameters parameters,
-      ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
+  public List<ProteinMapping> downloadProteinMappings(List<String> proteinIds,
+      FindGenesParameters parameters, ProgressBar progressBar, Locale locale)
+      throws IOException, InterruptedException {
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    int steps = 1;
+    int steps = 0;
     steps += isDownloadIdMapping(parameters) ? 1 : 0;
     steps += isDownloadGeneInfo(parameters) ? 1 : 0;
     steps += isDownloaSequences(parameters) ? 1 : 0;
     double step = 1.0 / steps;
-    List<String> ids = getIds(parameters, progressBar.step(step), locale);
     List<ProteinMapping> mappings =
-        ids.stream().map(id -> new ProteinMapping(id)).collect(Collectors.toList());
+        proteinIds.stream().map(id -> new ProteinMapping(id)).collect(Collectors.toList());
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadIdMapping(parameters)) {
       Path idMapping = downloadIdMapping(progressBar.step(step / 2), locale);
@@ -109,32 +98,6 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     } else {
       return Files.newBufferedReader(file, UTF_8_CHARSET);
     }
-  }
-
-  private List<String> getIds(FindGenesParameters parameters, ProgressBar progressBar,
-      Locale locale) throws IOException, InterruptedException {
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    Client client = restClientFactory.createClient();
-    WebTarget target = client.target(uniprotConfiguration.search());
-    target = target.queryParam("query", "organism:" + parameters.getOrganism().getId()
-        + (parameters.getProteinDatabase() == SWISSPROT ? "+AND+reviewed:yes" : ""));
-    target = target.queryParam("format", "list");
-    logger.debug("get ids at URL {}", target.getUri());
-    Set<String> ids = new LinkedHashSet<>();
-    try (BufferedReader reader = new BufferedReader(
-        new InputStreamReader(target.request().get(InputStream.class), UTF_8_CHARSET))) {
-      ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-      progressBar.setProgress(0.5);
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (!line.isEmpty() && !ids.add(line)) {
-          logger.warn("id {} already parsed before", line);
-        }
-      }
-      progressBar.setProgress(1.0);
-    }
-    return new ArrayList<>(ids);
   }
 
   private boolean isDownloadIdMapping(FindGenesParameters parameters) {

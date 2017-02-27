@@ -7,16 +7,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.protein.ProteinService;
-import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.net.ftp.FTPClient;
@@ -29,7 +26,6 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,10 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
@@ -54,8 +46,6 @@ public class UniprotDownloadProteinMappingServiceTest {
   @Mock
   private NcbiConfiguration ncbiConfiguration;
   @Mock
-  private RestClientFactory restClientFactory;
-  @Mock
   private FtpService ftpService;
   @Mock
   private ProteinService proteinService;
@@ -63,14 +53,6 @@ public class UniprotDownloadProteinMappingServiceTest {
   private FindGenesParameters parameters;
   @Mock
   private ProgressBar progressBar;
-  @Mock
-  private Organism organism;
-  @Mock
-  private Client clientSearch;
-  @Mock
-  private WebTarget targetSearch;
-  @Mock
-  private Invocation.Builder invocationSearch;
   @Mock
   private FTPClient ftpClient;
   @Rule
@@ -89,10 +71,13 @@ public class UniprotDownloadProteinMappingServiceTest {
   private String tremblFasta =
       "/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz";
 
+  /**
+   * Before test.
+   */
   @Before
   public void beforeTest() throws Throwable {
     uniprotDownloadProteinMappingService = new UniprotDownloadProteinMappingService(
-        uniprotConfiguration, ncbiConfiguration, restClientFactory, ftpService, proteinService);
+        uniprotConfiguration, ncbiConfiguration, ftpService, proteinService);
     download = Files.createDirectory(temporaryFolder.getRoot().toPath().resolve("download"));
     when(uniprotConfiguration.ftp()).thenReturn(ftp);
     when(uniprotConfiguration.search()).thenReturn(search);
@@ -102,11 +87,6 @@ public class UniprotDownloadProteinMappingServiceTest {
     when(uniprotConfiguration.tremblFasta()).thenReturn(tremblFasta);
     when(ncbiConfiguration.ftp()).thenReturn(ncbiFtp);
     when(ncbiConfiguration.geneInfo()).thenReturn(geneInfo);
-    when(restClientFactory.createClient()).thenReturn(clientSearch);
-    when(clientSearch.target(anyString())).thenReturn(targetSearch);
-    when(targetSearch.path(anyString())).thenReturn(targetSearch);
-    when(targetSearch.queryParam(anyString(), anyVararg())).thenReturn(targetSearch);
-    when(targetSearch.request()).thenReturn(invocationSearch);
     when(ftpService.anonymousConnect(anyString())).thenReturn(ftpClient);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
   }
@@ -135,37 +115,23 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.UNIPROT);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions.txt");
-    List<String> proteinsIds = Files.readAllLines(
+    List<String> proteinIds = Files.readAllLines(
         Paths.get(getClass().getResource("/annotation/uniprot-accessions.txt").toURI()));
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
-    verify(parameters, atLeastOnce()).getOrganism();
-    verify(parameters, atLeastOnce()).getProteinDatabase();
     verify(parameters, atLeastOnce()).isGeneId();
     verify(parameters, atLeastOnce()).isGeneName();
     verify(parameters, atLeastOnce()).isGeneSummary();
     verify(parameters, atLeastOnce()).isGeneSynonyms();
     verify(parameters, atLeastOnce()).isProteinMolecularWeight();
     verify(parameters, atLeastOnce()).isSequence();
-    verify(organism, atLeastOnce()).getId();
-    verify(restClientFactory).createClient();
-    verify(clientSearch).target(search);
-    verify(targetSearch).queryParam("query", "organism:9606");
-    verify(targetSearch).queryParam("format", "list");
-    verify(targetSearch).request();
-    verify(invocationSearch).get(InputStream.class);
     assertEquals(SEARCH_COUNT, mappings.size());
     Set<String> mappingsAccessions = new HashSet<>();
     for (ProteinMapping mapping : mappings) {
-      assertTrue(proteinsIds.contains(mapping.getProteinId()));
+      assertTrue(proteinIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
       assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
@@ -177,16 +143,13 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Gene() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
-    when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.REFSEQ);
+    when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions3.txt");
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    final List<String> proteinIds = Files.readAllLines(
+        Paths.get(getClass().getResource("/annotation/uniprot-accessions3.txt").toURI()));
     Path localIdMapping = download.resolve("idmapping.gz");
     gzip(Paths.get(getClass().getResource("/annotation/idmapping").toURI()), localIdMapping);
     when(ftpService.localFile(idmapping)).thenReturn(localIdMapping);
@@ -194,8 +157,8 @@ public class UniprotDownloadProteinMappingServiceTest {
     gzip(Paths.get(getClass().getResource("/annotation/refseq.gene_info").toURI()), localGeneInfo);
     when(ftpService.localFile(geneInfo)).thenReturn(localGeneInfo);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
     verify(ftpService).anonymousConnect(uniprotConfiguration.ftp());
     verify(ftpService).anonymousConnect(ncbiConfiguration.ftp());
@@ -235,14 +198,11 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Sequence() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.UNIPROT);
     when(parameters.isSequence()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions3.txt");
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    final List<String> proteinIds = Files.readAllLines(
+        Paths.get(getClass().getResource("/annotation/uniprot-accessions3.txt").toURI()));
     Path swissprotRessource =
         Paths.get(getClass().getResource("/annotation/swissprot.fasta").toURI());
     Path localSwissprot = download.resolve("swissprot.fasta.gz");
@@ -258,8 +218,8 @@ public class UniprotDownloadProteinMappingServiceTest {
     when(proteinService.weight(anyString())).thenReturn(sequenceWeight1, sequenceWeight2,
         sequenceWeight3);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
     verify(ftpService).anonymousConnect(uniprotConfiguration.ftp());
     verify(ftpService).localFile(swissprotFasta);
@@ -288,9 +248,6 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Gene_Sequence() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
@@ -298,8 +255,8 @@ public class UniprotDownloadProteinMappingServiceTest {
     when(parameters.isGeneSummary()).thenReturn(true);
     when(parameters.isSequence()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions3.txt");
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    final List<String> proteinIds = Files.readAllLines(
+        Paths.get(getClass().getResource("/annotation/uniprot-accessions3.txt").toURI()));
     Path localIdMapping = download.resolve("idmapping.gz");
     gzip(Paths.get(getClass().getResource("/annotation/idmapping").toURI()), localIdMapping);
     when(ftpService.localFile(idmapping)).thenReturn(localIdMapping);
@@ -321,8 +278,8 @@ public class UniprotDownloadProteinMappingServiceTest {
     when(proteinService.weight(anyString())).thenReturn(sequenceWeight1, sequenceWeight2,
         sequenceWeight3);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
     verify(proteinService).weight(parseSequence(swissprotRessource, 1));
     verify(proteinService).weight(parseSequence(tremblRessource, 1));
@@ -371,37 +328,23 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Swissprot() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.SWISSPROT);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions.txt");
-    List<String> proteinsIds = Files.readAllLines(
+    final List<String> proteinIds = Files.readAllLines(
         Paths.get(getClass().getResource("/annotation/uniprot-accessions.txt").toURI()));
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
-    verify(parameters, atLeastOnce()).getOrganism();
-    verify(parameters, atLeastOnce()).getProteinDatabase();
     verify(parameters, atLeastOnce()).isGeneId();
     verify(parameters, atLeastOnce()).isGeneName();
     verify(parameters, atLeastOnce()).isGeneSummary();
     verify(parameters, atLeastOnce()).isGeneSynonyms();
     verify(parameters, atLeastOnce()).isProteinMolecularWeight();
     verify(parameters, atLeastOnce()).isSequence();
-    verify(organism, atLeastOnce()).getId();
-    verify(restClientFactory).createClient();
-    verify(clientSearch).target(search);
-    verify(targetSearch).queryParam("query", "organism:9606+AND+reviewed:yes");
-    verify(targetSearch).queryParam("format", "list");
-    verify(targetSearch).request();
-    verify(invocationSearch).get(InputStream.class);
     assertEquals(SEARCH_COUNT, mappings.size());
     Set<String> mappingsAccessions = new HashSet<>();
     for (ProteinMapping mapping : mappings) {
-      assertTrue(proteinsIds.contains(mapping.getProteinId()));
+      assertTrue(proteinIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
       assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
@@ -413,16 +356,13 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Swissprot_Gene() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.SWISSPROT);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
     when(parameters.isGeneSummary()).thenReturn(true);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions3.txt");
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    final List<String> proteinIds = Files.readAllLines(
+        Paths.get(getClass().getResource("/annotation/uniprot-accessions3.txt").toURI()));
     Path localIdMapping = download.resolve("idmapping.gz");
     gzip(Paths.get(getClass().getResource("/annotation/idmapping").toURI()), localIdMapping);
     when(ftpService.localFile(idmapping)).thenReturn(localIdMapping);
@@ -430,8 +370,8 @@ public class UniprotDownloadProteinMappingServiceTest {
     gzip(Paths.get(getClass().getResource("/annotation/refseq.gene_info").toURI()), localGeneInfo);
     when(ftpService.localFile(geneInfo)).thenReturn(localGeneInfo);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
     verify(ftpService).anonymousConnect(uniprotConfiguration.ftp());
     verify(ftpService).anonymousConnect(ncbiConfiguration.ftp());
@@ -471,14 +411,11 @@ public class UniprotDownloadProteinMappingServiceTest {
 
   @Test
   public void downloadProteinMappings_Swissprot_Sequence() throws Throwable {
-    int organismId = 9606;
-    when(organism.getId()).thenReturn(organismId);
-    when(parameters.getOrganism()).thenReturn(organism);
     when(parameters.getProteinDatabase()).thenReturn(ProteinDatabase.SWISSPROT);
     when(parameters.isSequence()).thenReturn(true);
     when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    InputStream searchInput = getClass().getResourceAsStream("/annotation/uniprot-accessions3.txt");
-    when(invocationSearch.get(InputStream.class)).thenReturn(searchInput);
+    final List<String> proteinIds = Files.readAllLines(
+        Paths.get(getClass().getResource("/annotation/uniprot-accessions3.txt").toURI()));
     Path swissprotRessource =
         Paths.get(getClass().getResource("/annotation/swissprot.fasta").toURI());
     Path localSwissprot = download.resolve("swissprot.fasta.gz");
@@ -487,8 +424,8 @@ public class UniprotDownloadProteinMappingServiceTest {
     double sequenceWeight1 = 127.3;
     when(proteinService.weight(anyString())).thenReturn(sequenceWeight1);
 
-    List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
-        .downloadProteinMappings(parameters, progressBar, locale);
+    final List<ProteinMapping> mappings = uniprotDownloadProteinMappingService
+        .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
     verify(ftpService).anonymousConnect(uniprotConfiguration.ftp());
     verify(ftpService).localFile(swissprotFasta);

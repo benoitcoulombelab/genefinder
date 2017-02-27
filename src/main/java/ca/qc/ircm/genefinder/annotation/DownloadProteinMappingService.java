@@ -11,6 +11,7 @@ import java.util.Locale;
  * Service for {@link ProteinMapping}.
  */
 public interface DownloadProteinMappingService {
-  public List<ProteinMapping> downloadProteinMappings(FindGenesParameters parameters,
-      ProgressBar progressBar, Locale locale) throws IOException, InterruptedException;
+  public List<ProteinMapping> downloadProteinMappings(List<String> proteinIds,
+      FindGenesParameters parameters, ProgressBar progressBar, Locale locale)
+      throws IOException, InterruptedException;
 }

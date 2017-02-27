@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
 import java.util.Locale;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,6 +28,8 @@ public class DownloadProteinMappingServiceDispatcherTest {
   private RefseqDownloadProteinMappingService refseqDownloadProteinMappingService;
   @Mock
   private UniprotDownloadProteinMappingService uniprotDownloadProteinMappingService;
+  @Mock
+  private List<String> proteinIds;
   @Mock
   private FindGenesParameters parameters;
   @Mock
@@ -45,43 +48,43 @@ public class DownloadProteinMappingServiceDispatcherTest {
   public void downloadProteinMappings_Refseq() throws Throwable {
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ);
 
-    downloadProteinMappingServiceDispatcher.downloadProteinMappings(parameters, progressBar,
-        locale);
+    downloadProteinMappingServiceDispatcher.downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
 
-    verify(refseqDownloadProteinMappingService).downloadProteinMappings(parameters, progressBar,
-        locale);
+    verify(refseqDownloadProteinMappingService).downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
   }
 
   @Test
   public void downloadProteinMappings_RefseqGi() throws Throwable {
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
 
-    downloadProteinMappingServiceDispatcher.downloadProteinMappings(parameters, progressBar,
-        locale);
+    downloadProteinMappingServiceDispatcher.downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
 
-    verify(refseqDownloadProteinMappingService).downloadProteinMappings(parameters, progressBar,
-        locale);
+    verify(refseqDownloadProteinMappingService).downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
   }
 
   @Test
   public void downloadProteinMappings_Uniprot() throws Throwable {
     when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
 
-    downloadProteinMappingServiceDispatcher.downloadProteinMappings(parameters, progressBar,
-        locale);
+    downloadProteinMappingServiceDispatcher.downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
 
-    verify(uniprotDownloadProteinMappingService).downloadProteinMappings(parameters, progressBar,
-        locale);
+    verify(uniprotDownloadProteinMappingService).downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
   }
 
   @Test
   public void downloadProteinMappings_Swissprot() throws Throwable {
     when(parameters.getProteinDatabase()).thenReturn(SWISSPROT);
 
-    downloadProteinMappingServiceDispatcher.downloadProteinMappings(parameters, progressBar,
-        locale);
+    downloadProteinMappingServiceDispatcher.downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
 
-    verify(uniprotDownloadProteinMappingService).downloadProteinMappings(parameters, progressBar,
-        locale);
+    verify(uniprotDownloadProteinMappingService).downloadProteinMappings(proteinIds, parameters,
+        progressBar, locale);
   }
 }
