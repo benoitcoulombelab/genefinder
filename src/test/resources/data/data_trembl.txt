@@ -1,4 +1,0 @@
-human	
-accession number	
-tr|P11171	
-tr|Q08211	

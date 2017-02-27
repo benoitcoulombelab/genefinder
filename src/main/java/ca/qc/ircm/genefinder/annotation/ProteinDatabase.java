@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
  * Proteins databases.
  */
 public enum ProteinDatabase {
-  REFSEQ, REFSEQ_GI, UNIPROT, SWISSPROT;
+  REFSEQ, REFSEQ_GI, UNIPROT;
   public String getLabel(Locale locale) {
     ResourceBundle resources = ResourceBundle.getBundle(ProteinDatabase.class.getName(), locale);
     return resources.getString(name());

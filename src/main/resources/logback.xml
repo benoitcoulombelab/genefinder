@@ -22,4 +22,5 @@
 
   <logger name="ca.qc.ircm.genefinder" level="DEBUG" />
   <logger name="org.springframework" level="INFO"/>
+  <logger name="org.glassfish.jersey" level="INFO"/>
 </configuration>

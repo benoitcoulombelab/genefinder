@@ -2,7 +2,6 @@ package ca.qc.ircm.genefinder.annotation;
 
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
-import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,17 +68,6 @@ public class DownloadProteinMappingServiceDispatcherTest {
   @Test
   public void downloadProteinMappings_Uniprot() throws Throwable {
     when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
-
-    downloadProteinMappingServiceDispatcher.downloadProteinMappings(proteinIds, parameters,
-        progressBar, locale);
-
-    verify(uniprotDownloadProteinMappingService).downloadProteinMappings(proteinIds, parameters,
-        progressBar, locale);
-  }
-
-  @Test
-  public void downloadProteinMappings_Swissprot() throws Throwable {
-    when(parameters.getProteinDatabase()).thenReturn(SWISSPROT);
 
     downloadProteinMappingServiceDispatcher.downloadProteinMappings(proteinIds, parameters,
         progressBar, locale);

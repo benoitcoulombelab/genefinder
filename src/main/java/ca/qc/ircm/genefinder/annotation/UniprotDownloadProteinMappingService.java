@@ -3,16 +3,19 @@ package ca.qc.ircm.genefinder.annotation;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
+import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
 import org.apache.commons.net.ftp.FTPClient;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -23,12 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Pattern;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Download protein mappings from RefSeq database.
@@ -46,16 +50,20 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
   @Inject
   private FtpService ftpService;
   @Inject
+  private RestClientFactory restClientFactory;
+  @Inject
   private ProteinService proteinService;
 
   protected UniprotDownloadProteinMappingService() {
   }
 
   protected UniprotDownloadProteinMappingService(UniprotConfiguration uniprotConfiguration,
-      NcbiConfiguration ncbiConfiguration, FtpService ftpService, ProteinService proteinService) {
+      NcbiConfiguration ncbiConfiguration, FtpService ftpService,
+      RestClientFactory restClientFactory, ProteinService proteinService) {
     this.uniprotConfiguration = uniprotConfiguration;
     this.ncbiConfiguration = ncbiConfiguration;
     this.ftpService = ftpService;
+    this.restClientFactory = restClientFactory;
     this.proteinService = proteinService;
   }
 
@@ -66,26 +74,19 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     int steps = 0;
-    steps += isDownloadIdMapping(parameters) ? 1 : 0;
+    steps += isDownloadMappings(parameters) ? 1 : 0;
     steps += isDownloadGeneInfo(parameters) ? 1 : 0;
-    steps += isDownloaSequences(parameters) ? 1 : 0;
     double step = 1.0 / steps;
     List<ProteinMapping> mappings =
         proteinIds.stream().map(id -> new ProteinMapping(id)).collect(Collectors.toList());
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    if (isDownloadIdMapping(parameters)) {
-      Path idMapping = downloadIdMapping(progressBar.step(step / 2), locale);
-      parseIdMapping(idMapping, mappings, progressBar.step(step / 2), resources);
+    if (isDownloadMappings(parameters)) {
+      downloadMappings(mappings, parameters, progressBar.step(step / 2), resources);
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadGeneInfo(parameters)) {
       Path geneInfo = downloadGeneInfo(progressBar.step(step / 2), locale);
       parseGeneInfo(geneInfo, mappings, parameters, progressBar.step(step / 2), resources);
-    }
-    ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    if (isDownloaSequences(parameters)) {
-      List<Path> sequences = downloadSequences(parameters, progressBar.step(step / 2), locale);
-      parseSequences(sequences, mappings, parameters, progressBar.step(step / 2), resources);
     }
     progressBar.setProgress(1.0);
     return mappings;
@@ -100,41 +101,70 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     }
   }
 
-  private boolean isDownloadIdMapping(FindGenesParameters parameters) {
+  private boolean isDownloadMappings(FindGenesParameters parameters) {
     return parameters.isGeneId() || parameters.isGeneName() || parameters.isGeneSummary()
-        || parameters.isGeneSynonyms();
+        || parameters.isGeneSynonyms() || parameters.isSequence()
+        || parameters.isProteinMolecularWeight();
   }
 
-  private Path downloadIdMapping(ProgressBar progressBar, Locale locale) throws IOException {
-    FTPClient client = ftpService.anonymousConnect(uniprotConfiguration.ftp());
-    String idmapping = uniprotConfiguration.idmapping();
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    Path idmappingFile = ftpService.localFile(idmapping);
-    progressBar.setMessage(resources.message("download", idmapping, idmappingFile));
-    ftpService.downloadFile(client, idmapping, idmappingFile, progressBar, locale);
-    progressBar.setProgress(1.0);
-    return idmappingFile;
-  }
-
-  private void parseIdMapping(Path idmapping, List<ProteinMapping> mappings,
+  private void downloadMappings(List<ProteinMapping> mappings, FindGenesParameters parameters,
       ProgressBar progressBar, MessageResources resources) throws IOException {
-    progressBar.setMessage(resources.message("parsing", idmapping.getFileName()));
-    Map<String, ProteinMapping> mappingsById = mappings.stream()
+    final Map<String, ProteinMapping> mappingsById = mappings.stream()
         .collect(Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping));
-    String geneMapping = uniprotConfiguration.geneMapping();
-    try (BufferedReader reader = newBufferedReader(idmapping)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String[] columns = line.split("\t", -1);
-        String proteinId = columns[0];
-        String mappingType = columns[1];
-        if (mappingType.equals(geneMapping) && mappingsById.containsKey(proteinId)) {
-          ProteinMapping mapping = mappingsById.get(proteinId);
-          addGeneInfo(mapping, new GeneInfo(Long.parseLong(columns[2])));
+    Map<Integer, BiConsumer<ProteinMapping, String>> columnConsumers = new HashMap<>();
+    StringBuilder columnsBuilder = new StringBuilder("id");
+    int index = 1;
+    if (parameters.isGeneId() || parameters.isGeneName() || parameters.isGeneSummary()
+        || parameters.isGeneSynonyms()) {
+      columnConsumers.put(index++, (mapping, value) -> {
+        String[] geneIds = value.split(";");
+        for (String geneId : geneIds) {
+          if (!geneId.isEmpty()) {
+            addGeneInfo(mapping, new GeneInfo(Long.parseLong(geneId)));
+          }
+        }
+      });
+      columnsBuilder.append(",database(GeneID)");
+    }
+    if (parameters.isSequence() || parameters.isProteinMolecularWeight()) {
+      columnConsumers.put(index++, (mapping, value) -> {
+        setSequence(mapping, value, parameters);
+      });
+      columnsBuilder.append(",sequence");
+    }
+    Client client = restClientFactory.createClient();
+    client.register(LoggingFeature.class);
+    client.property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT,
+        LoggingFeature.Verbosity.HEADERS_ONLY);
+    WebTarget target = client.target(uniprotConfiguration.mapping());
+    target = target.queryParam("from", "ACC,ID");
+    target = target.queryParam("to", "ACC");
+    target = target.queryParam("format", "tab");
+    target = target.queryParam("columns", columnsBuilder.toString());
+    List<String> proteinIds = new ArrayList<>(mappingsById.keySet());
+    int maxIdsPerRequest = uniprotConfiguration.maxIdsPerRequest();
+    for (int i = 0; i < proteinIds.size(); i += maxIdsPerRequest) {
+      progressBar.setMessage(resources.message("downloadMappings", i,
+          Math.min(i + maxIdsPerRequest, proteinIds.size()), proteinIds.size()));
+      String ids =
+          proteinIds.stream().skip(i).limit(maxIdsPerRequest).collect(Collectors.joining(" "));
+      WebTarget targetWithIds = target.queryParam("query", ids);
+      try (BufferedReader reader = new BufferedReader(
+          new InputStreamReader(targetWithIds.request().get(InputStream.class), UTF_8_CHARSET))) {
+        String line;
+        reader.readLine();
+        while ((line = reader.readLine()) != null) {
+          String[] columns = line.split("\t");
+          String id = columns[0];
+          ProteinMapping mapping = mappingsById.get(id);
+          for (int j = 1; j < columns.length; j++) {
+            if (columnConsumers.containsKey(j)) {
+              columnConsumers.get(j).accept(mapping, columns[j]);
+            }
+          }
         }
       }
     }
-    progressBar.setProgress(1.0);
   }
 
   private void addGeneInfo(ProteinMapping mapping, GeneInfo geneInfo) {
@@ -200,83 +230,14 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     progressBar.setProgress(1.0);
   }
 
-  private boolean isDownloaSequences(FindGenesParameters parameters) {
-    return parameters.isSequence() || parameters.isProteinMolecularWeight();
-  }
-
-  private List<Path> downloadSequences(FindGenesParameters parameters, ProgressBar progressBar,
-      Locale locale) throws IOException {
-    FTPClient client = ftpService.anonymousConnect(uniprotConfiguration.ftp());
-    List<Path> files = new ArrayList<>();
-    String swissprotFasta = uniprotConfiguration.swissprotFasta();
-    Path swissprotFastaFile = ftpService.localFile(swissprotFasta);
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    progressBar.setMessage(resources.message("download", swissprotFasta, swissprotFastaFile));
-    ftpService.downloadFile(client, swissprotFasta, swissprotFastaFile, progressBar.step(0.5),
-        locale);
-    files.add(swissprotFastaFile);
-    if (parameters.getProteinDatabase() != ProteinDatabase.SWISSPROT) {
-      String tremblFasta = uniprotConfiguration.tremblFasta();
-      Path tremblFastaFile = ftpService.localFile(tremblFasta);
-      progressBar.setMessage(resources.message("download", tremblFasta, tremblFastaFile));
-      ftpService.downloadFile(client, tremblFasta, tremblFastaFile, progressBar.step(0.5), locale);
-      files.add(tremblFastaFile);
-    }
-    progressBar.setProgress(1.0);
-    return files;
-  }
-
-  private void parseSequences(List<Path> sequences, List<ProteinMapping> mappings,
-      FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
-      throws IOException {
-    Function<ProteinMapping, Pattern> sequencePatternProvider = mapping -> Pattern
-        .compile("^>(.*\\|)?(sp|tr)\\|" + Pattern.quote(mapping.getProteinId()) + "(\\|.*)?$");
-    Map<Pattern, ProteinMapping> sequenceNamePatterns =
-        mappings.stream().collect(Collectors.toMap(sequencePatternProvider, mapping -> mapping));
-    double step = 1.0 / Math.max(sequences.size(), 1);
-    int count = 0;
-    for (Path file : sequences) {
-      progressBar.setMessage(resources.message("parsing", file.getFileName()));
-      try (BufferedReader reader = newBufferedReader(file)) {
-        String line;
-        List<ProteinMapping> mapping = null;
-        StringBuilder builder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-          if (line.startsWith(">")) {
-            if (mapping != null) {
-              setSequence(mapping, builder.toString(), parameters);
-            }
-            mapping = null;
-            builder.delete(0, builder.length());
-            for (Pattern pattern : sequenceNamePatterns.keySet()) {
-              if (pattern.matcher(line).matches()) {
-                if (mapping == null) {
-                  mapping = new ArrayList<>();
-                }
-                mapping.add(sequenceNamePatterns.get(pattern));
-              }
-            }
-          } else if (mapping != null) {
-            builder.append(line);
-          }
-        }
-        if (mapping != null) {
-          setSequence(mapping, builder.toString(), parameters);
-        }
-      }
-      progressBar.setProgress(++count * step);
-    }
-    progressBar.setProgress(1.0);
-  }
-
-  private void setSequence(List<ProteinMapping> mappings, String sequence,
+  private void setSequence(ProteinMapping mapping, String sequence,
       FindGenesParameters parameters) {
     if (parameters.isSequence()) {
-      mappings.stream().forEach(mapping -> mapping.setSequence(sequence));
+      mapping.setSequence(sequence);
     }
     if (parameters.isProteinMolecularWeight()) {
       double weight = proteinService.weight(sequence);
-      mappings.stream().forEach(mapping -> mapping.setMolecularWeight(weight));
+      mapping.setMolecularWeight(weight);
     }
   }
 }

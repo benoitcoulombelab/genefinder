@@ -2,7 +2,6 @@ package ca.qc.ircm.genefinder.data;
 
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
-import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -589,7 +588,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_uniprot.xlsx").toURI());
     final File output = temporaryFolder.newFile("data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
-    when(parameters.getProteinDatabase()).thenReturn(SWISSPROT);
+    when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -628,59 +627,6 @@ public class ExcelDataWriterTest {
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
       assertEquals("sp|Q08211", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-    }
-  }
-
-  @Test
-  public void writeGene_Trembl() throws Throwable {
-    final File input = new File(getClass().getResource("/data/data_trembl.xlsx").toURI());
-    final File output = temporaryFolder.newFile("data.xlsx");
-    when(parameters.getProteinColumn()).thenReturn(0);
-    when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
-    when(parameters.isGeneId()).thenReturn(true);
-    when(parameters.isGeneName()).thenReturn(true);
-    when(parameters.isGeneSynonyms()).thenReturn(true);
-    when(parameters.isGeneSummary()).thenReturn(true);
-    when(parameters.isProteinMolecularWeight()).thenReturn(true);
-    final Map<String, ProteinMapping> mappings = new HashMap<>();
-    ProteinMapping mapping = new ProteinMapping();
-    GeneInfo gene = new GeneInfo(1234L, "POLR2A");
-    gene.setSynonyms(Arrays.asList("RPB1", "RPO2A"));
-    gene.setDescription("This gene encodes the largest subunit of RNA polymerase II");
-    mapping.setGenes(Arrays.asList(gene));
-    mapping.setMolecularWeight(20.0);
-    mappings.put("P11171", mapping);
-
-    excelDataWriter.writeGene(input, output, parameters, mappings);
-
-    try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("tr|P11171", getComputedValue(row.getCell(0)));
-      assertEquals("1234", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
-      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("tr|Q08211", getComputedValue(row.getCell(0)));
       assertEquals("", getComputedValue(row.getCell(1)));
       assertEquals("", getComputedValue(row.getCell(2)));
       assertEquals("", getComputedValue(row.getCell(3)));

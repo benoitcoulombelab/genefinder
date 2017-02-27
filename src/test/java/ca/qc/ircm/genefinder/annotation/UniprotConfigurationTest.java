@@ -20,26 +20,11 @@ public class UniprotConfigurationTest {
   @Test
   public void defaultProperties() throws Throwable {
     assertEquals("ftp.uniprot.org", uniprotConfiguration.ftp());
-    assertEquals("http://www.uniprot.org/uniprot", uniprotConfiguration.search());
-    assertEquals("/pub/databases/uniprot/current_release/knowledgebase/idmapping/idmapping.dat.gz",
-        uniprotConfiguration.idmapping());
-    assertEquals(
-        "/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
-        uniprotConfiguration.swissprotFasta());
-    assertEquals(
-        "/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz",
-        uniprotConfiguration.tremblFasta());
-    assertEquals("/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes",
-        uniprotConfiguration.referenceProteomes());
-    assertEquals(Pattern.compile("UP\\d+_(\\d+)[\\._].+").pattern(),
-        uniprotConfiguration.filenamePattern().pattern());
-    assertEquals("GI", uniprotConfiguration.giMapping());
-    assertEquals("RefSeq", uniprotConfiguration.refseqMapping());
-    assertEquals("NCBI_TaxID", uniprotConfiguration.taxonMapping());
-    assertEquals("GeneID", uniprotConfiguration.geneMapping());
+    assertEquals("http://www.uniprot.org/uploadlists", uniprotConfiguration.mapping());
     assertEquals(Pattern
         .compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?"
             + "|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?")
         .pattern(), uniprotConfiguration.proteinIdPattern().pattern());
+    assertEquals(100, uniprotConfiguration.maxIdsPerRequest());
   }
 }

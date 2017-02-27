@@ -12,17 +12,9 @@ import java.util.regex.Pattern;
 public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
   public static final String PREFIX = "uniprot";
   private String ftp;
-  private String search;
-  private String idmapping;
-  private String swissprotFasta;
-  private String tremblFasta;
-  private String referenceProteomes;
-  private String filenamePattern;
-  private String giMapping;
-  private String refseqMapping;
-  private String taxonMapping;
-  private String geneMapping;
+  private String mapping;
   private String proteinIdPattern;
+  private int maxIdsPerRequest;
 
   @Override
   public String ftp() {
@@ -30,58 +22,18 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
   }
 
   @Override
-  public String search() {
-    return search;
-  }
-
-  @Override
-  public String idmapping() {
-    return idmapping;
-  }
-
-  @Override
-  public String swissprotFasta() {
-    return swissprotFasta;
-  }
-
-  @Override
-  public String tremblFasta() {
-    return tremblFasta;
-  }
-
-  @Override
-  public String referenceProteomes() {
-    return referenceProteomes;
-  }
-
-  @Override
-  public Pattern filenamePattern() {
-    return Pattern.compile(filenamePattern);
-  }
-
-  @Override
-  public String giMapping() {
-    return giMapping;
-  }
-
-  @Override
-  public String refseqMapping() {
-    return refseqMapping;
-  }
-
-  @Override
-  public String taxonMapping() {
-    return taxonMapping;
-  }
-
-  @Override
-  public String geneMapping() {
-    return geneMapping;
+  public String mapping() {
+    return mapping;
   }
 
   @Override
   public Pattern proteinIdPattern() {
     return Pattern.compile(proteinIdPattern);
+  }
+
+  @Override
+  public int maxIdsPerRequest() {
+    return maxIdsPerRequest;
   }
 
   public String getFtp() {
@@ -92,70 +44,6 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
     this.ftp = ftp;
   }
 
-  public String getSearch() {
-    return search;
-  }
-
-  public void setSearch(String search) {
-    this.search = search;
-  }
-
-  public String getIdmapping() {
-    return idmapping;
-  }
-
-  public void setIdmapping(String idmapping) {
-    this.idmapping = idmapping;
-  }
-
-  public String getReferenceProteomes() {
-    return referenceProteomes;
-  }
-
-  public void setReferenceProteomes(String referenceProteomes) {
-    this.referenceProteomes = referenceProteomes;
-  }
-
-  public String getFilenamePattern() {
-    return filenamePattern;
-  }
-
-  public void setFilenamePattern(String filenamePattern) {
-    this.filenamePattern = filenamePattern;
-  }
-
-  public String getGiMapping() {
-    return giMapping;
-  }
-
-  public void setGiMapping(String giMapping) {
-    this.giMapping = giMapping;
-  }
-
-  public String getRefseqMapping() {
-    return refseqMapping;
-  }
-
-  public void setRefseqMapping(String refseqMapping) {
-    this.refseqMapping = refseqMapping;
-  }
-
-  public String getTaxonMapping() {
-    return taxonMapping;
-  }
-
-  public void setTaxonMapping(String taxonMapping) {
-    this.taxonMapping = taxonMapping;
-  }
-
-  public String getGeneMapping() {
-    return geneMapping;
-  }
-
-  public void setGeneMapping(String geneMapping) {
-    this.geneMapping = geneMapping;
-  }
-
   public String getProteinIdPattern() {
     return proteinIdPattern;
   }
@@ -164,19 +52,19 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
     this.proteinIdPattern = proteinIdPattern;
   }
 
-  public String getSwissprotFasta() {
-    return swissprotFasta;
+  public int getMaxIdsPerRequest() {
+    return maxIdsPerRequest;
   }
 
-  public void setSwissprotFasta(String swissprotFasta) {
-    this.swissprotFasta = swissprotFasta;
+  public void setMaxIdsPerRequest(int maxIdsPerRequest) {
+    this.maxIdsPerRequest = maxIdsPerRequest;
   }
 
-  public String getTremblFasta() {
-    return tremblFasta;
+  public String getMapping() {
+    return mapping;
   }
 
-  public void setTremblFasta(String tremblFasta) {
-    this.tremblFasta = tremblFasta;
+  public void setMapping(String mapping) {
+    this.mapping = mapping;
   }
 }

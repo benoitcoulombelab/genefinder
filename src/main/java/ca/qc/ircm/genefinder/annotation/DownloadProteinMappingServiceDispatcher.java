@@ -42,7 +42,6 @@ public class DownloadProteinMappingServiceDispatcher implements DownloadProteinM
         return refseqDownloadProteinMappingService.downloadProteinMappings(proteinIds, parameters,
             progressBar, locale);
       case UNIPROT:
-      case SWISSPROT:
         return uniprotDownloadProteinMappingService.downloadProteinMappings(proteinIds, parameters,
             progressBar, locale);
       default:

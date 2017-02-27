@@ -14,49 +14,23 @@ public interface UniprotConfiguration {
   public String ftp();
 
   /**
-   * Returns UniProt's search URL.
+   * Returns UniProt's id mapping URL.
    *
-   * @return UniProt's search URL
+   * @return UniProt's id mapping URL
    */
-  public String search();
+  public String mapping();
 
   /**
-   * Returns UniProt's ID mapping file.
+   * Returns UniProt's protein id pattern.
    *
-   * @return UniProt's ID mapping file
+   * @return UniProt's protein id pattern
    */
-  public String idmapping();
-
-  /**
-   * Returns UniProt's Swiss-Prot sequence file.
-   *
-   * @return UniProt's Swiss-Prot sequence file
-   */
-  public String swissprotFasta();
-
-  /**
-   * Returns UniProt's TrEMBL sequence file.
-   *
-   * @return UniProt's TrEMBL sequence file
-   */
-  public String tremblFasta();
-
-  public String referenceProteomes();
-
-  public Pattern filenamePattern();
-
-  public String giMapping();
-
-  public String refseqMapping();
-
-  public String taxonMapping();
-
-  /**
-   * Returns gene ID mapping in UniProt's ID mapping file.
-   *
-   * @return gene ID mapping in UniProt's ID mapping file
-   */
-  public String geneMapping();
-
   public Pattern proteinIdPattern();
+
+  /**
+   * Returns max ids per request on UniProt REST service.
+   *
+   * @return max ids per request on UniProt REST service
+   */
+  public int maxIdsPerRequest();
 }

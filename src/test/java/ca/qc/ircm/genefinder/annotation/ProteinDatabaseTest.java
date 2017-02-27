@@ -44,11 +44,4 @@ public class ProteinDatabaseTest {
 
     assertEquals("UniProt", label);
   }
-
-  @Test
-  public void getLabel_Swissprot() {
-    String label = ProteinDatabase.SWISSPROT.getLabel(Locale.CANADA);
-
-    assertEquals("Swiss-Prot (reviewed sequences only)", label);
-  }
 }

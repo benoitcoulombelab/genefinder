@@ -2,7 +2,6 @@ package ca.qc.ircm.genefinder.data.gui;
 
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
-import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
 import static org.junit.Assert.assertEquals;
 
@@ -31,11 +30,6 @@ public class ProteinDatabaseStringConverterTest {
   }
 
   @Test
-  public void fromString_Swissprot() {
-    assertEquals(SWISSPROT, proteinDatabaseStringConverter.fromString(SWISSPROT.getLabel(locale)));
-  }
-
-  @Test
   public void toString_Refseq() {
     assertEquals(REFSEQ.getLabel(locale), proteinDatabaseStringConverter.toString(REFSEQ));
   }
@@ -48,10 +42,5 @@ public class ProteinDatabaseStringConverterTest {
   @Test
   public void toString_Uniprot() {
     assertEquals(UNIPROT.getLabel(locale), proteinDatabaseStringConverter.toString(UNIPROT));
-  }
-
-  @Test
-  public void toString_Swissprot() {
-    assertEquals(SWISSPROT.getLabel(locale), proteinDatabaseStringConverter.toString(SWISSPROT));
   }
 }

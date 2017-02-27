@@ -63,7 +63,6 @@ public abstract class AbstractProteinParser implements ProteinParser {
       case REFSEQ_GI:
         return ncbiConfiguration.refseqProteinGiPattern();
       case UNIPROT:
-      case SWISSPROT:
         return uniprotConfiguration.proteinIdPattern();
       default:
         throw new AssertionError(ProteinDatabase.class.getSimpleName() + " "

@@ -2,7 +2,6 @@ package ca.qc.ircm.genefinder.data;
 
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
-import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -194,24 +193,6 @@ public class TextProteinParserTest {
   @Test
   public void parseProteinIds_Uniprot() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_uniprot.txt").toURI());
-    when(parameters.getProteinColumn()).thenReturn(0);
-    when(parameters.getProteinDatabase()).thenReturn(SWISSPROT);
-    when(parameters.isGeneId()).thenReturn(true);
-    when(parameters.isGeneName()).thenReturn(true);
-    when(parameters.isGeneSynonyms()).thenReturn(true);
-    when(parameters.isGeneSummary()).thenReturn(true);
-    when(parameters.isProteinMolecularWeight()).thenReturn(true);
-
-    List<String> ids = textProteinParser.parseProteinIds(input, parameters);
-
-    assertEquals(2, ids.size());
-    assertTrue(ids.contains("P11171"));
-    assertTrue(ids.contains("Q08211"));
-  }
-
-  @Test
-  public void parseProteinIds_Trembl() throws Throwable {
-    final File input = new File(getClass().getResource("/data/data_trembl.txt").toURI());
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
