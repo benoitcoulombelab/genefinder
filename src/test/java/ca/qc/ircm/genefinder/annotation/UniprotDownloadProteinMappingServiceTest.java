@@ -1,6 +1,8 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyDouble;
@@ -166,10 +168,7 @@ public class UniprotDownloadProteinMappingServiceTest {
       assertTrue(proteinsIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
       assertNull(mapping.getSequence());
       assertNull(mapping.getMolecularWeight());
     }
@@ -204,25 +203,29 @@ public class UniprotDownloadProteinMappingServiceTest {
     verify(ftpService).downloadFile(ftpClient, idmapping, localIdMapping, progressBar, locale);
     verify(ftpService).localFile(geneInfo);
     verify(ftpService).downloadFile(ftpClient, geneInfo, localGeneInfo, progressBar, locale);
-    assertEquals(4, mappings.size());
+    assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("A0A075B759")) {
-        if (mapping.getGeneId() == 1l) {
-          assertEquals((Long) 1L, mapping.getGeneId());
-          assertEquals("A1BG", mapping.getGeneName());
-          assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
-          assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
-        } else {
-          assertEquals((Long) 2149L, mapping.getGeneId());
-          assertEquals("F2R", mapping.getGeneName());
-          assertEquals("coagulation factor II thrombin receptor", mapping.getGeneSummary());
-          assertEquals("CF2R|HTR|PAR-1|PAR1|TR", mapping.getGeneSynonyms());
-        }
+        assertNotNull(mapping.getGenes());
+        assertEquals(2, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(1L, gene.getId());
+        assertEquals("A1BG", gene.getSymbol());
+        assertEquals("alpha-1-B glycoprotein", gene.getDescription());
+        assertArrayEquals("A1B|ABG|GAB|HYST2477".split("\\|"), gene.getSynonyms().toArray());
+        gene = mapping.getGenes().get(1);
+        assertEquals(2149L, gene.getId());
+        assertEquals("F2R", gene.getSymbol());
+        assertEquals("coagulation factor II thrombin receptor", gene.getDescription());
+        assertArrayEquals("CF2R|HTR|PAR-1|PAR1|TR".split("\\|"), gene.getSynonyms().toArray());
       } else {
-        assertEquals((Long) 4404L, mapping.getGeneId());
-        assertEquals("MRX39", mapping.getGeneName());
-        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
-        assertEquals(null, mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(4404L, gene.getId());
+        assertEquals("MRX39", gene.getSymbol());
+        assertEquals("mental retardation, X-linked 39", gene.getDescription());
+        assertEquals(null, gene.getSynonyms());
       }
       assertNull(mapping.getTaxonomyId());
       assertNull(mapping.getSequence());
@@ -279,10 +282,7 @@ public class UniprotDownloadProteinMappingServiceTest {
         assertEquals(sequenceWeight2, mapping.getMolecularWeight(), 0.001);
       }
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
     }
   }
 
@@ -327,34 +327,41 @@ public class UniprotDownloadProteinMappingServiceTest {
     verify(proteinService).weight(parseSequence(swissprotRessource, 1));
     verify(proteinService).weight(parseSequence(tremblRessource, 1));
     verify(proteinService).weight(parseSequence(tremblRessource, 0));
-    assertEquals(4, mappings.size());
+    assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("A0A075B759")) {
-        if (mapping.getGeneId() == 1l) {
-          assertEquals((Long) 1L, mapping.getGeneId());
-          assertEquals("A1BG", mapping.getGeneName());
-          assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
-          assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
-        } else {
-          assertEquals((Long) 2149L, mapping.getGeneId());
-          assertEquals("F2R", mapping.getGeneName());
-          assertEquals("coagulation factor II thrombin receptor", mapping.getGeneSummary());
-          assertEquals("CF2R|HTR|PAR-1|PAR1|TR", mapping.getGeneSynonyms());
-        }
+        assertNotNull(mapping.getGenes());
+        assertEquals(2, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(1L, gene.getId());
+        assertEquals("A1BG", gene.getSymbol());
+        assertEquals("alpha-1-B glycoprotein", gene.getDescription());
+        assertArrayEquals("A1B|ABG|GAB|HYST2477".split("\\|"), gene.getSynonyms().toArray());
+        gene = mapping.getGenes().get(1);
+        assertEquals(2149L, gene.getId());
+        assertEquals("F2R", gene.getSymbol());
+        assertEquals("coagulation factor II thrombin receptor", gene.getDescription());
+        assertArrayEquals("CF2R|HTR|PAR-1|PAR1|TR".split("\\|"), gene.getSynonyms().toArray());
         assertEquals(parseSequence(swissprotRessource, 1), mapping.getSequence());
         assertEquals(sequenceWeight1, mapping.getMolecularWeight(), 0.001);
       } else if (mapping.getProteinId().equals("A0AV96")) {
-        assertEquals((Long) 4404L, mapping.getGeneId());
-        assertEquals("MRX39", mapping.getGeneName());
-        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
-        assertEquals(null, mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(4404L, gene.getId());
+        assertEquals("MRX39", gene.getSymbol());
+        assertEquals("mental retardation, X-linked 39", gene.getDescription());
+        assertEquals(null, gene.getSynonyms());
         assertEquals(parseSequence(tremblRessource, 1), mapping.getSequence());
         assertEquals(sequenceWeight3, mapping.getMolecularWeight(), 0.001);
       } else {
-        assertEquals((Long) 4404L, mapping.getGeneId());
-        assertEquals("MRX39", mapping.getGeneName());
-        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
-        assertEquals(null, mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(4404L, gene.getId());
+        assertEquals("MRX39", gene.getSymbol());
+        assertEquals("mental retardation, X-linked 39", gene.getDescription());
+        assertEquals(null, gene.getSynonyms());
         assertEquals(parseSequence(tremblRessource, 0), mapping.getSequence());
         assertEquals(sequenceWeight2, mapping.getMolecularWeight(), 0.001);
       }
@@ -397,10 +404,7 @@ public class UniprotDownloadProteinMappingServiceTest {
       assertTrue(proteinsIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
       assertNull(mapping.getSequence());
       assertNull(mapping.getMolecularWeight());
     }
@@ -435,25 +439,29 @@ public class UniprotDownloadProteinMappingServiceTest {
     verify(ftpService).downloadFile(ftpClient, idmapping, localIdMapping, progressBar, locale);
     verify(ftpService).localFile(geneInfo);
     verify(ftpService).downloadFile(ftpClient, geneInfo, localGeneInfo, progressBar, locale);
-    assertEquals(4, mappings.size());
+    assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("A0A075B759")) {
-        if (mapping.getGeneId() == 1l) {
-          assertEquals((Long) 1L, mapping.getGeneId());
-          assertEquals("A1BG", mapping.getGeneName());
-          assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
-          assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
-        } else {
-          assertEquals((Long) 2149L, mapping.getGeneId());
-          assertEquals("F2R", mapping.getGeneName());
-          assertEquals("coagulation factor II thrombin receptor", mapping.getGeneSummary());
-          assertEquals("CF2R|HTR|PAR-1|PAR1|TR", mapping.getGeneSynonyms());
-        }
+        assertNotNull(mapping.getGenes());
+        assertEquals(2, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(1L, gene.getId());
+        assertEquals("A1BG", gene.getSymbol());
+        assertEquals("alpha-1-B glycoprotein", gene.getDescription());
+        assertArrayEquals("A1B|ABG|GAB|HYST2477".split("\\|"), gene.getSynonyms().toArray());
+        gene = mapping.getGenes().get(1);
+        assertEquals(2149L, gene.getId());
+        assertEquals("F2R", gene.getSymbol());
+        assertEquals("coagulation factor II thrombin receptor", gene.getDescription());
+        assertArrayEquals("CF2R|HTR|PAR-1|PAR1|TR".split("\\|"), gene.getSynonyms().toArray());
       } else {
-        assertEquals((Long) 4404L, mapping.getGeneId());
-        assertEquals("MRX39", mapping.getGeneName());
-        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
-        assertEquals(null, mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(4404L, gene.getId());
+        assertEquals("MRX39", gene.getSymbol());
+        assertEquals("mental retardation, X-linked 39", gene.getDescription());
+        assertEquals(null, gene.getSynonyms());
       }
       assertNull(mapping.getTaxonomyId());
       assertNull(mapping.getSequence());
@@ -496,10 +504,7 @@ public class UniprotDownloadProteinMappingServiceTest {
         assertNull(mapping.getMolecularWeight());
       }
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
     }
   }
 }

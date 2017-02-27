@@ -1,14 +1,13 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import java.util.List;
+
 /**
  * Protein linked to a gene.
  */
 public class ProteinMapping {
   private String proteinId;
-  private Long geneId;
-  private String geneName;
-  private String geneSynonyms;
-  private String geneSummary;
+  private List<GeneInfo> genes;
   private Integer taxonomyId;
   private String sequence;
   private Double molecularWeight;
@@ -52,8 +51,7 @@ public class ProteinMapping {
 
   @Override
   public String toString() {
-    return "ProteinMapping [proteinId=" + proteinId + ", geneId=" + geneId + ", geneName="
-        + geneName + ", taxonomyId=" + taxonomyId + "]";
+    return "ProteinMapping [proteinId=" + proteinId + ", taxonomyId=" + taxonomyId + "]";
   }
 
   public String getProteinId() {
@@ -62,46 +60,6 @@ public class ProteinMapping {
 
   public void setProteinId(String proteinId) {
     this.proteinId = proteinId;
-  }
-
-  public Long getGeneId() {
-    return geneId;
-  }
-
-  public void setGeneId(Long geneId) {
-    this.geneId = geneId;
-  }
-
-  public String getGeneName() {
-    return geneName;
-  }
-
-  public void setGeneName(String geneName) {
-    this.geneName = geneName;
-  }
-
-  public Integer getTaxonomyId() {
-    return taxonomyId;
-  }
-
-  public void setTaxonomyId(Integer taxonomyId) {
-    this.taxonomyId = taxonomyId;
-  }
-
-  public String getGeneSynonyms() {
-    return geneSynonyms;
-  }
-
-  public void setGeneSynonyms(String geneSynonyms) {
-    this.geneSynonyms = geneSynonyms;
-  }
-
-  public String getGeneSummary() {
-    return geneSummary;
-  }
-
-  public void setGeneSummary(String geneSummary) {
-    this.geneSummary = geneSummary;
   }
 
   public String getSequence() {
@@ -118,5 +76,21 @@ public class ProteinMapping {
 
   public void setMolecularWeight(Double molecularWeight) {
     this.molecularWeight = molecularWeight;
+  }
+
+  public List<GeneInfo> getGenes() {
+    return genes;
+  }
+
+  public void setGenes(List<GeneInfo> genes) {
+    this.genes = genes;
+  }
+
+  public Integer getTaxonomyId() {
+    return taxonomyId;
+  }
+
+  public void setTaxonomyId(Integer taxonomyId) {
+    this.taxonomyId = taxonomyId;
   }
 }

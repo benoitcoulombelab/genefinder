@@ -21,6 +21,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
@@ -75,67 +76,61 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         int index = parameters.getProteinColumn() + 1;
         if (parameters.isGeneId()) {
           cell = row.getCell(index++);
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneId() != null
-                      ? mappings.get(proteinId).getGeneId().toString() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> numberFormat.format(gene.getId()))
+              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
-          if (proteinIds.size() == 1) {
-            String proteinId = proteinIds.get(0);
-            ProteinMapping mapping = mappings.get(proteinId);
-            if (mapping != null && mapping.getGeneId() != null) {
-              cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-              cell.setCellValue(mapping.getGeneId());
-            }
+          if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellValue(Long.parseLong(newValue));
           }
         }
         if (parameters.isGeneName()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneName() != null
-                      ? mappings.get(proteinId).getGeneName() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol()).filter(s -> s != null)
+              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isGeneSynonyms()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSynonyms() != null
-                      ? mappings.get(proteinId).getGeneSynonyms() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSynonyms())
+              .filter(s -> s != null)
+              .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isGeneSummary()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSummary() != null
-                      ? mappings.get(proteinId).getGeneSummary() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
+              .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isProteinMolecularWeight()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getMolecularWeight() != null
-                      ? doubleFormat.format(mappings.get(proteinId).getMolecularWeight()) : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
+              .filter(mw -> mw != null).map(mw -> doubleFormat.format(mw))
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
-          if (proteinIds.size() == 1) {
-            String proteinId = proteinIds.get(0);
-            ProteinMapping mapping = mappings.get(proteinId);
-            if (mapping != null && mapping.getMolecularWeight() != null) {
-              cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-              cell.setCellValue(mapping.getMolecularWeight());
-              CellStyle style = workbook.createCellStyle();
-              DataFormat format = workbook.createDataFormat();
-              style.setDataFormat(format.getFormat("0.00"));
-              cell.setCellStyle(style);
-            }
+          if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellValue(Double.parseDouble(newValue));
+            CellStyle style = workbook.createCellStyle();
+            DataFormat format = workbook.createDataFormat();
+            style.setDataFormat(format.getFormat("0.00"));
+            cell.setCellStyle(style);
           }
         }
       }

@@ -16,6 +16,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class TextDataWriter extends AbstractDataWriter implements DataWriter {
@@ -47,38 +48,45 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
         }
         if (parameters.isGeneId()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneId() != null
-                      ? mappings.get(proteinId).getGeneId().toString() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> String.valueOf(gene.getId())).distinct()
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isGeneName()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneName() != null
-                      ? mappings.get(proteinId).getGeneName() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol()).filter(s -> s != null)
+              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isGeneSynonyms()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSynonyms() != null
-                      ? mappings.get(proteinId).getGeneSynonyms() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSynonyms())
+              .filter(s -> s != null)
+              .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isGeneSummary()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSummary() != null
-                      ? mappings.get(proteinId).getGeneSummary() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
+              .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isProteinMolecularWeight()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getMolecularWeight() != null
-                      ? numberFormat.format(mappings.get(proteinId).getMolecularWeight()) : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
+              .filter(mw -> mw != null).map(mw -> numberFormat.format(mw))
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         for (int i = parameters.getProteinColumn() + 1; i < columns.length; i++) {
           writer.write("\t");

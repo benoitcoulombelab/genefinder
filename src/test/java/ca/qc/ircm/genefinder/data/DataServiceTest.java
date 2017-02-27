@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
+import ca.qc.ircm.genefinder.annotation.GeneInfo;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
@@ -91,7 +92,7 @@ public class DataServiceTest {
   private ProteinMapping getProteinMapping(String proteinId, String geneName) {
     ProteinMapping mapping = new ProteinMapping();
     mapping.setProteinId(proteinId);
-    mapping.setGeneName(geneName);
+    mapping.setGenes(Arrays.asList(new GeneInfo(1L, geneName)));
     return mapping;
   }
 }

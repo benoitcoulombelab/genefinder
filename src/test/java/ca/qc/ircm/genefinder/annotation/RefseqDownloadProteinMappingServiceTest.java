@@ -1,6 +1,8 @@
 package ca.qc.ircm.genefinder.annotation;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -208,10 +210,7 @@ public class RefseqDownloadProteinMappingServiceTest {
       assertTrue(proteinsIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
       assertNull(mapping.getSequence());
       assertNull(mapping.getMolecularWeight());
     }
@@ -255,15 +254,21 @@ public class RefseqDownloadProteinMappingServiceTest {
     assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("NP_001317102.1")) {
-        assertEquals((Long) 1L, mapping.getGeneId());
-        assertEquals("A1BG", mapping.getGeneName());
-        assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
-        assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(1L, gene.getId());
+        assertEquals("A1BG", gene.getSymbol());
+        assertEquals("alpha-1-B glycoprotein", gene.getDescription());
+        assertArrayEquals("A1B|ABG|GAB|HYST2477".split("\\|"), gene.getSynonyms().toArray());
       } else {
-        assertEquals((Long) 4404L, mapping.getGeneId());
-        assertEquals("MRX39", mapping.getGeneName());
-        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
-        assertEquals(null, mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(4404L, gene.getId());
+        assertEquals("MRX39", gene.getSymbol());
+        assertEquals("mental retardation, X-linked 39", gene.getDescription());
+        assertEquals(null, gene.getSynonyms());
       }
       assertNull(mapping.getTaxonomyId());
       assertNull(mapping.getSequence());
@@ -339,10 +344,7 @@ public class RefseqDownloadProteinMappingServiceTest {
         assertEquals(sequenceWeight3, mapping.getMolecularWeight(), 0.001);
       }
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
     }
   }
 
@@ -406,10 +408,7 @@ public class RefseqDownloadProteinMappingServiceTest {
       assertTrue(proteinIds.contains(mapping.getProteinId()));
       mappingsAccessions.add(mapping.getProteinId());
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
       assertNull(mapping.getSequence());
       assertNull(mapping.getMolecularWeight());
     }
@@ -453,15 +452,21 @@ public class RefseqDownloadProteinMappingServiceTest {
     assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("829098688")) {
-        assertEquals((Long) 1L, mapping.getGeneId());
-        assertEquals("A1BG", mapping.getGeneName());
-        assertEquals("alpha-1-B glycoprotein", mapping.getGeneSummary());
-        assertEquals("A1B|ABG|GAB|HYST2477", mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(1L, gene.getId());
+        assertEquals("A1BG", gene.getSymbol());
+        assertEquals("alpha-1-B glycoprotein", gene.getDescription());
+        assertArrayEquals("A1B|ABG|GAB|HYST2477".split("\\|"), gene.getSynonyms().toArray());
       } else {
-        assertEquals((Long) 4404L, mapping.getGeneId());
-        assertEquals("MRX39", mapping.getGeneName());
-        assertEquals("mental retardation, X-linked 39", mapping.getGeneSummary());
-        assertEquals(null, mapping.getGeneSynonyms());
+        assertNotNull(mapping.getGenes());
+        assertEquals(1, mapping.getGenes().size());
+        GeneInfo gene = mapping.getGenes().get(0);
+        assertEquals(4404L, gene.getId());
+        assertEquals("MRX39", gene.getSymbol());
+        assertEquals("mental retardation, X-linked 39", gene.getDescription());
+        assertEquals(null, gene.getSynonyms());
       }
       assertNull(mapping.getTaxonomyId());
       assertNull(mapping.getSequence());
@@ -537,10 +542,7 @@ public class RefseqDownloadProteinMappingServiceTest {
         assertEquals(sequenceWeight3, mapping.getMolecularWeight(), 0.001);
       }
       assertNull(mapping.getTaxonomyId());
-      assertNull(mapping.getGeneId());
-      assertNull(mapping.getGeneName());
-      assertNull(mapping.getGeneSummary());
-      assertNull(mapping.getGeneSynonyms());
+      assertTrue(mapping.getGenes() == null || mapping.getGenes().isEmpty());
     }
   }
 }

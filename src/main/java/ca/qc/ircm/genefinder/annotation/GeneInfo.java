@@ -23,6 +23,18 @@ public class GeneInfo {
   private List<String> otherDesignations;
   private Date modificationDate;
 
+  public GeneInfo() {
+  }
+
+  public GeneInfo(Long id) {
+    this.id = id;
+  }
+
+  public GeneInfo(Long id, String symbol) {
+    this.id = id;
+    this.symbol = symbol;
+  }
+
   @Override
   public String toString() {
     return "GeneInfo [organismId=" + organismId + ", id=" + id + ", symbol=" + symbol + "]";

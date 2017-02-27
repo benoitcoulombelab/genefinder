@@ -10,6 +10,9 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 
 public abstract class AbstractDataWriter implements DataWriter {
+  protected static final String PROTEIN_DELIMITER = ";";
+  protected static final String LIST_DELIMITER = "|";
+
   private String getProteinIdFromMatcher(Matcher matcher) {
     String proteinId = null;
     int index = 1;
@@ -20,7 +23,7 @@ public abstract class AbstractDataWriter implements DataWriter {
   }
 
   protected List<String> parseProteinIds(String content) throws IOException {
-    String[] rawProteins = content.split(";", -1);
+    String[] rawProteins = content.split(PROTEIN_DELIMITER, -1);
     Set<String> proteinIds = new LinkedHashSet<>();
     for (String rawProtein : rawProteins) {
       Matcher matcher = PROTEIN_PATTERN.matcher(rawProtein);
@@ -36,7 +39,7 @@ public abstract class AbstractDataWriter implements DataWriter {
     StringBuilder builder = new StringBuilder();
     elements.forEach(e -> {
       builder.append(toString.apply(e));
-      builder.append(";");
+      builder.append(PROTEIN_DELIMITER);
     });
     if (builder.length() > 0) {
       builder.deleteCharAt(builder.length() - 1);

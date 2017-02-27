@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -166,17 +167,18 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
         String mappingType = columns[1];
         if (mappingType.equals(geneMapping) && mappingsById.containsKey(proteinId)) {
           ProteinMapping mapping = mappingsById.get(proteinId);
-          if (mapping.getGeneId() != null) {
-            ProteinMapping copy = new ProteinMapping(proteinId);
-            copy.setGeneId(Long.parseLong(columns[2]));
-            mappings.add(copy);
-          } else {
-            mapping.setGeneId(Long.parseLong(columns[2]));
-          }
+          addGeneInfo(mapping, new GeneInfo(Long.parseLong(columns[2])));
         }
       }
     }
     progressBar.setProgress(1.0);
+  }
+
+  private void addGeneInfo(ProteinMapping mapping, GeneInfo geneInfo) {
+    if (mapping.getGenes() == null) {
+      mapping.setGenes(new ArrayList<>());
+    }
+    mapping.getGenes().add(geneInfo);
   }
 
   private boolean isDownloadGeneInfo(FindGenesParameters parameters) {
@@ -198,13 +200,14 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
       FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
       throws IOException {
     progressBar.setMessage(resources.message("parsing", geneInfo.getFileName()));
-    Map<Long, List<ProteinMapping>> mappingsByGene = new HashMap<>();
-    mappings.forEach(mapping -> {
-      if (!mappingsByGene.containsKey(mapping.getGeneId())) {
-        mappingsByGene.put(mapping.getGeneId(), new ArrayList<>());
-      }
-      mappingsByGene.get(mapping.getGeneId()).add(mapping);
-    });
+    Map<Long, List<GeneInfo>> mappingsByGene = new HashMap<>();
+    mappings.stream().map(mapping -> mapping.getGenes()).filter(genes -> genes != null)
+        .flatMap(genes -> genes.stream()).forEach(gene -> {
+          if (!mappingsByGene.containsKey(gene.getId())) {
+            mappingsByGene.put(gene.getId(), new ArrayList<>());
+          }
+          mappingsByGene.get(gene.getId()).add(gene);
+        });
     try (BufferedReader reader = newBufferedReader(geneInfo)) {
       String line;
       while ((line = reader.readLine()) != null) {
@@ -216,16 +219,16 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
         if (mappingsByGene.containsKey(geneId)) {
           String name = columns[2];
           String synonyms = columns[4].equals("-") ? null : columns[4];
-          String summary = columns[8].equals("-") ? null : columns[8];
+          String description = columns[8].equals("-") ? null : columns[8];
           mappingsByGene.get(geneId).forEach(mapping -> {
             if (parameters.isGeneName()) {
-              mapping.setGeneName(name);
+              mapping.setSymbol(name);
             }
-            if (parameters.isGeneSynonyms()) {
-              mapping.setGeneSynonyms(synonyms);
+            if (parameters.isGeneSynonyms() && synonyms != null) {
+              mapping.setSynonyms(Arrays.asList(synonyms.split("\\|", -1)));
             }
-            if (parameters.isGeneSummary()) {
-              mapping.setGeneSummary(summary);
+            if (parameters.isGeneSummary() && description != null) {
+              mapping.setDescription(description);
             }
           });
         }
