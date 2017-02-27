@@ -19,7 +19,6 @@ public class UniprotConfigurationTest {
 
   @Test
   public void defaultProperties() throws Throwable {
-    assertEquals("ftp.uniprot.org", uniprotConfiguration.ftp());
     assertEquals("http://www.uniprot.org/uploadlists", uniprotConfiguration.mapping());
     assertEquals(Pattern
         .compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?"

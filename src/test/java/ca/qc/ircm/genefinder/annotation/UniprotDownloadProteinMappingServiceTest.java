@@ -76,7 +76,6 @@ public class UniprotDownloadProteinMappingServiceTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private Locale locale = Locale.getDefault();
   private Path download;
-  private String ftp = "ftp.uniprot.org";
   private String mapping = "http://www.uniprot.org/uploadlists";
   private String ncbiFtp = "ftp.ncbi.nlm.nih.gov";
   private String geneInfo = "/gene/DATA/gene_info.gz";
@@ -89,7 +88,6 @@ public class UniprotDownloadProteinMappingServiceTest {
     uniprotDownloadProteinMappingService = new UniprotDownloadProteinMappingService(
         uniprotConfiguration, ncbiConfiguration, ftpService, restClientFactory, proteinService);
     download = Files.createDirectory(temporaryFolder.getRoot().toPath().resolve("download"));
-    when(uniprotConfiguration.ftp()).thenReturn(ftp);
     when(uniprotConfiguration.mapping()).thenReturn(mapping);
     when(uniprotConfiguration.maxIdsPerRequest()).thenReturn(MAX_IDS_PER_REQUEST);
     when(ncbiConfiguration.ftp()).thenReturn(ncbiFtp);

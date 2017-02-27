@@ -11,15 +11,9 @@ import java.util.regex.Pattern;
 @ConfigurationProperties(prefix = UniprotConfigurationSpringBoot.PREFIX)
 public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
   public static final String PREFIX = "uniprot";
-  private String ftp;
   private String mapping;
   private String proteinIdPattern;
   private int maxIdsPerRequest;
-
-  @Override
-  public String ftp() {
-    return ftp;
-  }
 
   @Override
   public String mapping() {
@@ -34,14 +28,6 @@ public class UniprotConfigurationSpringBoot implements UniprotConfiguration {
   @Override
   public int maxIdsPerRequest() {
     return maxIdsPerRequest;
-  }
-
-  public String getFtp() {
-    return ftp;
-  }
-
-  public void setFtp(String ftp) {
-    this.ftp = ftp;
   }
 
   public String getProteinIdPattern() {

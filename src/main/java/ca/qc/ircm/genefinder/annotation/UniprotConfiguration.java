@@ -7,13 +7,6 @@ import java.util.regex.Pattern;
  */
 public interface UniprotConfiguration {
   /**
-   * Returns UniProt's FTP.
-   *
-   * @return UniProt's FTP
-   */
-  public String ftp();
-
-  /**
    * Returns UniProt's id mapping URL.
    *
    * @return UniProt's id mapping URL
