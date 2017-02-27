@@ -626,7 +626,7 @@ public class ExcelDataWriterTest {
       assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
       assertEquals("", getComputedValue(row.getCell(6)));
       row = sheet.getRow(3);
-      assertEquals("sp|Q08211", getComputedValue(row.getCell(0)));
+      assertEquals("tr|Q08211", getComputedValue(row.getCell(0)));
       assertEquals("", getComputedValue(row.getCell(1)));
       assertEquals("", getComputedValue(row.getCell(2)));
       assertEquals("", getComputedValue(row.getCell(3)));

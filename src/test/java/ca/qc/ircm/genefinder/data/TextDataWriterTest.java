@@ -639,7 +639,7 @@ public class TextDataWriterTest {
       line = reader.readLine();
       columns = line.split("\t", -1);
       assertEquals(7, columns.length);
-      assertEquals("sp|Q08211", columns[0]);
+      assertEquals("tr|Q08211", columns[0]);
       assertEquals("", columns[1]);
       assertEquals("", columns[2]);
       assertEquals("", columns[3]);
