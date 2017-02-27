@@ -16,6 +16,8 @@ public class NcbiConfigurationSpringBoot implements NcbiConfiguration {
   private String taxonomyNodes;
   private String gene2accession;
   private String geneInfo;
+  private String refseqProteinAccessionPattern;
+  private String refseqProteinGiPattern;
   private String refseqSequences;
   private String refseqSequencesFilenamePattern;
   private String eutils;
@@ -44,6 +46,16 @@ public class NcbiConfigurationSpringBoot implements NcbiConfiguration {
   @Override
   public String geneInfo() {
     return geneInfo;
+  }
+
+  @Override
+  public Pattern refseqProteinAccessionPattern() {
+    return Pattern.compile(refseqProteinAccessionPattern);
+  }
+
+  @Override
+  public Pattern refseqProteinGiPattern() {
+    return Pattern.compile(refseqProteinGiPattern);
   }
 
   @Override
@@ -136,5 +148,21 @@ public class NcbiConfigurationSpringBoot implements NcbiConfiguration {
 
   public void setRefseqSequencesFilenamePattern(String refseqSequencesFilenamePattern) {
     this.refseqSequencesFilenamePattern = refseqSequencesFilenamePattern;
+  }
+
+  public String getRefseqProteinAccessionPattern() {
+    return refseqProteinAccessionPattern;
+  }
+
+  public void setRefseqProteinAccessionPattern(String refseqProteinAccessionPattern) {
+    this.refseqProteinAccessionPattern = refseqProteinAccessionPattern;
+  }
+
+  public String getRefseqProteinGiPattern() {
+    return refseqProteinGiPattern;
+  }
+
+  public void setRefseqProteinGiPattern(String refseqProteinGiPattern) {
+    this.refseqProteinGiPattern = refseqProteinGiPattern;
   }
 }

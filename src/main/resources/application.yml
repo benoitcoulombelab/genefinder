@@ -24,6 +24,8 @@ ncbi:
   taxonomyNodes: nodes.dmp
   gene2accession: /gene/DATA/gene2refseq.gz
   geneInfo: /gene/DATA/gene_info.gz
+  refseq-protein-accession-pattern: "^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)"
+  refseq-protein-gi-pattern: "^(?:gi\\|)?(\\d+)"
   refseq-sequences: /refseq/release/complete
   refseq-sequences-filename-pattern: '.+\.protein\.faa\.gz'
   eutils: http://eutils.ncbi.nlm.nih.gov/entrez/eutils

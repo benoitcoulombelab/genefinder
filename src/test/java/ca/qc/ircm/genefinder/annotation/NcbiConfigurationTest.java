@@ -24,6 +24,10 @@ public class NcbiConfigurationTest {
     assertEquals("nodes.dmp", ncbiConfiguration.taxonomyNodes());
     assertEquals("/gene/DATA/gene2refseq.gz", ncbiConfiguration.gene2accession());
     assertEquals("/gene/DATA/gene_info.gz", ncbiConfiguration.geneInfo());
+    assertEquals(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)").pattern(),
+        ncbiConfiguration.refseqProteinAccessionPattern().pattern());
+    assertEquals(Pattern.compile("^(?:gi\\|)?(\\d+)").pattern(),
+        ncbiConfiguration.refseqProteinGiPattern().pattern());
     assertEquals("/refseq/release/complete", ncbiConfiguration.refseqSequences());
     assertEquals(Pattern.compile(".+\\.protein\\.faa\\.gz").pattern(),
         ncbiConfiguration.refseqSequencesFilenamePattern().pattern());

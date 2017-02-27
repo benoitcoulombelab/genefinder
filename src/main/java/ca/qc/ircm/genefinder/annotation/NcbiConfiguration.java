@@ -42,6 +42,20 @@ public interface NcbiConfiguration {
   public String geneInfo();
 
   /**
+   * Returns RefSeq's protein accession pattern.
+   *
+   * @return RefSeq's protein accession pattern
+   */
+  public Pattern refseqProteinAccessionPattern();
+
+  /**
+   * Returns RefSeq's protein GI pattern.
+   *
+   * @return RefSeq's protein GI pattern
+   */
+  public Pattern refseqProteinGiPattern();
+
+  /**
    * Returns RefSeq's sequences folder on NCBI's FTP server.
    *
    * @return RefSeq's sequences folder on NCBI's FTP server
