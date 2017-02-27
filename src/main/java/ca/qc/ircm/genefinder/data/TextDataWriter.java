@@ -1,6 +1,8 @@
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,9 +31,19 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
     numberFormat.setGroupingUsed(false);
   }
 
+  protected TextDataWriter() {
+    super();
+  }
+
+  protected TextDataWriter(NcbiConfiguration ncbiConfiguration,
+      UniprotConfiguration uniprotConfiguration) {
+    super(ncbiConfiguration, uniprotConfiguration);
+  }
+
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
+    Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (
         LineNumberReader reader =
             new LineNumberReader(new InputStreamReader(new FileInputStream(input)));
@@ -39,7 +52,8 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] columns = line.split("\t", -1);
-        List<String> proteinIds = parseProteinIds(columns[parameters.getProteinColumn()]);
+        List<String> proteinIds =
+            parseProteinIds(columns[parameters.getProteinColumn()], proteinIdPattern);
         for (int i = 0; i <= parameters.getProteinColumn(); i++) {
           if (i > 0) {
             writer.write("\t");

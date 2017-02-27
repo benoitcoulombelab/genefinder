@@ -1,6 +1,8 @@
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,6 +23,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,9 +43,19 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
     numberFormat.setGroupingUsed(false);
   }
 
+  protected ExcelDataWriter() {
+    super();
+  }
+
+  protected ExcelDataWriter(NcbiConfiguration ncbiConfiguration,
+      UniprotConfiguration uniprotConfiguration) {
+    super(ncbiConfiguration, uniprotConfiguration);
+  }
+
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
+    Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (InputStream inputStream = new FileInputStream(input)) {
       Workbook workbook;
       if (input.getName().endsWith(".xlsx")) {
@@ -55,7 +68,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         Row row = sheet.getRow(i);
         Cell cell = row.getCell(parameters.getProteinColumn());
         String value = getComputedValue(cell);
-        List<String> proteinIds = parseProteinIds(value);
+        List<String> proteinIds = parseProteinIds(value, proteinIdPattern);
         int addedCount = 0;
         if (parameters.isGeneId()) {
           addedCount++;

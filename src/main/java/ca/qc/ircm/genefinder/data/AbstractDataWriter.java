@@ -1,17 +1,35 @@
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
+import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
+import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 public abstract class AbstractDataWriter implements DataWriter {
   protected static final String PROTEIN_DELIMITER = ";";
   protected static final String LIST_DELIMITER = "|";
+  @Inject
+  private NcbiConfiguration ncbiConfiguration;
+  @Inject
+  private UniprotConfiguration uniprotConfiguration;
+
+  protected AbstractDataWriter() {
+  }
+
+  protected AbstractDataWriter(NcbiConfiguration ncbiConfiguration,
+      UniprotConfiguration uniprotConfiguration) {
+    this.ncbiConfiguration = ncbiConfiguration;
+    this.uniprotConfiguration = uniprotConfiguration;
+  }
 
   private String getProteinIdFromMatcher(Matcher matcher) {
     String proteinId = null;
@@ -22,12 +40,13 @@ public abstract class AbstractDataWriter implements DataWriter {
     return proteinId;
   }
 
-  protected List<String> parseProteinIds(String content) throws IOException {
+  protected List<String> parseProteinIds(String content, Pattern proteinIdPattern)
+      throws IOException {
     String[] rawProteins = content.split(PROTEIN_DELIMITER, -1);
     Set<String> proteinIds = new LinkedHashSet<>();
     for (String rawProtein : rawProteins) {
-      Matcher matcher = PROTEIN_PATTERN.matcher(rawProtein);
-      if (matcher.find()) {
+      Matcher matcher = proteinIdPattern.matcher(rawProtein);
+      if (matcher.matches()) {
         String protein = getProteinIdFromMatcher(matcher);
         proteinIds.add(protein);
       }
@@ -35,15 +54,18 @@ public abstract class AbstractDataWriter implements DataWriter {
     return new ArrayList<>(proteinIds);
   }
 
-  protected <E> String formatCollection(Collection<E> elements, Function<E, String> toString) {
-    StringBuilder builder = new StringBuilder();
-    elements.forEach(e -> {
-      builder.append(toString.apply(e));
-      builder.append(PROTEIN_DELIMITER);
-    });
-    if (builder.length() > 0) {
-      builder.deleteCharAt(builder.length() - 1);
+  protected Pattern proteinIdPattern(FindGenesParameters parameters) {
+    switch (parameters.getProteinDatabase()) {
+      case REFSEQ:
+        return ncbiConfiguration.refseqProteinAccessionPattern();
+      case REFSEQ_GI:
+        return ncbiConfiguration.refseqProteinGiPattern();
+      case UNIPROT:
+      case SWISSPROT:
+        return uniprotConfiguration.proteinIdPattern();
+      default:
+        throw new AssertionError(ProteinDatabase.class.getSimpleName() + " "
+            + parameters.getProteinColumn() + " not covered in switch");
     }
-    return builder.toString();
   }
 }

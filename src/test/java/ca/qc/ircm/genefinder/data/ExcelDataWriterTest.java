@@ -1,10 +1,16 @@
 package ca.qc.ircm.genefinder.data;
 
+import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
+import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
+import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.SWISSPROT;
+import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.annotation.GeneInfo;
+import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -27,6 +33,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
@@ -34,6 +41,10 @@ public class ExcelDataWriterTest {
   private ExcelDataWriter excelDataWriter;
   @Mock
   private FindGenesParameters parameters;
+  @Mock
+  private NcbiConfiguration ncbiConfiguration;
+  @Mock
+  private UniprotConfiguration uniprotConfiguration;
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private static final NumberFormat numberFormat;
@@ -51,10 +62,19 @@ public class ExcelDataWriterTest {
     doubleFormat.setGroupingUsed(false);
   }
 
+  /**
+   * Before test.
+   */
   @Before
   public void beforeTest() throws Throwable {
-    excelDataWriter = new ExcelDataWriter();
+    excelDataWriter = new ExcelDataWriter(ncbiConfiguration, uniprotConfiguration);
     temporaryFolder.create();
+    when(ncbiConfiguration.refseqProteinAccessionPattern())
+        .thenReturn(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)"));
+    when(ncbiConfiguration.refseqProteinGiPattern())
+        .thenReturn(Pattern.compile("^(?:gi\\|)?(\\d+)"));
+    when(uniprotConfiguration.proteinIdPattern()).thenReturn(Pattern.compile(
+        "^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?"));
   }
 
   private String getComputedValue(Cell cell) {
@@ -98,6 +118,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data.xlsx").toURI());
     final File output = temporaryFolder.newFile("data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -150,6 +171,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -206,6 +228,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_many.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -266,6 +289,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_manycolumns.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -326,6 +350,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_many.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -389,6 +414,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_nogi.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -441,6 +467,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_nogi_many.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -501,6 +528,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_nogi_manycolumns.xlsx").toURI());
     final File output = temporaryFolder.newFile();
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -561,6 +589,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_uniprot.xlsx").toURI());
     final File output = temporaryFolder.newFile("data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(SWISSPROT);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -613,6 +642,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_trembl.xlsx").toURI());
     final File output = temporaryFolder.newFile("data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
@@ -665,6 +695,7 @@ public class ExcelDataWriterTest {
     final File input = new File(getClass().getResource("/data/data_refseq.xlsx").toURI());
     final File output = temporaryFolder.newFile("data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ);
     when(parameters.isGeneId()).thenReturn(true);
     when(parameters.isGeneName()).thenReturn(true);
     when(parameters.isGeneSynonyms()).thenReturn(true);
