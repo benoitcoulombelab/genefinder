@@ -195,6 +195,7 @@ public class UniprotDownloadProteinMappingServiceTest {
     assertEquals("gene", form.asMap().getFirst("db"));
     assertEquals(1, form.asMap().get("id").size());
     List<String> geneIds = Arrays.asList(form.asMap().getFirst("id").split(","));
+    assertEquals(3, geneIds.size());
     assertTrue(geneIds.contains("1"));
     assertTrue(geneIds.contains("2149"));
     assertTrue(geneIds.contains("4404"));
@@ -531,6 +532,7 @@ public class UniprotDownloadProteinMappingServiceTest {
     assertEquals("gene", form.asMap().getFirst("db"));
     assertEquals(1, form.asMap().get("id").size());
     List<String> geneIds = Arrays.asList(form.asMap().getFirst("id").split(","));
+    assertEquals(3, geneIds.size());
     assertTrue(geneIds.contains("1"));
     assertTrue(geneIds.contains("2149"));
     assertTrue(geneIds.contains("4404"));

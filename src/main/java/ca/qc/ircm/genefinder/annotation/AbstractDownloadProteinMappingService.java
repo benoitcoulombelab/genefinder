@@ -113,9 +113,10 @@ public abstract class AbstractDownloadProteinMappingService
     target = target.path("esummary.fcgi");
     List<Long> geneIds = new ArrayList<>(genesById.keySet());
     int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
+    double step = 1.0 / Math.max(geneIds.size() / maxIdsPerRequest, 1.0);
     for (int i = 0; i < geneIds.size(); i += maxIdsPerRequest) {
       ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-      progressBar.setMessage(resources.message("downloadGenes", i,
+      progressBar.setMessage(resources.message("downloadGenes", i + 1,
           Math.min(i + maxIdsPerRequest, geneIds.size()), geneIds.size()));
       Form form = new Form();
       form.param("db", "gene");
@@ -189,6 +190,8 @@ public abstract class AbstractDownloadProteinMappingService
         ExceptionUtils.throwExceptionIfMatch(e, RuntimeException.class);
         throw new IOException(e);
       }
+      progressBar.setProgress(i * step);
     }
+    progressBar.setProgress(1.0);
   }
 }

@@ -69,11 +69,11 @@ public class UniprotDownloadProteinMappingService extends AbstractDownloadProtei
         .collect(Collectors.toList());
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadMappings(parameters)) {
-      downloadMappings(mappings, parameters, progressBar.step(step / 2), resources);
+      downloadMappings(mappings, parameters, progressBar.step(step), resources);
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadGeneInfo(parameters)) {
-      downloadGeneInfo(mappings, parameters, progressBar.step(step / 2), resources);
+      downloadGeneInfo(mappings, parameters, progressBar.step(step), resources);
     }
     progressBar.setProgress(1.0);
     return mappings;
@@ -122,9 +122,10 @@ public class UniprotDownloadProteinMappingService extends AbstractDownloadProtei
     target = target.queryParam("columns", columnsBuilder.toString());
     List<String> proteinIds = new ArrayList<>(mappingsById.keySet());
     int maxIdsPerRequest = uniprotConfiguration.maxIdsPerRequest();
+    double step = 1.0 / Math.max(proteinIds.size() / maxIdsPerRequest, 1.0);
     for (int i = 0; i < proteinIds.size(); i += maxIdsPerRequest) {
       ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-      progressBar.setMessage(resources.message("downloadMappings", i,
+      progressBar.setMessage(resources.message("downloadMappings", i + 1,
           Math.min(i + maxIdsPerRequest, proteinIds.size()), proteinIds.size()));
       String ids =
           proteinIds.stream().skip(i).limit(maxIdsPerRequest).collect(Collectors.joining(" "));
@@ -155,7 +156,9 @@ public class UniprotDownloadProteinMappingService extends AbstractDownloadProtei
         ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
         throw new IOException(e);
       }
+      progressBar.setProgress(i * step);
     }
+    progressBar.setProgress(1.0);
   }
 
   private void addGeneInfo(ProteinMapping mapping, GeneInfo geneInfo) {
