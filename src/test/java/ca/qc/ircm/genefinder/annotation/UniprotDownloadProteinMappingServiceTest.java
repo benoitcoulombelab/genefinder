@@ -87,8 +87,8 @@ public class UniprotDownloadProteinMappingServiceTest {
   private Locale locale = Locale.getDefault();
   private Path download;
   private String mapping = "http://www.uniprot.org/uploadlists";
-  private String esummary = "esummary.fcgi";
   private String eutils = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+  private String esummary = "esummary.fcgi";
 
   /**
    * Before test.

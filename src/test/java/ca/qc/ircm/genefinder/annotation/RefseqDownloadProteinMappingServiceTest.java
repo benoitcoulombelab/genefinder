@@ -10,14 +10,16 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
+import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.net.ftp.FTPClient;
@@ -26,15 +28,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -42,14 +49,30 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class RefseqDownloadProteinMappingServiceTest {
   private static final int SEARCH_COUNT = 1231;
+  private static final int MAX_IDS_PER_REQUEST = 1000;
 
   private RefseqDownloadProteinMappingService refseqDownloadProteinMappingService;
   @Mock
   private NcbiConfiguration ncbiConfiguration;
+  @Mock
+  private RestClientFactory restClientFactory;
+  @Mock
+  private Client client;
+  @Mock
+  private WebTarget target;
+  @Mock
+  private Invocation.Builder request;
   @Mock
   private FtpService ftpService;
   @Mock
@@ -60,11 +83,14 @@ public class RefseqDownloadProteinMappingServiceTest {
   private ProgressBar progressBar;
   @Mock
   private FTPClient ftpClient;
+  @Captor
+  private ArgumentCaptor<Entity<?>> entityCaptor;
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private Locale locale = Locale.getDefault();
   private Path download;
   private String eutils = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+  private String esummary = "esummary.fcgi";
   private String ftp = "ftp.ncbi.nlm.nih.gov";
   private String gene2accession = "/gene/DATA/gene2refseq.gz";
   private String geneInfo = "/gene/DATA/gene_info.gz";
@@ -76,8 +102,8 @@ public class RefseqDownloadProteinMappingServiceTest {
    */
   @Before
   public void beforeTest() throws Throwable {
-    refseqDownloadProteinMappingService =
-        new RefseqDownloadProteinMappingService(ncbiConfiguration, ftpService, proteinService);
+    refseqDownloadProteinMappingService = new RefseqDownloadProteinMappingService(ncbiConfiguration,
+        restClientFactory, ftpService, proteinService);
     download = Files.createDirectory(temporaryFolder.getRoot().toPath().resolve("download"));
     when(ncbiConfiguration.eutils()).thenReturn(eutils);
     when(ncbiConfiguration.ftp()).thenReturn(ftp);
@@ -86,6 +112,12 @@ public class RefseqDownloadProteinMappingServiceTest {
     when(ncbiConfiguration.refseqSequences()).thenReturn(refseqSequences);
     when(ncbiConfiguration.refseqSequencesFilenamePattern())
         .thenReturn(refseqSequencesFilenamePattern);
+    when(ncbiConfiguration.maxIdsPerRequest()).thenReturn(MAX_IDS_PER_REQUEST);
+    when(restClientFactory.createClient()).thenReturn(client);
+    when(client.target(anyString())).thenReturn(target);
+    when(target.path(anyString())).thenReturn(target);
+    when(target.queryParam(anyString(), anyVararg())).thenReturn(target);
+    when(target.request()).thenReturn(request);
     when(ftpService.anonymousConnect(anyString())).thenReturn(ftpClient);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
   }
@@ -151,19 +183,31 @@ public class RefseqDownloadProteinMappingServiceTest {
     gzip(Paths.get(getClass().getResource("/annotation/refseq.gene2refseq").toURI()),
         localGene2accession);
     when(ftpService.localFile(gene2accession)).thenReturn(localGene2accession);
-    Path localGeneInfo = download.resolve("refseq.gene_info.gz");
-    gzip(Paths.get(getClass().getResource("/annotation/refseq.gene_info").toURI()), localGeneInfo);
-    when(ftpService.localFile(geneInfo)).thenReturn(localGeneInfo);
+    byte[] geneInfos = Files.readAllBytes(
+        Paths.get(getClass().getResource("/annotation/gene-esummary.fcgi.xml").toURI()));
+    when(request.post(any(), eq(InputStream.class)))
+        .thenReturn(new ByteArrayInputStream(geneInfos));
 
     final List<ProteinMapping> mappings = refseqDownloadProteinMappingService
         .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
-    verify(ftpService, times(2)).anonymousConnect(ncbiConfiguration.ftp());
+    verify(ftpService).anonymousConnect(ncbiConfiguration.ftp());
     verify(ftpService).localFile(gene2accession);
     verify(ftpService).downloadFile(ftpClient, gene2accession, localGene2accession, progressBar,
         locale);
-    verify(ftpService).localFile(geneInfo);
-    verify(ftpService).downloadFile(ftpClient, geneInfo, localGeneInfo, progressBar, locale);
+    verify(target).path(esummary);
+    verify(request).post(entityCaptor.capture(), eq(InputStream.class));
+    Entity<?> entity = entityCaptor.getValue();
+    assertTrue(entity.getEntity() instanceof Form);
+    Form form = (Form) entity.getEntity();
+    assertEquals(1, form.asMap().get("db").size());
+    assertEquals("gene", form.asMap().getFirst("db"));
+    assertEquals(1, form.asMap().get("id").size());
+    List<String> geneIds = Arrays.asList(form.asMap().getFirst("id").split(","));
+    assertTrue(geneIds.contains("1"));
+    assertTrue(geneIds.contains("4404"));
+    assertEquals(MediaType.APPLICATION_FORM_URLENCODED_TYPE, entity.getMediaType());
+    verify(target).request();
     assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("NP_001317102.1")) {
@@ -292,19 +336,31 @@ public class RefseqDownloadProteinMappingServiceTest {
     gzip(Paths.get(getClass().getResource("/annotation/refseq.gene2refseq").toURI()),
         localGene2accession);
     when(ftpService.localFile(gene2accession)).thenReturn(localGene2accession);
-    Path localGeneInfo = download.resolve("refseq.gene_info.gz");
-    gzip(Paths.get(getClass().getResource("/annotation/refseq.gene_info").toURI()), localGeneInfo);
-    when(ftpService.localFile(geneInfo)).thenReturn(localGeneInfo);
+    byte[] geneInfos = Files.readAllBytes(
+        Paths.get(getClass().getResource("/annotation/gene-esummary.fcgi.xml").toURI()));
+    when(request.post(any(), eq(InputStream.class)))
+        .thenReturn(new ByteArrayInputStream(geneInfos));
 
     final List<ProteinMapping> mappings = refseqDownloadProteinMappingService
         .downloadProteinMappings(proteinIds, parameters, progressBar, locale);
 
-    verify(ftpService, times(2)).anonymousConnect(ncbiConfiguration.ftp());
+    verify(ftpService).anonymousConnect(ncbiConfiguration.ftp());
     verify(ftpService).localFile(gene2accession);
     verify(ftpService).downloadFile(ftpClient, gene2accession, localGene2accession, progressBar,
         locale);
-    verify(ftpService).localFile(geneInfo);
-    verify(ftpService).downloadFile(ftpClient, geneInfo, localGeneInfo, progressBar, locale);
+    verify(target).path(esummary);
+    verify(request).post(entityCaptor.capture(), eq(InputStream.class));
+    Entity<?> entity = entityCaptor.getValue();
+    assertTrue(entity.getEntity() instanceof Form);
+    Form form = (Form) entity.getEntity();
+    assertEquals(1, form.asMap().get("db").size());
+    assertEquals("gene", form.asMap().getFirst("db"));
+    assertEquals(1, form.asMap().get("id").size());
+    List<String> geneIds = Arrays.asList(form.asMap().getFirst("id").split(","));
+    assertTrue(geneIds.contains("1"));
+    assertTrue(geneIds.contains("4404"));
+    assertEquals(MediaType.APPLICATION_FORM_URLENCODED_TYPE, entity.getMediaType());
+    verify(target).request();
     assertEquals(3, mappings.size());
     for (ProteinMapping mapping : mappings) {
       if (mapping.getProteinId().equals("829098688")) {

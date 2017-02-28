@@ -5,6 +5,7 @@ import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
+import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
@@ -16,12 +17,9 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,8 +34,7 @@ import javax.inject.Inject;
  * Download protein mappings from RefSeq database.
  */
 @Component
-public class RefseqDownloadProteinMappingService implements DownloadProteinMappingService {
-  private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+public class RefseqDownloadProteinMappingService extends AbstractDownloadProteinMappingService {
   @SuppressWarnings("unused")
   private static final Logger logger =
       LoggerFactory.getLogger(RefseqDownloadProteinMappingService.class);
@@ -52,7 +49,8 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
   }
 
   protected RefseqDownloadProteinMappingService(NcbiConfiguration ncbiConfiguration,
-      FtpService ftpService, ProteinService proteinService) {
+      RestClientFactory restClientFactory, FtpService ftpService, ProteinService proteinService) {
+    super(ncbiConfiguration, restClientFactory);
     this.ncbiConfiguration = ncbiConfiguration;
     this.ftpService = ftpService;
     this.proteinService = proteinService;
@@ -78,8 +76,7 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadGeneInfo(parameters)) {
-      Path geneInfo = downloadGeneInfo(progressBar.step(step / 2), locale);
-      parseGeneInfo(geneInfo, mappings, parameters, progressBar.step(step / 2), resources);
+      downloadGeneInfo(mappings, parameters, progressBar.step(step / 2), resources);
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloaSequences(parameters)) {
@@ -145,62 +142,6 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
       mapping.setGenes(new ArrayList<>());
     }
     mapping.getGenes().add(geneInfo);
-  }
-
-  private boolean isDownloadGeneInfo(FindGenesParameters parameters) {
-    return parameters.isGeneName() || parameters.isGeneSummary() || parameters.isGeneSynonyms();
-  }
-
-  private Path downloadGeneInfo(ProgressBar progressBar, Locale locale) throws IOException {
-    FTPClient client = ftpService.anonymousConnect(ncbiConfiguration.ftp());
-    String geneInfo = ncbiConfiguration.geneInfo();
-    Path geneInfoFile = ftpService.localFile(geneInfo);
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    progressBar.setMessage(resources.message("download", geneInfo, geneInfoFile));
-    ftpService.downloadFile(client, geneInfo, geneInfoFile, progressBar, locale);
-    progressBar.setProgress(1.0);
-    return geneInfoFile;
-  }
-
-  private void parseGeneInfo(Path geneInfo, List<ProteinMapping> mappings,
-      FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
-      throws IOException {
-    progressBar.setMessage(resources.message("parsing", geneInfo.getFileName()));
-    Map<Long, List<GeneInfo>> mappingsByGene = new HashMap<>();
-    mappings.stream().map(mapping -> mapping.getGenes()).filter(genes -> genes != null)
-        .flatMap(genes -> genes.stream()).forEach(gene -> {
-          if (!mappingsByGene.containsKey(gene.getId())) {
-            mappingsByGene.put(gene.getId(), new ArrayList<>());
-          }
-          mappingsByGene.get(gene.getId()).add(gene);
-        });
-    try (BufferedReader reader = newBufferedReader(geneInfo)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (line.startsWith("#")) {
-          continue;
-        }
-        String[] columns = line.split("\t", -1);
-        Long geneId = Long.parseLong(columns[1]);
-        if (mappingsByGene.containsKey(geneId)) {
-          String name = columns[2];
-          String synonyms = columns[4].equals("-") ? null : columns[4];
-          String description = columns[8].equals("-") ? null : columns[8];
-          mappingsByGene.get(geneId).forEach(mapping -> {
-            if (parameters.isGeneName()) {
-              mapping.setSymbol(name);
-            }
-            if (parameters.isGeneSynonyms() && synonyms != null) {
-              mapping.setSynonyms(Arrays.asList(synonyms.split("\\|", -1)));
-            }
-            if (parameters.isGeneSummary() && description != null) {
-              mapping.setDescription(description);
-            }
-          });
-        }
-      }
-    }
-    progressBar.setProgress(1.0);
   }
 
   private boolean isDownloaSequences(FindGenesParameters parameters) {
