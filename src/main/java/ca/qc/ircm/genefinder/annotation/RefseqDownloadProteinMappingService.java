@@ -3,14 +3,12 @@ package ca.qc.ircm.genefinder.annotation;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
-import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
 import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.genefinder.xml.StackSaxHandler;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
-import org.apache.commons.net.ftp.FTPClient;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +29,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
@@ -59,19 +54,16 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
   @Inject
   private RestClientFactory restClientFactory;
   @Inject
-  private FtpService ftpService;
-  @Inject
   private ProteinService proteinService;
 
   protected RefseqDownloadProteinMappingService() {
   }
 
   protected RefseqDownloadProteinMappingService(NcbiConfiguration ncbiConfiguration,
-      RestClientFactory restClientFactory, FtpService ftpService, ProteinService proteinService) {
+      RestClientFactory restClientFactory, ProteinService proteinService) {
     super(ncbiConfiguration, restClientFactory);
     this.ncbiConfiguration = ncbiConfiguration;
     this.restClientFactory = restClientFactory;
-    this.ftpService = ftpService;
     this.proteinService = proteinService;
   }
 
@@ -98,20 +90,10 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloaSequences(parameters)) {
-      List<Path> sequences = downloadSequences(progressBar.step(step / 2), locale);
-      parseSequences(sequences, mappings, parameters, progressBar.step(step / 2), resources);
+      downloadSequences(mappings, parameters, progressBar.step(step), resources);
     }
     progressBar.setProgress(1.0);
     return mappings;
-  }
-
-  private BufferedReader newBufferedReader(Path file) throws IOException {
-    if (file.getFileName().toString().endsWith(".gz")) {
-      return new BufferedReader(
-          new InputStreamReader(new GZIPInputStream(Files.newInputStream(file)), UTF_8_CHARSET));
-    } else {
-      return Files.newBufferedReader(file, UTF_8_CHARSET);
-    }
   }
 
   private void downloadGeneMappings(List<ProteinMapping> mappings, FindGenesParameters parameters,
@@ -313,65 +295,170 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
     return parameters.isSequence() || parameters.isProteinMolecularWeight();
   }
 
-  private List<Path> downloadSequences(ProgressBar progressBar, Locale locale) throws IOException {
-    FTPClient client = ftpService.anonymousConnect(ncbiConfiguration.ftp());
-    String refseqSequences = ncbiConfiguration.refseqSequences();
-    Pattern refseqSequencesFilenamePattern = ncbiConfiguration.refseqSequencesFilenamePattern();
-    List<String> files = ftpService.walkTree(client, refseqSequences).stream()
-        .filter(file -> refseqSequencesFilenamePattern.matcher(file).matches())
-        .collect(Collectors.toList());
-    List<Path> downloadedFiles = new ArrayList<>();
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    double step = 1.0 / Math.max(files.size(), 1);
-    for (String file : files) {
-      Path localFile = ftpService.localFile(file);
-      progressBar.setMessage(resources.message("download", file, localFile));
-      ftpService.downloadFile(client, file, localFile, progressBar.step(step), locale);
-      downloadedFiles.add(localFile);
-    }
-    progressBar.setProgress(1.0);
-    return downloadedFiles;
-  }
-
-  private void parseSequences(List<Path> sequences, List<ProteinMapping> mappings,
-      FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
-      throws IOException {
-    Function<ProteinMapping, Pattern> sequencePatternProvider = mapping -> Pattern
-        .compile("^>(.*\\|)?" + (parameters.getProteinDatabase() == REFSEQ_GI ? "gi" : "ref")
-            + "\\|" + Pattern.quote(mapping.getProteinId()) + "(\\|.*)?$");
+  private void downloadSequences(List<ProteinMapping> mappings, FindGenesParameters parameters,
+      ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
+    Map<String, ProteinMapping> mappingsById = mappings.stream()
+        .collect(Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping));
+    Map<String, String> accessions =
+        accessions(mappings, parameters, progressBar.step(0.5), resources);
+    Function<String, Pattern> sequencePatternProvider =
+        accession -> Pattern.compile("^>(.*\\|)?" + Pattern.quote(accession) + "([\\| ].*)?$");
     Map<Pattern, ProteinMapping> sequenceNamePatterns =
-        mappings.stream().collect(Collectors.toMap(sequencePatternProvider, mapping -> mapping));
-    double step = 1.0 / Math.max(sequences.size(), 1);
-    int count = 0;
-    for (Path file : sequences) {
-      progressBar.setMessage(resources.message("parsing", file.getFileName()));
-      try (BufferedReader reader = newBufferedReader(file)) {
-        String line;
-        ProteinMapping mapping = null;
-        StringBuilder builder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-          if (line.startsWith(">")) {
+        accessions.keySet().stream().collect(Collectors.toMap(sequencePatternProvider,
+            accession -> mappingsById.get(accessions.get(accession))));
+    progressBar = progressBar.step(0.5);
+    Client client = restClientFactory.createClient();
+    client.register(LoggingFeature.class);
+    client.property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT,
+        LoggingFeature.Verbosity.HEADERS_ONLY);
+    WebTarget target = client.target(ncbiConfiguration.eutils());
+    target = target.path("efetch.fcgi");
+    List<String> proteinIds = accessions.keySet().stream().collect(Collectors.toList());
+    int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
+    double step = 1.0 / Math.max(proteinIds.size() / maxIdsPerRequest, 1.0);
+    for (int i = 0; i < proteinIds.size(); i += maxIdsPerRequest) {
+      ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
+      progressBar.setMessage(resources.message("downloadSequences", i + 1,
+          Math.min(i + maxIdsPerRequest, proteinIds.size()), proteinIds.size()));
+      Form form = new Form();
+      form.param("db", "protein");
+      form.param("rettype", "fasta");
+      List<String> currentProteinIds =
+          proteinIds.stream().skip(i).limit(maxIdsPerRequest).collect(Collectors.toList());
+      currentProteinIds.forEach(id -> form.param("id", id));
+      final Invocation.Builder request = target.request();
+      try {
+        retry(() -> {
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+              request.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
+                  InputStream.class),
+              UTF_8_CHARSET))) {
+            String line;
+            ProteinMapping mapping = null;
+            StringBuilder builder = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+              if (line.startsWith(">")) {
+                if (mapping != null) {
+                  setSequence(mapping, builder.toString(), parameters);
+                }
+                mapping = null;
+                builder.delete(0, builder.length());
+                for (Pattern pattern : sequenceNamePatterns.keySet()) {
+                  if (pattern.matcher(line).matches()) {
+                    mapping = sequenceNamePatterns.get(pattern);
+                  }
+                }
+              } else if (mapping != null) {
+                builder.append(line);
+              }
+            }
             if (mapping != null) {
               setSequence(mapping, builder.toString(), parameters);
             }
-            mapping = null;
-            builder.delete(0, builder.length());
-            for (Pattern pattern : sequenceNamePatterns.keySet()) {
-              if (pattern.matcher(line).matches()) {
-                mapping = sequenceNamePatterns.get(pattern);
-              }
-            }
-          } else if (mapping != null) {
-            builder.append(line);
           }
-        }
-        if (mapping != null) {
-          setSequence(mapping, builder.toString(), parameters);
-        }
+          return null;
+        });
+      } catch (Exception e) {
+        ExceptionUtils.throwExceptionIfMatch(e, IOException.class);
+        ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
+        ExceptionUtils.throwExceptionIfMatch(e, RuntimeException.class);
+        throw new IOException(e);
       }
-      progressBar.setProgress(++count * step);
+      progressBar.setProgress(i * step);
     }
     progressBar.setProgress(1.0);
+  }
+
+  private Map<String, String> accessions(List<ProteinMapping> mappings,
+      FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
+    if (parameters.getProteinDatabase() == REFSEQ_GI) {
+      Map<String, String> accessions = new HashMap<>();
+      Client client = restClientFactory.createClient();
+      client.register(LoggingFeature.class);
+      client.property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT,
+          LoggingFeature.Verbosity.HEADERS_ONLY);
+      WebTarget target = client.target(ncbiConfiguration.eutils());
+      target = target.path("esummary.fcgi");
+      List<String> proteinIds = mappings.stream().map(mapping -> mapping.getProteinId()).distinct()
+          .collect(Collectors.toList());
+      int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
+      double step = 1.0 / Math.max(proteinIds.size() / maxIdsPerRequest, 1.0);
+      for (int i = 0; i < proteinIds.size(); i += maxIdsPerRequest) {
+        ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
+        progressBar.setMessage(resources.message("downloadAccessions", i + 1,
+            Math.min(i + maxIdsPerRequest, proteinIds.size()), proteinIds.size()));
+        Form form = new Form();
+        form.param("db", "protein");
+        form.param("id",
+            proteinIds.stream().skip(i).limit(maxIdsPerRequest).collect(Collectors.joining(",")));
+        final Invocation.Builder request = target.request();
+        try {
+          retry(() -> {
+            try (InputStream input = new BufferedInputStream(
+                request.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
+                    InputStream.class))) {
+              SAXParserFactory factory = SAXParserFactory.newInstance();
+              SAXParser parser = factory.newSAXParser();
+              parser.parse(input, new StackSaxHandler() {
+                private String id;
+                private String accession;
+                private boolean saveCharacter;
+                private StringBuilder builder = new StringBuilder();
+
+                @Override
+                protected void startElement(String elementName, Attributes attributes)
+                    throws SAXException {
+                  if (current("DocSum")) {
+                  } else if (current("Id")) {
+                    builder.delete(0, builder.length());
+                    saveCharacter = true;
+                  } else if (current("Item") && attribute("Name", "AccessionVersion")) {
+                    builder.delete(0, builder.length());
+                    saveCharacter = true;
+                  }
+                }
+
+                @Override
+                protected void endElement(String elementName) {
+                  if (current("DocSum")) {
+                    accessions.put(accession, id);
+                  } else if (current("Id")) {
+                    id = builder.toString();
+                    saveCharacter = false;
+                  } else if (current("Item") && attribute("Name", "AccessionVersion")) {
+                    accession = builder.toString();
+                    saveCharacter = false;
+                  }
+                }
+
+                @Override
+                public void characters(char[] ch, int start, int length) throws SAXException {
+                  if (saveCharacter) {
+                    builder.append(ch, start, length);
+                  }
+                }
+              });
+            } catch (ParserConfigurationException | SAXException e) {
+              throw new IOException("Could not parse esummary response", e);
+            }
+            return null;
+          });
+        } catch (Exception e) {
+          ExceptionUtils.throwExceptionIfMatch(e, IOException.class);
+          ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
+          ExceptionUtils.throwExceptionIfMatch(e, RuntimeException.class);
+          throw new IOException(e);
+        }
+        progressBar.setProgress(i * step);
+      }
+      progressBar.setProgress(1.0);
+      return accessions;
+    } else {
+      return mappings.stream().collect(
+          Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping.getProteinId()));
+    }
   }
 
   private void setSequence(ProteinMapping mapping, String sequence,
