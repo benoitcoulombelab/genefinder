@@ -9,15 +9,8 @@ rest:
   timeout: 120000
 
 ncbi:
-  ftp: ftp.ncbi.nlm.nih.gov
-  taxonomy: /pub/taxonomy/taxdmp.zip
-  taxonomyNodes: nodes.dmp
-  gene2accession: /gene/DATA/gene2refseq.gz
-  geneInfo: /gene/DATA/gene_info.gz
   refseq-protein-accession-pattern: "^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)"
   refseq-protein-gi-pattern: "^(?:gi\\|)?(\\d+)"
-  refseq-sequences: /refseq/release/complete
-  refseq-sequences-filename-pattern: '.+\.protein\.faa\.gz'
   eutils: https://eutils.ncbi.nlm.nih.gov/entrez/eutils
   maxIdsPerRequest: 1000 # Never more than 5000, see https://www.ncbi.nlm.nih.gov/books/NBK25498/#chapter3.Application_4_Finding_unique_se
 
