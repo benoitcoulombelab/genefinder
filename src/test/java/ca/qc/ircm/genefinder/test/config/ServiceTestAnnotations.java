@@ -20,8 +20,6 @@ package ca.qc.ircm.genefinder.test.config;
 import ca.qc.ircm.genefinder.Main;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -32,8 +30,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest(classes = Main.class)
 @ActiveProfiles("test")
-@Transactional
-@Sql("/database.sql")
 public @interface ServiceTestAnnotations {
 
 }

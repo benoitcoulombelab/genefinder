@@ -16,10 +16,6 @@
         <Label fx:id="proteinColumnLabel" text="%proteinColumn"/>
         <TextField fx:id="proteinColumn" promptText="%proteinColumn.prompt"/>
       </HBox>
-			<HBox styleClass="parameter,organism">
-				<Label fx:id="organismLabel" text="%organism"/>
-				<ChoiceBox fx:id="organism"/>
-			</HBox>
       <HBox styleClass="parameter,proteinDatabase">
         <Label fx:id="proteinDatabaseLabel" text="%proteinDatabase"/>
         <ChoiceBox fx:id="proteinDatabase"/>

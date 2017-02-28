@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
 import ca.qc.ircm.genefinder.annotation.GeneInfo;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.apache.commons.io.FileUtils;
@@ -41,8 +40,6 @@ public class DataServiceTest {
   @Mock
   private DataWriter dataWriter;
   @Mock
-  private Organism organism;
-  @Mock
   private ProgressBar progressBar;
   @Mock
   private List<String> proteinIds;
@@ -51,7 +48,6 @@ public class DataServiceTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private Locale locale;
-  private Integer organismId = 9606;
 
   /**
    * Before test.
@@ -60,7 +56,6 @@ public class DataServiceTest {
   public void beforeTest() {
     dataServiceBean = new DataService(proteinMappingService, proteinParser, dataWriter);
     locale = Locale.getDefault();
-    when(organism.getId()).thenReturn(organismId);
     when(progressBar.step(any(Double.class))).thenReturn(progressBar);
   }
 
@@ -84,7 +79,6 @@ public class DataServiceTest {
     when(proteinMappingService.downloadProteinMappings(any(), any(), any(), any()))
         .thenReturn(mappings);
     FindGenesParametersBean parameters = new FindGenesParametersBean();
-    parameters.organism(organism);
 
     dataServiceBean.findGeneNames(files, parameters, progressBar, locale);
 

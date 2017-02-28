@@ -48,8 +48,7 @@ public class DataService {
     double step = 1.0 / Math.max(files.size(), 1);
     int count = 0;
     for (File file : files) {
-      progressBar.setMessage(
-          MessageFormat.format(bundle.getString("mappings"), parameters.getOrganism().getName()));
+      progressBar.setMessage(MessageFormat.format(bundle.getString("mappings"), file.getName()));
       ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
       List<String> proteinIds = proteinParser.parseProteinIds(file, parameters);
       ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
@@ -58,7 +57,7 @@ public class DataService {
       Map<String, ProteinMapping> mappings = rawMappings.stream().collect(
           Collectors.toMap(ProteinMapping::getProteinId, Function.<ProteinMapping>identity()));
       ExceptionUtils.throwIfInterrupted("Interrupted gene finding");
-      progressBar.setMessage(MessageFormat.format(bundle.getString("finding"), file.getName()));
+      progressBar.setMessage(MessageFormat.format(bundle.getString("writing"), file.getName()));
       String extension = FilenameUtils.getExtension(file.getName());
       String filename = MessageFormat.format(bundle.getString("output.filename"),
           FilenameUtils.getBaseName(file.getName()), extension.isEmpty() ? 0 : 1, extension);

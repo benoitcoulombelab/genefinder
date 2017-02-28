@@ -1,12 +1,8 @@
 package ca.qc.ircm.genefinder.gui;
 
-import ca.qc.ircm.genefinder.data.gui.GeneFinderPresenter;
 import ca.qc.ircm.genefinder.data.gui.GeneFinderView;
-import ca.qc.ircm.genefinder.organism.gui.ManageOrganismsPresenter;
-import ca.qc.ircm.genefinder.organism.gui.ManageOrganismsView;
 import javafx.fxml.FXML;
-import javafx.scene.control.Tab;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -22,11 +18,7 @@ public class ApplicationPresenter {
   @FXML
   private ResourceBundle resources;
   @FXML
-  private Region layout;
-  @FXML
-  private Tab geneFinderTab;
-  @FXML
-  private Tab organismsTab;
+  private BorderPane layout;
 
   @FXML
   private void initialize() {
@@ -34,13 +26,6 @@ public class ApplicationPresenter {
     layout.setPrefWidth(Integer.parseInt(resources.getString("width")));
 
     GeneFinderView geneFinderView = new GeneFinderView();
-    GeneFinderPresenter geneFinderPresenter = (GeneFinderPresenter) geneFinderView.getPresenter();
-    ManageOrganismsView manageOrganismsView = new ManageOrganismsView();
-    ManageOrganismsPresenter manageOrganismsPresenter =
-        (ManageOrganismsPresenter) manageOrganismsView.getPresenter();
-    geneFinderPresenter.organismsProperty()
-        .bindBidirectional(manageOrganismsPresenter.organismsProperty());
-    geneFinderTab.setContent(geneFinderView.getView());
-    organismsTab.setContent(manageOrganismsView.getView());
+    layout.setCenter(geneFinderView.getView());
   }
 }

@@ -11,17 +11,12 @@ import ca.qc.ircm.genefinder.gui.drag.DragFilesOverHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDetectedHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDoneHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDroppedHandler;
-import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.genefinder.organism.gui.OrganismStringConverter;
 import ca.qc.ircm.util.javafx.JavafxUtils;
 import ca.qc.ircm.util.javafx.message.MessageDialog;
 import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -57,7 +52,6 @@ import javax.inject.Inject;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GeneFinderPresenter {
   private static final Logger logger = LoggerFactory.getLogger(GeneFinderPresenter.class);
-  private ListProperty<Organism> organismsProperty = new SimpleListProperty<>();
   private BooleanProperty geneIdProperty = new SimpleBooleanProperty();
   private BooleanProperty geneNameProperty = new SimpleBooleanProperty();
   private BooleanProperty geneSynonymsProperty = new SimpleBooleanProperty();
@@ -73,10 +67,6 @@ public class GeneFinderPresenter {
   private Label proteinColumnLabel;
   @FXML
   private TextField proteinColumn;
-  @FXML
-  private Label organismLabel;
-  @FXML
-  private ChoiceBox<Organism> organism;
   @FXML
   private Label proteinDatabaseLabel;
   @FXML
@@ -111,17 +101,6 @@ public class GeneFinderPresenter {
         removeSelectedFiles();
       }
     });
-    organism.setItems(organismsProperty);
-    organism.setConverter(new OrganismStringConverter());
-    organismsProperty.addListener((ListChangeListener<Organism>) event -> {
-      while (event.next()) {
-        if (event.wasAdded() || event.wasRemoved()) {
-          if (!organism.getItems().isEmpty()) {
-            organism.getSelectionModel().select(0);
-          }
-        }
-      }
-    });
     proteinDatabase.setItems(FXCollections.observableArrayList(ProteinDatabase.values()));
     proteinDatabase.setConverter(new ProteinDatabaseStringConverter(Locale.getDefault()));
     geneIdProperty.bind(geneId.selectedProperty());
@@ -134,13 +113,8 @@ public class GeneFinderPresenter {
     geneName.setSelected(true);
   }
 
-  public ListProperty<Organism> organismsProperty() {
-    return organismsProperty;
-  }
-
   private FindGenesParameters getFindGenesParameters() {
     FindGenesParametersBean parameters = new FindGenesParametersBean();
-    parameters.organism(organism.getSelectionModel().getSelectedItem());
     parameters.proteinColumn(parseProteinColumn());
     parameters.proteinDatabase(proteinDatabase.getSelectionModel().getSelectedItem());
     parameters.geneId(geneIdProperty.get());
@@ -232,8 +206,6 @@ public class GeneFinderPresenter {
     files.getStyleClass().remove("error");
     proteinColumnLabel.getStyleClass().remove("error");
     proteinColumn.getStyleClass().remove("error");
-    organismLabel.getStyleClass().remove("error");
-    organism.getStyleClass().remove("error");
     proteinDatabaseLabel.getStyleClass().remove("error");
     proteinDatabase.getStyleClass().remove("error");
     List<String> errors = new ArrayList<>();
@@ -261,11 +233,6 @@ public class GeneFinderPresenter {
           proteinColumn.getStyleClass().add("error");
         }
       }
-    }
-    if (organism.getSelectionModel().getSelectedItem() == null) {
-      errors.add(resources.getString("error.organism.required"));
-      organismLabel.getStyleClass().add("error");
-      organism.getStyleClass().add("error");
     }
     if (proteinDatabase.getSelectionModel().getSelectedItem() == null) {
       errors.add(resources.getString("proteinDatabase.required"));

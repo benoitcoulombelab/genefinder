@@ -5,12 +5,4 @@
 <?scenebuilder-preview-i18n-resource application.properties?>
 
 <BorderPane fx:id="layout" styleClass="app" xmlns:fx="http://javafx.com/fxml" fx:controller="ca.qc.ircm.genefinder.gui.ApplicationPresenter">
-	<center>
-		<TabPane tabClosingPolicy="UNAVAILABLE">
-			<Tab fx:id="geneFinderTab" text="%geneFinder">
-			</Tab>
-			<Tab fx:id="organismsTab" text="%organisms">
-			</Tab>
-		</TabPane>
-	</center>
 </BorderPane>

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.junit.Before;
@@ -31,8 +30,6 @@ public class DownloadProteinMappingServiceDispatcherTest {
   private List<String> proteinIds;
   @Mock
   private FindGenesParameters parameters;
-  @Mock
-  private Organism organism;
   @Mock
   private ProgressBar progressBar;
   private Locale locale = Locale.getDefault();

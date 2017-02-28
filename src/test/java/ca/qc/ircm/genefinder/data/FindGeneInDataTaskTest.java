@@ -6,7 +6,6 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.RetryOnFail;
 import ca.qc.ircm.genefinder.test.config.RetryOnFailRule;
 import ca.qc.ircm.genefinder.test.config.TestFxTestAnnotations;
@@ -39,8 +38,6 @@ import java.util.Locale;
 @TestFxTestAnnotations
 public class FindGeneInDataTaskTest extends ApplicationTest {
   private FindGenesInDataTask findGenesInDataTask;
-  @Mock
-  private Organism organism;
   @Mock
   private DataService dataService;
   @Mock

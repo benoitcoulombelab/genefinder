@@ -4,16 +4,6 @@ application:
 spring:
   application:
     name: genefinder
-# Database.
-  datasource:
-    platform: h2
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:./genefinder
-    username: test
-    password: 
-    tomcat:
-      test-on-borrow: true
-      validationQuery: SELECT 1
 
 rest:
   timeout: 120000

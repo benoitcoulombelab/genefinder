@@ -19,46 +19,15 @@ package ca.qc.ircm.genefinder;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 
 /**
  * Configuration for Spring.
  */
 @Configuration
-@EnableTransactionManagement
 public class SpringConfiguration {
-  @Inject
-  private DataSource dataSource;
-
-  /**
-   * Returns entity manager factory.
-   *
-   * @return entity manager factory
-   */
-  @Bean
-  public EntityManagerFactory entityManagerFactory() {
-    LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-    factory.setPersistenceUnitName("genefinder");
-    factory.setDataSource(dataSource);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  @Bean
-  public PlatformTransactionManager txManager() {
-    return new JpaTransactionManager(entityManagerFactory());
-  }
-
   @Bean(destroyMethod = "shutdownNow")
   public ExecutorService executorService() {
     return Executors.newFixedThreadPool(2);

@@ -80,14 +80,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-orm</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
     </dependency>
@@ -98,32 +90,6 @@
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-jdbc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>javax.persistence</artifactId>
-      <version>${javax.persistence.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>eclipselink</artifactId>
-      <version>${eclipselink.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.querydsl</groupId>
-      <artifactId>querydsl-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.querydsl</groupId>
-      <artifactId>querydsl-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -183,15 +149,6 @@
       <artifactId>annotations</artifactId>
       <version>${findbugs.annotations.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <optional>true</optional>
-    </dependency>
   </dependencies>
   <build>
     <resources>
@@ -239,64 +196,6 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>de.empulse.eclipselink</groupId>
-          <artifactId>staticweave-maven-plugin</artifactId>
-          <version>${staticweave-maven-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>eclipselink-staticweave</id>
-              <phase>process-classes</phase>
-              <goals>
-                <goal>weave</goal>
-              </goals>
-              <configuration>
-                <goals>install</goals>
-                <tagNameFormat>@{project.version}</tagNameFormat>
-              </configuration>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.eclipse.persistence</groupId>
-              <artifactId>eclipselink</artifactId>
-              <version>${eclipselink.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.jboss.spec.javax.servlet.jsp</groupId>
-              <artifactId>jboss-jsp-api_2.3_spec</artifactId>
-              <version>${jboss-jsp-api_2.3_spec.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.jboss.resteasy</groupId>
-              <artifactId>jaxrs-api</artifactId>
-              <version>${resteasy.jaxrs-api.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-        <plugin>
-          <groupId>com.mysema.maven</groupId>
-          <artifactId>apt-maven-plugin</artifactId>
-          <version>${apt-maven-plugin.version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>process</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>target/generated-sources/querydsl</outputDirectory>
-                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-              </configuration>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>com.querydsl</groupId>
-              <artifactId>querydsl-apt</artifactId>
-              <version>${querydsl.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot-maven-plugin.version}</version>
@@ -327,14 +226,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>de.empulse.eclipselink</groupId>
-        <artifactId>staticweave-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.mysema.maven</groupId>
-        <artifactId>apt-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
