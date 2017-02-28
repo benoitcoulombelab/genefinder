@@ -362,10 +362,6 @@ public class RefseqDownloadProteinMappingServiceTest {
     when(parameters.isGeneSummary()).thenReturn(true);
     final List<String> proteinIds =
         Files.readAllLines(Paths.get(getClass().getResource("/annotation/gis3.txt").toURI()));
-    Path localGene2accession = download.resolve("refseq.gene2refseq.gz");
-    gzip(Paths.get(getClass().getResource("/annotation/refseq.gene2refseq").toURI()),
-        localGene2accession);
-    when(ftpService.localFile(gene2accession)).thenReturn(localGene2accession);
     byte[] geneMappings = Files
         .readAllBytes(Paths.get(getClass().getResource("/annotation/gene-elink.fcgi.xml").toURI()));
     byte[] geneInfos = Files.readAllBytes(

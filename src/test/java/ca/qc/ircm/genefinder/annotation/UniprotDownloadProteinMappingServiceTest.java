@@ -21,9 +21,7 @@ import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -33,7 +31,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -82,10 +78,7 @@ public class UniprotDownloadProteinMappingServiceTest {
   private ArgumentCaptor<String> stringCaptor;
   @Captor
   private ArgumentCaptor<Entity<?>> entityCaptor;
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private Locale locale = Locale.getDefault();
-  private Path download;
   private String mapping = "http://www.uniprot.org/uploadlists";
   private String eutils = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
   private String esummary = "esummary.fcgi";
@@ -97,7 +90,6 @@ public class UniprotDownloadProteinMappingServiceTest {
   public void beforeTest() throws Throwable {
     uniprotDownloadProteinMappingService = new UniprotDownloadProteinMappingService(
         uniprotConfiguration, ncbiConfiguration, restClientFactory, proteinService);
-    download = Files.createDirectory(temporaryFolder.getRoot().toPath().resolve("download"));
     when(uniprotConfiguration.mapping()).thenReturn(mapping);
     when(uniprotConfiguration.maxIdsPerRequest()).thenReturn(MAX_IDS_PER_REQUEST);
     when(ncbiConfiguration.eutils()).thenReturn(eutils);
@@ -108,12 +100,6 @@ public class UniprotDownloadProteinMappingServiceTest {
     when(target.queryParam(anyString(), anyVararg())).thenReturn(target);
     when(target.request()).thenReturn(request);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
-  }
-
-  private void gzip(Path input, Path output) throws IOException {
-    try (OutputStream out = new GZIPOutputStream(Files.newOutputStream(output))) {
-      Files.copy(input, out);
-    }
   }
 
   private String parseSequence(Path sequenceMapping, String proteinId) throws IOException {
@@ -369,8 +355,6 @@ public class UniprotDownloadProteinMappingServiceTest {
     byte[] remoteMappings = Files
         .readAllBytes(Paths.get(getClass().getResource("/annotation/idmapping3-gene").toURI()));
     when(request.get(InputStream.class)).thenReturn(new ByteArrayInputStream(remoteMappings));
-    Path localGeneInfo = download.resolve("refseq.gene_info.gz");
-    gzip(Paths.get(getClass().getResource("/annotation/refseq.gene_info").toURI()), localGeneInfo);
     byte[] geneInfos = Files.readAllBytes(
         Paths.get(getClass().getResource("/annotation/gene-esummary.fcgi.xml").toURI()));
     when(request.post(any(), eq(InputStream.class)))

@@ -1,5 +1,0 @@
-#Format: tax_id GeneID Symbol LocusTag Synonyms dbXrefs chromosome map_location description type_of_gene Symbol_from_nomenclature_authority Full_name_from_nomenclature_authority Nomenclature_status Other_designations Modification_date (tab is used as a separator, pound sign - start of a comment)
-9606	1	A1BG	-	A1B|ABG|GAB|HYST2477	MIM:138670|HGNC:HGNC:5|Ensembl:ENSG00000121410|HPRD:00726|Vega:OTTHUMG00000183507	19	19q13.4	alpha-1-B glycoprotein	protein-coding	A1BG	alpha-1-B glycoprotein	O	HEL-S-163pA|epididymis secretory sperm binding protein Li 163pA	20160207
-9606	2149	F2R	-	CF2R|HTR|PAR-1|PAR1|TR	MIM:187930|HGNC:HGNC:3537|Ensembl:ENSG00000181104|HPRD:01763|Vega:OTTHUMG00000131299	5	5q13	coagulation factor II thrombin receptor	protein-coding	F2R	coagulation factor II thrombin receptor	O	coagulation factor II (thrombin) receptor|protease-activated receptor 1	20160207
-9606	4404	MRX39	-	-	HGNC:HGNC:7270	X	-	mental retardation, X-linked 39	unknown	MRX39	mental retardation, X-linked 39	O	-	20141207
-741158	8923219	16S rRNA	-	-	-	MT	-	l-rRNA	rRNA	-	-	-	-	20121127
