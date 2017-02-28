@@ -31,7 +31,7 @@ public class NcbiConfigurationTest {
     assertEquals("/refseq/release/complete", ncbiConfiguration.refseqSequences());
     assertEquals(Pattern.compile(".+\\.protein\\.faa\\.gz").pattern(),
         ncbiConfiguration.refseqSequencesFilenamePattern().pattern());
-    assertEquals("http://eutils.ncbi.nlm.nih.gov/entrez/eutils", ncbiConfiguration.eutils());
+    assertEquals("https://eutils.ncbi.nlm.nih.gov/entrez/eutils", ncbiConfiguration.eutils());
     assertEquals(1000, ncbiConfiguration.maxIdsPerRequest());
   }
 }
