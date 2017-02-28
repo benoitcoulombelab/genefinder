@@ -7,19 +7,26 @@ import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
 import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
+import ca.qc.ircm.genefinder.xml.StackSaxHandler;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
 import org.apache.commons.net.ftp.FTPClient;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,6 +36,15 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Download protein mappings from RefSeq database.
@@ -41,6 +57,8 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
   @Inject
   private NcbiConfiguration ncbiConfiguration;
   @Inject
+  private RestClientFactory restClientFactory;
+  @Inject
   private FtpService ftpService;
   @Inject
   private ProteinService proteinService;
@@ -52,6 +70,7 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
       RestClientFactory restClientFactory, FtpService ftpService, ProteinService proteinService) {
     super(ncbiConfiguration, restClientFactory);
     this.ncbiConfiguration = ncbiConfiguration;
+    this.restClientFactory = restClientFactory;
     this.ftpService = ftpService;
     this.proteinService = proteinService;
   }
@@ -63,20 +82,19 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
     MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     int steps = 0;
-    steps += isDownloadGene2Accession(parameters) ? 1 : 0;
+    steps += isDownloadGeneMappings(parameters) ? 1 : 0;
     steps += isDownloadGeneInfo(parameters) ? 1 : 0;
     steps += isDownloaSequences(parameters) ? 1 : 0;
     double step = 1.0 / steps;
     List<ProteinMapping> mappings = proteinIds.stream().distinct().map(id -> new ProteinMapping(id))
         .collect(Collectors.toList());
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
-    if (isDownloadGene2Accession(parameters)) {
-      Path gene2Accession = downloadGene2Accession(progressBar.step(step / 2), locale);
-      parseGene2Accession(gene2Accession, mappings, progressBar.step(step / 2), resources);
+    if (isDownloadGeneMappings(parameters)) {
+      downloadGeneMappings(mappings, parameters, progressBar.step(step), resources);
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadGeneInfo(parameters)) {
-      downloadGeneInfo(mappings, parameters, progressBar.step(step / 2), resources);
+      downloadGeneInfo(mappings, parameters, progressBar.step(step), resources);
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloaSequences(parameters)) {
@@ -96,45 +114,192 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
     }
   }
 
-  private boolean isDownloadGene2Accession(FindGenesParameters parameters) {
-    return parameters.isGeneId() || parameters.isGeneName() || parameters.isGeneSummary()
-        || parameters.isGeneSynonyms();
-  }
-
-  private Path downloadGene2Accession(ProgressBar progressBar, Locale locale) throws IOException {
-    FTPClient client = ftpService.anonymousConnect(ncbiConfiguration.ftp());
-    String gene2accession = ncbiConfiguration.gene2accession();
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    Path gene2accessionFile = ftpService.localFile(gene2accession);
-    progressBar.setMessage(resources.message("download", gene2accession, gene2accessionFile));
-    ftpService.downloadFile(client, gene2accession, gene2accessionFile, progressBar, locale);
-    progressBar.setProgress(1.0);
-    return gene2accessionFile;
-  }
-
-  private void parseGene2Accession(Path gene2Accession, List<ProteinMapping> mappings,
-      ProgressBar progressBar, MessageResources resources) throws IOException {
-    progressBar.setMessage(resources.message("parsing", gene2Accession.getFileName()));
+  private void downloadGeneMappings(List<ProteinMapping> mappings, FindGenesParameters parameters,
+      ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
     Map<String, ProteinMapping> mappingsById = mappings.stream()
         .collect(Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping));
-    try (BufferedReader reader = newBufferedReader(gene2Accession)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (line.startsWith("#")) {
-          continue;
-        }
-        String[] columns = line.split("\t", -1);
-        String accession = columns[5];
-        String gi = columns[6];
-        if (mappingsById.containsKey(accession)) {
-          addGeneInfo(mappingsById.get(accession), new GeneInfo(Long.parseLong(columns[1])));
-        }
-        if (mappingsById.containsKey(gi)) {
-          addGeneInfo(mappingsById.get(gi), new GeneInfo(Long.parseLong(columns[1])));
-        }
+    Map<String, String> gis = gis(mappings, parameters, progressBar.step(0.5), resources);
+    progressBar = progressBar.step(0.5);
+    Client client = restClientFactory.createClient();
+    client.register(LoggingFeature.class);
+    client.property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT,
+        LoggingFeature.Verbosity.HEADERS_ONLY);
+    WebTarget target = client.target(ncbiConfiguration.eutils());
+    target = target.path("elink.fcgi");
+    List<String> gisIds = new ArrayList<>(gis.keySet());
+    int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
+    double step = 1.0 / Math.max(gisIds.size() / maxIdsPerRequest, 1.0);
+    for (int i = 0; i < gisIds.size(); i += maxIdsPerRequest) {
+      ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
+      progressBar.setMessage(resources.message("downloadGeneMappings", i + 1,
+          Math.min(i + maxIdsPerRequest, gisIds.size()), gisIds.size()));
+      Form form = new Form();
+      form.param("db", "gene");
+      form.param("dbfrom", "protein");
+      gisIds.stream().skip(i).limit(maxIdsPerRequest).forEach(gi -> form.param("id", gi));
+      final Invocation.Builder request = target.request();
+      try {
+        retry(() -> {
+          try (InputStream input = new BufferedInputStream(
+              request.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
+                  InputStream.class))) {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser parser = factory.newSAXParser();
+            parser.parse(input, new StackSaxHandler() {
+              private String id;
+              private List<String> geneIds = new ArrayList<>();
+              private boolean saveCharacter;
+              private StringBuilder builder = new StringBuilder();
+
+              @Override
+              protected void startElement(String elementName, Attributes attributes)
+                  throws SAXException {
+                if (current("LinkSet")) {
+                  geneIds.clear();
+                } else if (current("Id") && parent("IdList")) {
+                  builder.delete(0, builder.length());
+                  saveCharacter = true;
+                } else if (current("Id") && parent("Link")) {
+                  builder.delete(0, builder.length());
+                  saveCharacter = true;
+                }
+              }
+
+              @Override
+              protected void endElement(String elementName) {
+                if (current("LinkSet")) {
+                  ProteinMapping mapping = mappingsById.get(gis.get(id));
+                  if (mapping != null) {
+                    geneIds.stream().forEach(
+                        geneId -> addGeneInfo(mapping, new GeneInfo(Long.parseLong(geneId))));
+                  }
+                } else if (current("Id") && parent("IdList")) {
+                  id = builder.toString();
+                  saveCharacter = false;
+                } else if (current("Id") && parent("Link")) {
+                  geneIds.add(builder.toString());
+                  saveCharacter = false;
+                }
+              }
+
+              @Override
+              public void characters(char[] ch, int start, int length) throws SAXException {
+                if (saveCharacter) {
+                  builder.append(ch, start, length);
+                }
+              }
+            });
+          } catch (ParserConfigurationException | SAXException e) {
+            throw new IOException("Could not parse elink response", e);
+          }
+          return null;
+        });
+      } catch (Exception e) {
+        ExceptionUtils.throwExceptionIfMatch(e, IOException.class);
+        ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
+        ExceptionUtils.throwExceptionIfMatch(e, RuntimeException.class);
+        throw new IOException(e);
       }
+      progressBar.setProgress(i * step);
     }
     progressBar.setProgress(1.0);
+  }
+
+  private Map<String, String> gis(List<ProteinMapping> mappings, FindGenesParameters parameters,
+      ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
+    if (parameters.getProteinDatabase() == REFSEQ_GI) {
+      return mappings.stream().collect(
+          Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping.getProteinId()));
+    } else {
+      Map<String, String> gis = new HashMap<>();
+      Client client = restClientFactory.createClient();
+      client.register(LoggingFeature.class);
+      client.property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT,
+          LoggingFeature.Verbosity.HEADERS_ONLY);
+      WebTarget target = client.target(ncbiConfiguration.eutils());
+      target = target.path("esummary.fcgi");
+      List<String> proteinIds = mappings.stream().map(mapping -> mapping.getProteinId()).distinct()
+          .collect(Collectors.toList());
+      int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
+      double step = 1.0 / Math.max(proteinIds.size() / maxIdsPerRequest, 1.0);
+      for (int i = 0; i < proteinIds.size(); i += maxIdsPerRequest) {
+        ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
+        progressBar.setMessage(resources.message("downloadGis", i + 1,
+            Math.min(i + maxIdsPerRequest, proteinIds.size()), proteinIds.size()));
+        Form form = new Form();
+        form.param("db", "protein");
+        form.param("id",
+            proteinIds.stream().skip(i).limit(maxIdsPerRequest).collect(Collectors.joining(",")));
+        final Invocation.Builder request = target.request();
+        try {
+          retry(() -> {
+            try (InputStream input = new BufferedInputStream(
+                request.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
+                    InputStream.class))) {
+              SAXParserFactory factory = SAXParserFactory.newInstance();
+              SAXParser parser = factory.newSAXParser();
+              parser.parse(input, new StackSaxHandler() {
+                private String id;
+                private String accession;
+                private boolean saveCharacter;
+                private StringBuilder builder = new StringBuilder();
+
+                @Override
+                protected void startElement(String elementName, Attributes attributes)
+                    throws SAXException {
+                  if (current("DocSum")) {
+                  } else if (current("Id")) {
+                    builder.delete(0, builder.length());
+                    saveCharacter = true;
+                  } else if (current("Item") && attribute("Name", "AccessionVersion")) {
+                    builder.delete(0, builder.length());
+                    saveCharacter = true;
+                  }
+                }
+
+                @Override
+                protected void endElement(String elementName) {
+                  if (current("DocSum")) {
+                    gis.put(id, accession);
+                  } else if (current("Id")) {
+                    id = builder.toString();
+                    saveCharacter = false;
+                  } else if (current("Item") && attribute("Name", "AccessionVersion")) {
+                    accession = builder.toString();
+                    saveCharacter = false;
+                  }
+                }
+
+                @Override
+                public void characters(char[] ch, int start, int length) throws SAXException {
+                  if (saveCharacter) {
+                    builder.append(ch, start, length);
+                  }
+                }
+              });
+            } catch (ParserConfigurationException | SAXException e) {
+              throw new IOException("Could not parse esummary response", e);
+            }
+            return null;
+          });
+        } catch (Exception e) {
+          ExceptionUtils.throwExceptionIfMatch(e, IOException.class);
+          ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
+          ExceptionUtils.throwExceptionIfMatch(e, RuntimeException.class);
+          throw new IOException(e);
+        }
+        progressBar.setProgress(i * step);
+      }
+      progressBar.setProgress(1.0);
+      return gis;
+    }
+  }
+
+  private boolean isDownloadGeneMappings(FindGenesParameters parameters) {
+    return parameters.isGeneId() || parameters.isGeneName() || parameters.isGeneSummary()
+        || parameters.isGeneSynonyms();
   }
 
   private void addGeneInfo(ProteinMapping mapping, GeneInfo geneInfo) {

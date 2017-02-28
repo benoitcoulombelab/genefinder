@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN" "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+<eLinkResult>
+
+  <LinkSet>
+    <DbFrom>protein</DbFrom>
+    <IdList>
+      <Id>829098688</Id>
+    </IdList>
+    <LinkSetDb>
+      <DbTo>gene</DbTo>
+      <LinkName>protein_gene</LinkName>
+      
+        <Link>
+				<Id>1</Id>
+			</Link>
+      
+    </LinkSetDb>
+  </LinkSet>
+
+  <LinkSet>
+    <DbFrom>protein</DbFrom>
+    <IdList>
+      <Id>829098686</Id>
+    </IdList>
+    <LinkSetDb>
+      <DbTo>gene</DbTo>
+      <LinkName>protein_gene</LinkName>
+      
+        <Link>
+				<Id>4404</Id>
+			</Link>
+      
+    </LinkSetDb>
+  </LinkSet>
+
+  <LinkSet>
+    <DbFrom>protein</DbFrom>
+    <IdList>
+      <Id>829098684</Id>
+    </IdList>
+    <LinkSetDb>
+      <DbTo>gene</DbTo>
+      <LinkName>protein_gene</LinkName>
+      
+        <Link>
+				<Id>4404</Id>
+			</Link>
+      
+    </LinkSetDb>
+  </LinkSet>
+</eLinkResult>
