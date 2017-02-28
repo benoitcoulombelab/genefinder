@@ -1,38 +1,45 @@
 package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
-import ca.qc.ircm.genefinder.ftp.FtpService;
 import ca.qc.ircm.genefinder.protein.ProteinService;
 import ca.qc.ircm.genefinder.rest.RestClientFactory;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
+import ca.qc.ircm.genefinder.xml.StackSaxHandler;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
-import org.apache.commons.net.ftp.FTPClient;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Download protein mappings from RefSeq database.
@@ -40,6 +47,8 @@ import javax.ws.rs.client.WebTarget;
 @Component
 public class UniprotDownloadProteinMappingService implements DownloadProteinMappingService {
   private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+  private static final int MAX_RETRIES = 5;
+  private static final long RETRY_SLEEP_TIME = 2000;
   @SuppressWarnings("unused")
   private static final Logger logger =
       LoggerFactory.getLogger(UniprotDownloadProteinMappingService.class);
@@ -47,8 +56,6 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
   private UniprotConfiguration uniprotConfiguration;
   @Inject
   private NcbiConfiguration ncbiConfiguration;
-  @Inject
-  private FtpService ftpService;
   @Inject
   private RestClientFactory restClientFactory;
   @Inject
@@ -58,11 +65,10 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
   }
 
   protected UniprotDownloadProteinMappingService(UniprotConfiguration uniprotConfiguration,
-      NcbiConfiguration ncbiConfiguration, FtpService ftpService,
-      RestClientFactory restClientFactory, ProteinService proteinService) {
+      NcbiConfiguration ncbiConfiguration, RestClientFactory restClientFactory,
+      ProteinService proteinService) {
     this.uniprotConfiguration = uniprotConfiguration;
     this.ncbiConfiguration = ncbiConfiguration;
-    this.ftpService = ftpService;
     this.restClientFactory = restClientFactory;
     this.proteinService = proteinService;
   }
@@ -77,27 +83,34 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     steps += isDownloadMappings(parameters) ? 1 : 0;
     steps += isDownloadGeneInfo(parameters) ? 1 : 0;
     double step = 1.0 / steps;
-    List<ProteinMapping> mappings =
-        proteinIds.stream().map(id -> new ProteinMapping(id)).collect(Collectors.toList());
+    List<ProteinMapping> mappings = proteinIds.stream().distinct().map(id -> new ProteinMapping(id))
+        .collect(Collectors.toList());
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadMappings(parameters)) {
       downloadMappings(mappings, parameters, progressBar.step(step / 2), resources);
     }
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadGeneInfo(parameters)) {
-      Path geneInfo = downloadGeneInfo(progressBar.step(step / 2), locale);
-      parseGeneInfo(geneInfo, mappings, parameters, progressBar.step(step / 2), resources);
+      downloadGeneInfo(mappings, parameters, progressBar.step(step / 2), resources);
     }
     progressBar.setProgress(1.0);
     return mappings;
   }
 
-  private BufferedReader newBufferedReader(Path file) throws IOException {
-    if (file.getFileName().toString().endsWith(".gz")) {
-      return new BufferedReader(
-          new InputStreamReader(new GZIPInputStream(Files.newInputStream(file)), UTF_8_CHARSET));
-    } else {
-      return Files.newBufferedReader(file, UTF_8_CHARSET);
+  private <R> R retry(Callable<R> callable, int maxRetries) throws Exception {
+    int tries = 0;
+    while (true) {
+      try {
+        return callable.call();
+      } catch (Exception e) {
+        if (e instanceof InterruptedException) {
+          throw e;
+        }
+        if (tries++ == MAX_RETRIES) {
+          throw e;
+        }
+        Thread.sleep(RETRY_SLEEP_TIME);
+      }
     }
   }
 
@@ -108,7 +121,8 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
   }
 
   private void downloadMappings(List<ProteinMapping> mappings, FindGenesParameters parameters,
-      ProgressBar progressBar, MessageResources resources) throws IOException {
+      ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
     final Map<String, ProteinMapping> mappingsById = mappings.stream()
         .collect(Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping));
     Map<Integer, BiConsumer<ProteinMapping, String>> columnConsumers = new HashMap<>();
@@ -144,25 +158,37 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     List<String> proteinIds = new ArrayList<>(mappingsById.keySet());
     int maxIdsPerRequest = uniprotConfiguration.maxIdsPerRequest();
     for (int i = 0; i < proteinIds.size(); i += maxIdsPerRequest) {
+      ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
       progressBar.setMessage(resources.message("downloadMappings", i,
           Math.min(i + maxIdsPerRequest, proteinIds.size()), proteinIds.size()));
       String ids =
           proteinIds.stream().skip(i).limit(maxIdsPerRequest).collect(Collectors.joining(" "));
-      WebTarget targetWithIds = target.queryParam("query", ids);
-      try (BufferedReader reader = new BufferedReader(
-          new InputStreamReader(targetWithIds.request().get(InputStream.class), UTF_8_CHARSET))) {
-        String line;
-        reader.readLine();
-        while ((line = reader.readLine()) != null) {
-          String[] columns = line.split("\t");
-          String id = columns[0];
-          ProteinMapping mapping = mappingsById.get(id);
-          for (int j = 1; j < columns.length; j++) {
-            if (columnConsumers.containsKey(j)) {
-              columnConsumers.get(j).accept(mapping, columns[j]);
+      final Invocation.Builder request = target.queryParam("query", ids).request();
+      try {
+        retry(() -> {
+          try (BufferedReader reader = new BufferedReader(
+              new InputStreamReader(request.get(InputStream.class), UTF_8_CHARSET))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+              String[] columns = line.split("\t");
+              String id = columns[0];
+              ProteinMapping mapping = mappingsById.get(id);
+              if (mapping != null) {
+                for (int j = 1; j < columns.length; j++) {
+                  if (columnConsumers.containsKey(j)) {
+                    columnConsumers.get(j).accept(mapping, columns[j]);
+                  }
+                }
+              }
             }
           }
-        }
+          return null;
+        }, MAX_RETRIES);
+      } catch (Exception e) {
+        ExceptionUtils.throwExceptionIfMatch(e, IOException.class);
+        ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
+        throw new IOException(e);
       }
     }
   }
@@ -178,56 +204,100 @@ public class UniprotDownloadProteinMappingService implements DownloadProteinMapp
     return parameters.isGeneName() || parameters.isGeneSummary() || parameters.isGeneSynonyms();
   }
 
-  private Path downloadGeneInfo(ProgressBar progressBar, Locale locale) throws IOException {
-    FTPClient client = ftpService.anonymousConnect(ncbiConfiguration.ftp());
-    String geneInfo = ncbiConfiguration.geneInfo();
-    Path geneInfoFile = ftpService.localFile(geneInfo);
-    MessageResources resources = new MessageResources(DownloadProteinMappingService.class, locale);
-    progressBar.setMessage(resources.message("download", geneInfo, geneInfoFile));
-    ftpService.downloadFile(client, geneInfo, geneInfoFile, progressBar, locale);
-    progressBar.setProgress(1.0);
-    return geneInfoFile;
-  }
-
-  private void parseGeneInfo(Path geneInfo, List<ProteinMapping> mappings,
-      FindGenesParameters parameters, ProgressBar progressBar, MessageResources resources)
-      throws IOException {
-    progressBar.setMessage(resources.message("parsing", geneInfo.getFileName()));
-    Map<Long, List<GeneInfo>> mappingsByGene = new HashMap<>();
+  private void downloadGeneInfo(List<ProteinMapping> mappings, FindGenesParameters parameters,
+      ProgressBar progressBar, MessageResources resources)
+      throws IOException, InterruptedException {
+    final Map<Long, List<GeneInfo>> genesById = new HashMap<>();
     mappings.stream().map(mapping -> mapping.getGenes()).filter(genes -> genes != null)
         .flatMap(genes -> genes.stream()).forEach(gene -> {
-          if (!mappingsByGene.containsKey(gene.getId())) {
-            mappingsByGene.put(gene.getId(), new ArrayList<>());
+          if (!genesById.containsKey(gene.getId())) {
+            genesById.put(gene.getId(), new ArrayList<>());
           }
-          mappingsByGene.get(gene.getId()).add(gene);
+          genesById.get(gene.getId()).add(gene);
         });
-    try (BufferedReader reader = newBufferedReader(geneInfo)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (line.startsWith("#")) {
-          continue;
-        }
-        String[] columns = line.split("\t", -1);
-        Long geneId = Long.parseLong(columns[1]);
-        if (mappingsByGene.containsKey(geneId)) {
-          String name = columns[2];
-          String synonyms = columns[4].equals("-") ? null : columns[4];
-          String description = columns[8].equals("-") ? null : columns[8];
-          mappingsByGene.get(geneId).forEach(mapping -> {
-            if (parameters.isGeneName()) {
-              mapping.setSymbol(name);
-            }
-            if (parameters.isGeneSynonyms() && synonyms != null) {
-              mapping.setSynonyms(Arrays.asList(synonyms.split("\\|", -1)));
-            }
-            if (parameters.isGeneSummary() && description != null) {
-              mapping.setDescription(description);
-            }
-          });
-        }
+    ;
+    Client client = restClientFactory.createClient();
+    client.register(LoggingFeature.class);
+    client.property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT,
+        LoggingFeature.Verbosity.PAYLOAD_ANY);
+    WebTarget target = client.target(ncbiConfiguration.eutils());
+    target = target.path("esummary.fcgi");
+    List<Long> geneIds = new ArrayList<>(genesById.keySet());
+    int maxIdsPerRequest = ncbiConfiguration.maxIdsPerRequest();
+    for (int i = 0; i < geneIds.size(); i += maxIdsPerRequest) {
+      ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
+      progressBar.setMessage(resources.message("downloadGenes", i,
+          Math.min(i + maxIdsPerRequest, geneIds.size()), geneIds.size()));
+      Form form = new Form();
+      form.param("db", "gene");
+      form.param("id", geneIds.stream().skip(i).limit(maxIdsPerRequest)
+          .map(id -> String.valueOf(id)).collect(Collectors.joining(",")));
+      final Invocation.Builder request = target.request();
+      try {
+        retry(() -> {
+          try (InputStream input = new BufferedInputStream(
+              request.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
+                  InputStream.class))) {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser parser = factory.newSAXParser();
+            parser.parse(input, new StackSaxHandler() {
+              private Long id;
+              private boolean saveCharacter;
+              private StringBuilder builder = new StringBuilder();
+
+              @Override
+              protected void startElement(String elementName, Attributes attributes)
+                  throws SAXException {
+                if (current("DocumentSummary") && hasAttribute("uid")) {
+                  id = Long.valueOf(attribute("uid"));
+                } else if (current("Name")) {
+                  builder.delete(0, builder.length());
+                  saveCharacter = true;
+                } else if (current("Description")) {
+                  builder.delete(0, builder.length());
+                  saveCharacter = true;
+                } else if (current("OtherAliases")) {
+                  builder.delete(0, builder.length());
+                  saveCharacter = true;
+                }
+              }
+
+              @Override
+              protected void endElement(String elementName) {
+                if (parameters.isGeneName() && current("Name")) {
+                  genesById.get(id).stream().forEach(gene -> gene.setSymbol(builder.toString()));
+                  saveCharacter = false;
+                } else if (parameters.isGeneSummary() && current("Description")) {
+                  genesById.get(id).stream()
+                      .forEach(gene -> gene.setDescription(builder.toString()));
+                  saveCharacter = false;
+                } else if (parameters.isGeneSynonyms() && current("OtherAliases")) {
+                  if (!builder.toString().isEmpty()) {
+                    genesById.get(id).stream().forEach(
+                        gene -> gene.setSynonyms(Arrays.asList(builder.toString().split(", "))));
+                  }
+                  saveCharacter = false;
+                }
+              }
+
+              @Override
+              public void characters(char[] ch, int start, int length) throws SAXException {
+                if (saveCharacter) {
+                  builder.append(ch, start, length);
+                }
+              }
+            });
+          } catch (ParserConfigurationException | SAXException e) {
+            throw new IOException("Could not parse esummary response", e);
+          }
+          return null;
+        }, MAX_RETRIES);
+      } catch (Exception e) {
+        ExceptionUtils.throwExceptionIfMatch(e, IOException.class);
+        ExceptionUtils.throwExceptionIfMatch(e, InterruptedException.class);
+        throw new IOException(e);
       }
     }
-    progressBar.setProgress(1.0);
   }
 
   private void setSequence(ProteinMapping mapping, String sequence,

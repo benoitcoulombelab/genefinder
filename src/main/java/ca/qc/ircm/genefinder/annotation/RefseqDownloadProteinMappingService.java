@@ -69,8 +69,8 @@ public class RefseqDownloadProteinMappingService implements DownloadProteinMappi
     steps += isDownloadGeneInfo(parameters) ? 1 : 0;
     steps += isDownloaSequences(parameters) ? 1 : 0;
     double step = 1.0 / steps;
-    List<ProteinMapping> mappings =
-        proteinIds.stream().map(id -> new ProteinMapping(id)).collect(Collectors.toList());
+    List<ProteinMapping> mappings = proteinIds.stream().distinct().map(id -> new ProteinMapping(id))
+        .collect(Collectors.toList());
     ExceptionUtils.throwIfInterrupted(resources.message("interrupted"));
     if (isDownloadGene2Accession(parameters)) {
       Path gene2Accession = downloadGene2Accession(progressBar.step(step / 2), locale);
