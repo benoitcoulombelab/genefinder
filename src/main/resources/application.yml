@@ -32,7 +32,6 @@ ncbi:
   maxIdsPerRequest: 1000 # Never more than 5000, see https://www.ncbi.nlm.nih.gov/books/NBK25498/#chapter3.Application_4_Finding_unique_se
 
 uniprot:
-  ftp: ftp.uniprot.org
   mapping: http://www.uniprot.org/uploadlists
   proteinIdPattern: "^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?"
   maxIdsPerRequest: 100 # Never more than 500
