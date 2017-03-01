@@ -25,9 +25,6 @@
     <start-class>ca.qc.ircm.pdd.Main</start-class>
     <spring-boot.version>1.5.1.RELEASE</spring-boot.version>
     <javax.inject.version>1</javax.inject.version>
-    <eclipselink.version>2.6.2</eclipselink.version>
-    <javax.persistence.version>2.1.1</javax.persistence.version>
-    <querydsl.version>4.0.7</querydsl.version>
     <afterburner.fx.version>1.6.1</afterburner.fx.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
     <jersey-client.version>2.25</jersey-client.version>
@@ -37,10 +34,6 @@
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <testFx.version>4.0.4-alpha</testFx.version>
-    <jboss-jsp-api_2.3_spec.version>1.0.1.Final</jboss-jsp-api_2.3_spec.version>
-    <resteasy.jaxrs-api.version>2.3.5.Final</resteasy.jaxrs-api.version>
-    <staticweave-maven-plugin.version>1.0.0</staticweave-maven-plugin.version>
-    <apt-maven-plugin.version>1.1.1</apt-maven-plugin.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
