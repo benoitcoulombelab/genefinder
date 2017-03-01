@@ -10,7 +10,7 @@
   <artifactId>genefinder</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>genefinder</name>
-  <description>Finds genes based on a list of GIs</description>
+  <description>Finds genes based on a list of protein ids</description>
   <scm>
     <connection>scm:git:git@bitbucket.org:ircm/genefinder.git</connection>
     <developerConnection>scm:git:git@bitbucket.org:ircm/genefinder.git</developerConnection>
