@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
@@ -17,9 +17,18 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
-<properties>
-  <entry key="message">Ceci est un test</entry>
-  <entry key="replacements">Ceci est un test {0} {1,choice,0#first|1#second}
-    {2,number,percent} {3,date,yyyy-MM-dd'T'HH:mm:ss}</entry>
-</properties>
+<additionalHeaders>
+    <javacomment_style>
+        <firstLine>/*</firstLine>
+        <beforeEachLine> * </beforeEachLine>
+        <endLine> */
+</endLine>
+        <!--skipLine></skipLine-->
+        <firstLineDetectionPattern>(\s|\t)*/\*.*$</firstLineDetectionPattern>
+        <lastLineDetectionPattern>.*\*/(\s|\t)*$</lastLineDetectionPattern>
+        <allowBlankLines>false</allowBlankLines>
+        <isMultiline>true</isMultiline>
+        <padLines>false</padLines>
+    </javacomment_style>
+</additionalHeaders>
+

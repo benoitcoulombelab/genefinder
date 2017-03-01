@@ -1,3 +1,21 @@
+<!--
+
+    Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -10,7 +28,15 @@
   <artifactId>genefinder</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>genefinder</name>
+  <inceptionYear>2014</inceptionYear>
   <description>Finds genes based on a list of protein ids</description>
+  <licenses>
+    <license>
+      <name>GNU General Public License</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <scm>
     <connection>scm:git:git@bitbucket.org:ircm/genefinder.git</connection>
     <developerConnection>scm:git:git@bitbucket.org:ircm/genefinder.git</developerConnection>
@@ -28,13 +54,14 @@
     <afterburner.fx.version>1.6.1</afterburner.fx.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
     <jersey-client.version>2.25</jersey-client.version>
-    <poi.version>3.10.1</poi.version>
-    <commons-vfs2.version>2.0</commons-vfs2.version>
+    <poi.version>3.15</poi.version>
+    <commons-vfs2.version>2.1</commons-vfs2.version>
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <testFx.version>4.0.4-alpha</testFx.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
+    <mojolicense-maven-plugin.version>1.8</mojolicense-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
   <dependencyManagement>
@@ -213,6 +240,50 @@
             </execution>
           </executions>
         </plugin>
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <configuration>
+            <headerDefinitions>
+              <headerDefinition>src/license/javacomment_style.xml</headerDefinition>
+            </headerDefinitions>
+            <mapping>
+              <java>JAVACOMMENT_STYLE</java>
+              <fxml>XML_STYLE</fxml>
+              <yml>SCRIPT_STYLE</yml>
+              <factories>SCRIPT_STYLE</factories>
+            </mapping>
+            <excludes>
+              <exclude>**/.*</exclude>
+              <exclude>**/*.txt</exclude>
+              <exclude>**/*.fasta</exclude>
+              <exclude>**/*.dmp</exclude>
+            </excludes>
+            <executions>
+              <execution>
+                <goals><goal>check</goal></goals>
+              </execution>
+            </executions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>${mojolicense-maven-plugin.version}</version>
+          <configuration>
+            <useMissingFile>true</useMissingFile>
+          </configuration>
+          <executions>
+            <execution>
+              <id>license-add-third-party</id>
+              <goals><goal>add-third-party</goal></goals>
+            </execution>
+            <execution>
+              <id>license-download-licenses</id>
+              <goals><goal>download-licenses</goal></goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -232,6 +303,14 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
