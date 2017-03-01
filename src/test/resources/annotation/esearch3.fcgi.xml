@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<eSearchResult><Count>3</Count><RetMax>20</RetMax><RetStart>0</RetStart><QueryKey>1</QueryKey><WebEnv>NCID_1_174988986_130.14.22.215_9001_1434470567_1270571334_0MetA0_S_MegaStore_F_1</WebEnv><IdList>
+<Id>828345579</Id>
+<Id>828345577</Id>
+<Id>828345575</Id>
+</IdList><TranslationSet/><TranslationStack>   <TermSet>    <Term>txid9606[orgn]</Term>    <Field>orgn</Field>    <Count>972839</Count>    <Explode>Y</Explode>   </TermSet>   <OP>GROUP</OP>  </TranslationStack><QueryTranslation>txid9606[orgn]</QueryTranslation></eSearchResult>

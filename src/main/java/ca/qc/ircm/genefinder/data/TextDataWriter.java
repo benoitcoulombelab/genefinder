@@ -1,9 +1,27 @@
+/*
+ * Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,10 +35,11 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+@Component
 public class TextDataWriter extends AbstractDataWriter implements DataWriter {
-  private static final Logger logger = LoggerFactory.getLogger(TextDataWriter.class);
   private static final NumberFormat numberFormat;
 
   static {
@@ -29,14 +48,19 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
     numberFormat.setGroupingUsed(false);
   }
 
+  protected TextDataWriter() {
+    super();
+  }
+
+  protected TextDataWriter(NcbiConfiguration ncbiConfiguration,
+      UniprotConfiguration uniprotConfiguration) {
+    super(ncbiConfiguration, uniprotConfiguration);
+  }
+
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
-    Header header = parseHeader(input);
-    if (!finishedHeader(header)) {
-      logger.warn("Could not find GI column in file {}", input);
-      return;
-    }
+    Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (
         LineNumberReader reader =
             new LineNumberReader(new InputStreamReader(new FileInputStream(input)));
@@ -45,8 +69,9 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] columns = line.split("\t", -1);
-        List<String> proteinIds = parseProteinIds(columns[header.proteinIdColumnIndex]);
-        for (int i = 0; i <= header.proteinIdColumnIndex; i++) {
+        List<String> proteinIds =
+            parseProteinIds(columns[parameters.getProteinColumn()], proteinIdPattern);
+        for (int i = 0; i <= parameters.getProteinColumn(); i++) {
           if (i > 0) {
             writer.write("\t");
           }
@@ -54,64 +79,52 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
         }
         if (parameters.isGeneId()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneId() != null
-                      ? mappings.get(proteinId).getGeneId().toString() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> String.valueOf(gene.getId())).distinct()
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isGeneName()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneName() != null
-                      ? mappings.get(proteinId).getGeneName() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol()).filter(s -> s != null)
+              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isGeneSynonyms()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSynonyms() != null
-                      ? mappings.get(proteinId).getGeneSynonyms() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSynonyms())
+              .filter(s -> s != null)
+              .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isGeneSummary()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSummary() != null
-                      ? mappings.get(proteinId).getGeneSummary() : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
+              .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
         if (parameters.isProteinMolecularWeight()) {
           writer.write("\t");
-          writer.write(formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getMolecularWeight() != null
-                      ? numberFormat.format(mappings.get(proteinId).getMolecularWeight()) : ""));
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
+              .filter(mw -> mw != null).map(mw -> numberFormat.format(mw))
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
+          writer.write(newValue);
         }
-        for (int i = header.proteinIdColumnIndex + 1; i < columns.length; i++) {
+        for (int i = parameters.getProteinColumn() + 1; i < columns.length; i++) {
           writer.write("\t");
           writer.write(columns[i]);
         }
         writer.write(SystemUtils.LINE_SEPARATOR);
       }
     }
-  }
-
-  private Header parseHeader(File file) throws IOException {
-    Header header = new Header();
-    try (LineNumberReader reader =
-        new LineNumberReader(new InputStreamReader(new FileInputStream(file)))) {
-      String line;
-      while ((line = reader.readLine()) != null && !finishedHeader(header)) {
-        String[] columns = line.split("\t", -1);
-        for (int i = 0; i < columns.length; i++) {
-          Matcher matcher = PROTEIN_PATTERN.matcher(columns[i]);
-          if (matcher.find()) {
-            header.proteinIdColumnIndex = i;
-            break;
-          }
-        }
-      }
-    }
-    return header;
   }
 }

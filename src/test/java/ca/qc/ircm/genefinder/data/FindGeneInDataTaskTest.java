@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder.data;
 
 import static org.mockito.Matchers.any;
@@ -6,37 +23,38 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
-import ca.qc.ircm.genefinder.organism.Organism;
 import ca.qc.ircm.genefinder.test.config.RetryOnFail;
-import ca.qc.ircm.genefinder.test.config.Rules;
-import ca.qc.ircm.progress_bar.ProgressBar;
+import ca.qc.ircm.genefinder.test.config.RetryOnFailRule;
+import ca.qc.ircm.genefinder.test.config.TestFxTestAnnotations;
+import ca.qc.ircm.progressbar.ProgressBar;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Parent;
-import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
-import org.loadui.testfx.GuiTest;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.testfx.framework.junit.ApplicationTest;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class FindGeneInDataTaskTest extends GuiTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestFxTestAnnotations
+public class FindGeneInDataTaskTest extends ApplicationTest {
   private FindGenesInDataTask findGenesInDataTask;
-  @Mock
-  private Organism organism;
   @Mock
   private DataService dataService;
   @Mock
@@ -51,15 +69,15 @@ public class FindGeneInDataTaskTest extends GuiTest {
   private ArgumentCaptor<ObservableValue<String>> observableMessageCaptor;
   @Captor
   private ArgumentCaptor<ObservableValue<Number>> observableProgressCaptor;
-  private List<File> dataFiles = new ArrayList<File>();
+  private List<File> dataFiles = new ArrayList<>();
   private Locale locale;
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public RetryOnFailRule retryOnFailRule = new RetryOnFailRule();
   @Rule
-  public RuleChain rules = Rules.defaultRules(this).around(temporaryFolder);
+  public RuleChain ruleChain = RuleChain.outerRule(retryOnFailRule).around(temporaryFolder);
 
   @Override
-  protected Parent getRootNode() {
-    return new Label("test");
+  public void start(Stage stage) throws Exception {
   }
 
   /**
@@ -70,19 +88,18 @@ public class FindGeneInDataTaskTest extends GuiTest {
     dataFiles.add(temporaryFolder.newFile("data1.txt"));
     dataFiles.add(temporaryFolder.newFile("data2.txt"));
     locale = Locale.getDefault();
-    findGenesInDataTask =
-        new FindGenesInDataTask(organism, dataService, dataFiles, parameters, locale);
+    findGenesInDataTask = new FindGenesInDataTask(dataService, dataFiles, parameters, locale);
     doAnswer(new Answer<Void>() {
       @Override
       public Void answer(InvocationOnMock invocation) throws Throwable {
-        ProgressBar progressBar = (ProgressBar) invocation.getArguments()[3];
+        ProgressBar progressBar = (ProgressBar) invocation.getArguments()[2];
         if (progressBar != null) {
           progressBar.setMessage("fillGeneDatabase");
           progressBar.setProgress(1.0);
         }
         return null;
       }
-    }).when(dataService).findGeneNames(any(), any(), any(), any(), any(Locale.class));
+    }).when(dataService).findGeneNames(any(), any(), any(), any(Locale.class));
   }
 
   @Test
@@ -92,8 +109,8 @@ public class FindGeneInDataTaskTest extends GuiTest {
 
     findGenesInDataTask.call();
 
-    verify(dataService).findGeneNames(eq(organism), eq(dataFiles), eq(parameters),
-        any(ProgressBar.class), eq(locale));
+    verify(dataService).findGeneNames(eq(dataFiles), eq(parameters), any(ProgressBar.class),
+        eq(locale));
     verify(messageChangeListener, atLeastOnce()).changed(observableMessageCaptor.capture(),
         any(String.class), any(String.class));
     verify(progressChangeListener, atLeastOnce()).changed(observableProgressCaptor.capture(),

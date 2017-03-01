@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE eSummaryResult PUBLIC "-//NLM//DTD esummary v1 20041029//EN" "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20041029/esummary-v1.dtd">
+<eSummaryResult>
+<DocSum>
+	<Id>829098688</Id>
+	<Item Name="Caption" Type="String">NP_001317102</Item>
+	<Item Name="Title" Type="String">cyclin-dependent kinase inhibitor 3 isoform 3 [Homo sapiens]</Item>
+	<Item Name="Extra" Type="String">gi|1054487231|ref|NP_001317102.1|[1054487231]</Item>
+	<Item Name="Gi" Type="Integer">1054487231</Item>
+	<Item Name="CreateDate" Type="String">2016/08/18</Item>
+	<Item Name="UpdateDate" Type="String">2016/10/09</Item>
+	<Item Name="Flags" Type="Integer">512</Item>
+	<Item Name="TaxId" Type="Integer">9606</Item>
+	<Item Name="Length" Type="Integer">203</Item>
+	<Item Name="Status" Type="String">live</Item>
+	<Item Name="ReplacedBy" Type="String"></Item>
+	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+	<Item Name="AccessionVersion" Type="String">NP_001317102.1</Item>
+</DocSum>
+
+<DocSum>
+	<Id>829098686</Id>
+	<Item Name="Caption" Type="String">NP_001317083</Item>
+	<Item Name="Title" Type="String">ARF GTPase-activating protein GIT2 isoform 8 [Homo sapiens]</Item>
+	<Item Name="Extra" Type="String">gi|1054487095|ref|NP_001317083.1|[1054487095]</Item>
+	<Item Name="Gi" Type="Integer">1054487095</Item>
+	<Item Name="CreateDate" Type="String">2016/08/18</Item>
+	<Item Name="UpdateDate" Type="String">2016/10/09</Item>
+	<Item Name="Flags" Type="Integer">512</Item>
+	<Item Name="TaxId" Type="Integer">9606</Item>
+	<Item Name="Length" Type="Integer">421</Item>
+	<Item Name="Status" Type="String">live</Item>
+	<Item Name="ReplacedBy" Type="String"></Item>
+	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+	<Item Name="AccessionVersion" Type="String">NP_001317083.1</Item>
+</DocSum>
+
+<DocSum>
+	<Id>829098684</Id>
+	<Item Name="Caption" Type="String">NP_001317082</Item>
+	<Item Name="Title" Type="String">ARF GTPase-activating protein GIT2 isoform 7 [Homo sapiens]</Item>
+	<Item Name="Extra" Type="String">gi|1054487040|ref|NP_001317082.1|[1054487040]</Item>
+	<Item Name="Gi" Type="Integer">1054487040</Item>
+	<Item Name="CreateDate" Type="String">2016/08/18</Item>
+	<Item Name="UpdateDate" Type="String">2016/10/09</Item>
+	<Item Name="Flags" Type="Integer">512</Item>
+	<Item Name="TaxId" Type="Integer">9606</Item>
+	<Item Name="Length" Type="Integer">708</Item>
+	<Item Name="Status" Type="String">live</Item>
+	<Item Name="ReplacedBy" Type="String"></Item>
+	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+	<Item Name="AccessionVersion" Type="String">NP_001317082.1</Item>
+</DocSum>
+
+</eSummaryResult>

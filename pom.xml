@@ -1,16 +1,183 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--
+
+    Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses />.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>ca.qc.ircm.coulombe</groupId>
-    <artifactId>coulombe-parent</artifactId>
-    <version>5.0.0</version>
-    <relativePath>../coulombe-parent/pom.xml</relativePath>
+    <groupId>ca.qc.ircm</groupId>
+    <artifactId>ircm-parent</artifactId>
+    <version>2.2</version>
+    <relativePath>../ircm-parent/pom.xml</relativePath>
   </parent>
   <artifactId>genefinder</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.2</version>
   <name>genefinder</name>
-  <description>Finds genes based on a list of GIs</description>
+  <inceptionYear>2014</inceptionYear>
+  <description>Finds genes based on a list of protein ids</description>
+  <licenses>
+    <license>
+      <name>GNU General Public License</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git@bitbucket.org:ircm/genefinder.git</connection>
+    <developerConnection>scm:git:git@bitbucket.org:ircm/genefinder.git</developerConnection>
+    <url>https://bitbucket.org/ircm/genefinder</url>
+  </scm>
+  <issueManagement>
+    <system>Bitbucket</system>
+    <url>https://bitbucket.org/ircm/genefinder/issues</url>
+  </issueManagement>
+  <properties>
+    <javac.version>1.8</javac.version>
+    <start-class>ca.qc.ircm.genefinder.Main</start-class>
+    <spring-boot.version>1.5.1.RELEASE</spring-boot.version>
+    <javax.inject.version>1</javax.inject.version>
+    <afterburner.fx.version>1.6.1</afterburner.fx.version>
+    <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
+    <jersey-client.version>2.25</jersey-client.version>
+    <poi.version>3.15</poi.version>
+    <commons-vfs2.version>2.1</commons-vfs2.version>
+    <commons-lang3.version>3.1</commons-lang3.version>
+    <commons-io.version>2.4</commons-io.version>
+    <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
+    <testFx.version>4.0.4-alpha</testFx.version>
+    <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
+    <mojolicense-maven-plugin.version>1.8</mojolicense-maven-plugin.version>
+    <application.title>Gene finder</application.title>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-core</artifactId>
+      <version>${testFx.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit</artifactId>
+      <version>${testFx.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.airhacks</groupId>
+      <artifactId>afterburner.fx</artifactId>
+      <version>${afterburner.fx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>${javax.ws.rs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>${jersey-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>${jersey-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-vfs2</artifactId>
+      <version>${commons-vfs2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <version>${findbugs.annotations.version}</version>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>
@@ -42,12 +209,7 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.16</version>
           <configuration>
             <excludes>
               <exclude>ca/qc/ircm/genefinder/test/**/*.java</exclude>
@@ -57,88 +219,67 @@
         <plugin>
           <groupId>external.atlassian.jgitflow</groupId>
           <artifactId>jgitflow-maven-plugin</artifactId>
-          <version>1.0-m4.3</version>
           <configuration>
             <noDeploy>true</noDeploy>
           </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.7</version>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot-maven-plugin.version}</version>
+          <configuration>
+            <mainClass>${start-class}</mainClass>
+            <executable>true</executable>
+          </configuration>
           <executions>
             <execution>
-              <id>javafx-assembly</id>
-              <phase>package</phase>
               <goals>
-                <goal>run</goal>
+                <goal>repackage</goal>
               </goals>
-              <configuration>
-                <target xmlns:fx="javafx:com.sun.javafx.tools.ant">
-                  <echo message="Packaging jar with JavaFX" />
-                  <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
-                    uri="javafx:com.sun.javafx.tools.ant" classpath="${javafx.ant}" />
-                  <fx:application id="fx-application"
-                    name="${project.artifactId}" mainClass="${mainClass}" />
-                  <fx:jar
-                    destfile="${project.build.directory}/${javafx.finalName}">
-                    <fx:application refId="fx-application" />
-                    <fileset dir="${project.build.outputDirectory}" />
-                    <fileset dir="${project.build.directory}/dependency" />
-                    <manifest>
-                      <attribute name="Built-By" value="${user.name}" />
-                      <attribute name="Build-Jdk" value="${java.version}" />
-                      <attribute name="Specification-Title"
-                        value="${project.name}" />
-                      <attribute name="Specification-Version"
-                        value="${project.version}" />
-                      <attribute name="Specification-Vendor"
-                        value="${project.organization.name}" />
-                      <attribute name="Implementation-Title"
-                        value="${project.name}" />
-                      <attribute name="Implementation-Version"
-                        value="${project.version}" />
-                      <attribute name="Implementation-Vendor-Id"
-                        value="${project.groupId}" />
-                      <attribute name="Implementation-Vendor"
-                        value="${project.organization.name}" />
-                      <attribute name="Implementation-Build"
-                        value="${buildNumber}" />
-                      <attribute name="X-Compile-Source-JDK"
-                        value="${javac.version}" />
-                      <attribute name="X-Compile-Target-JDK"
-                        value="${javac.version}" />
-                    </manifest>
-                  </fx:jar>
-
-                  <echo message="Attach JavaFX jar" />
-                  <attachartifact
-                    file="${project.build.directory}/${javafx.finalName}"
-                    classifier="all" type="jar" />
-
-                  <!-- <echo message="Produce native bundles" /> <fx:deploy 
-                    nativeBundles="all" outdir="${project.build.directory}/native" outfile="${project.artifactId}"> 
-                    <fx:application refId="fx-application" /> <fx:resources> <fx:fileset file="${project.build.directory}/${javafx.finalName}" 
-                    /> </fx:resources> <fx:info title="${project.name}" description="${project.description}" 
-                    copyright="${project.copyright}" /> <fx:preferences shortcut="true" menu="true" 
-                    /> </fx:deploy> -->
-                </target>
-              </configuration>
             </execution>
           </executions>
         </plugin>
         <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.8</version>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <configuration>
+            <headerDefinitions>
+              <headerDefinition>src/license/javacomment_style.xml</headerDefinition>
+            </headerDefinitions>
+            <mapping>
+              <java>JAVACOMMENT_STYLE</java>
+              <fxml>XML_STYLE</fxml>
+              <yml>SCRIPT_STYLE</yml>
+              <factories>SCRIPT_STYLE</factories>
+            </mapping>
+            <excludes>
+              <exclude>**/.*</exclude>
+              <exclude>**/*.txt</exclude>
+              <exclude>**/*.fasta</exclude>
+              <exclude>**/*.dmp</exclude>
+            </excludes>
+            <executions>
+              <execution>
+                <goals><goal>check</goal></goals>
+              </execution>
+            </executions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>${mojolicense-maven-plugin.version}</version>
+          <configuration>
+            <useMissingFile>true</useMissingFile>
+          </configuration>
           <executions>
             <execution>
-              <id>unpack-dependencies</id>
-              <phase>package</phase>
-              <goals>
-                <goal>unpack-dependencies</goal>
-              </goals>
-              <configuration>
-                <includeScope>runtime</includeScope>
-              </configuration>
+              <id>license-add-third-party</id>
+              <goals><goal>add-third-party</goal></goals>
+            </execution>
+            <execution>
+              <id>license-download-licenses</id>
+              <goals><goal>download-licenses</goal></goals>
             </execution>
           </executions>
         </plugin>
@@ -155,117 +296,27 @@
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>${guice.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.inject.extensions</groupId>
-      <artifactId>guice-assistedinject</artifactId>
-      <version>${guice.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.airhacks</groupId>
-      <artifactId>afterburner.fx</artifactId>
-      <version>1.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>${poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-      <version>${poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-vfs2</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-net</groupId>
-      <artifactId>commons-net</artifactId>
-      <version>${commons-net.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ca.qc.ircm.utils</groupId>
-      <artifactId>progress_bar</artifactId>
-      <version>3.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>1.9.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.loadui</groupId>
-      <artifactId>testFx</artifactId>
-      <version>3.1.2</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   <reporting>
     <plugins>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.16</version>
         <configuration>
           <reportsDirectories>
             <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
@@ -276,20 +327,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.0</version>
       </plugin>
     </plugins>
   </reporting>
-  <properties>
-    <javac.version>1.8</javac.version>
-    <slf4j.version>1.7.7</slf4j.version>
-    <logback.version>1.1.2</logback.version>
-    <guice.version>4.0-beta4</guice.version>
-    <poi.version>3.10.1</poi.version>
-    <commons-net.version>3.4</commons-net.version>
-    <mainClass>ca.qc.ircm.genefinder.Main</mainClass>
-    <javafx.ant>${java.home}/../lib/ant-javafx.jar</javafx.ant>
-    <javafx.finalName>${project.build.finalName}-jar-with-dependencies.jar</javafx.finalName>
-    <application.title>Gene finder</application.title>
-  </properties>
 </project>

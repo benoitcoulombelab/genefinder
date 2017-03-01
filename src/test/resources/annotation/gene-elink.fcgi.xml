@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN" "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+<eLinkResult>
+
+  <LinkSet>
+    <DbFrom>protein</DbFrom>
+    <IdList>
+      <Id>829098688</Id>
+    </IdList>
+    <LinkSetDb>
+      <DbTo>gene</DbTo>
+      <LinkName>protein_gene</LinkName>
+      
+        <Link>
+				<Id>1</Id>
+			</Link>
+      
+    </LinkSetDb>
+  </LinkSet>
+
+  <LinkSet>
+    <DbFrom>protein</DbFrom>
+    <IdList>
+      <Id>829098686</Id>
+    </IdList>
+    <LinkSetDb>
+      <DbTo>gene</DbTo>
+      <LinkName>protein_gene</LinkName>
+      
+        <Link>
+				<Id>4404</Id>
+			</Link>
+      
+    </LinkSetDb>
+  </LinkSet>
+
+  <LinkSet>
+    <DbFrom>protein</DbFrom>
+    <IdList>
+      <Id>829098684</Id>
+    </IdList>
+    <LinkSetDb>
+      <DbTo>gene</DbTo>
+      <LinkName>protein_gene</LinkName>
+      
+        <Link>
+				<Id>4404</Id>
+			</Link>
+      
+    </LinkSetDb>
+  </LinkSet>
+</eLinkResult>

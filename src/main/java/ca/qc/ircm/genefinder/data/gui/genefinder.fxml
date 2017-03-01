@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -12,10 +30,14 @@
 				<Button onAction="#addFiles" text="%add"/>
 				<ListView fx:id="files" prefHeight="120.0" editable="true"/>
 			</HBox>
-			<HBox styleClass="parameter,organism">
-				<Label fx:id="organismLabel" text="%organism"/>
-				<ChoiceBox fx:id="organism"/>
-			</HBox>
+      <HBox styleClass="parameter,proteinColumn">
+        <Label fx:id="proteinColumnLabel" text="%proteinColumn"/>
+        <TextField fx:id="proteinColumn" promptText="%proteinColumn.prompt"/>
+      </HBox>
+      <HBox styleClass="parameter,proteinDatabase">
+        <Label fx:id="proteinDatabaseLabel" text="%proteinDatabase"/>
+        <ChoiceBox fx:id="proteinDatabase"/>
+      </HBox>
 			<HBox styleClass="parameter,geneId">
 				<CheckBox fx:id="geneId" text="%geneId"/>
 			</HBox>

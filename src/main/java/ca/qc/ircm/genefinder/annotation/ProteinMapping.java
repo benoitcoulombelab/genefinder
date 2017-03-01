@@ -1,17 +1,40 @@
+/*
+ * Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder.annotation;
+
+import java.util.List;
 
 /**
  * Protein linked to a gene.
  */
 public class ProteinMapping {
   private String proteinId;
-  private Long geneId;
-  private String geneName;
-  private String geneSynonyms;
-  private String geneSummary;
+  private List<GeneInfo> genes;
   private Integer taxonomyId;
   private String sequence;
   private Double molecularWeight;
+
+  public ProteinMapping() {
+  }
+
+  public ProteinMapping(String proteinId) {
+    this.proteinId = proteinId;
+  }
 
   @Override
   public int hashCode() {
@@ -45,8 +68,7 @@ public class ProteinMapping {
 
   @Override
   public String toString() {
-    return "ProteinMapping [proteinId=" + proteinId + ", geneId=" + geneId + ", geneName="
-        + geneName + ", taxonomyId=" + taxonomyId + "]";
+    return "ProteinMapping [proteinId=" + proteinId + ", taxonomyId=" + taxonomyId + "]";
   }
 
   public String getProteinId() {
@@ -55,46 +77,6 @@ public class ProteinMapping {
 
   public void setProteinId(String proteinId) {
     this.proteinId = proteinId;
-  }
-
-  public Long getGeneId() {
-    return geneId;
-  }
-
-  public void setGeneId(Long geneId) {
-    this.geneId = geneId;
-  }
-
-  public String getGeneName() {
-    return geneName;
-  }
-
-  public void setGeneName(String geneName) {
-    this.geneName = geneName;
-  }
-
-  public Integer getTaxonomyId() {
-    return taxonomyId;
-  }
-
-  public void setTaxonomyId(Integer taxonomyId) {
-    this.taxonomyId = taxonomyId;
-  }
-
-  public String getGeneSynonyms() {
-    return geneSynonyms;
-  }
-
-  public void setGeneSynonyms(String geneSynonyms) {
-    this.geneSynonyms = geneSynonyms;
-  }
-
-  public String getGeneSummary() {
-    return geneSummary;
-  }
-
-  public void setGeneSummary(String geneSummary) {
-    this.geneSummary = geneSummary;
   }
 
   public String getSequence() {
@@ -111,5 +93,21 @@ public class ProteinMapping {
 
   public void setMolecularWeight(Double molecularWeight) {
     this.molecularWeight = molecularWeight;
+  }
+
+  public List<GeneInfo> getGenes() {
+    return genes;
+  }
+
+  public void setGenes(List<GeneInfo> genes) {
+    this.genes = genes;
+  }
+
+  public Integer getTaxonomyId() {
+    return taxonomyId;
+  }
+
+  public void setTaxonomyId(Integer taxonomyId) {
+    this.taxonomyId = taxonomyId;
   }
 }

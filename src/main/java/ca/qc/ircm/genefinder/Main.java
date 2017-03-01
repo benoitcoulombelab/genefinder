@@ -1,73 +1,49 @@
+/*
+ * Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import ca.qc.ircm.genefinder.gui.ApplicationGui;
-import ca.qc.ircm.genefinder.gui.SplashScreen;
-import ca.qc.ircm.util.javafx.AfterburnerGuiceInstanceSupplier;
-import ca.qc.ircm.util.javafx.message.MessageDialog;
-import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
+import ca.qc.ircm.util.javafx.SpringAfterburnerInstanceSupplier;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
-import java.util.ResourceBundle;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * JavaFX application.
  */
-public class Main extends Application {
-  private static final Logger logger = LoggerFactory.getLogger(Main.class);
-  private ResourceBundle bundle;
-
+@SpringBootApplication
+public class Main extends AbstractSpringBootJavafxApplication {
   @Override
   public void init() throws Exception {
-    bundle = ResourceBundle.getBundle(getClass().getName(), Locale.getDefault());
+    super.init();
+    com.airhacks.afterburner.injection.Injector
+        .setInstanceSupplier(new SpringAfterburnerInstanceSupplier(applicationContext));
   }
 
   @Override
   public void start(Stage stage) throws Exception {
-    SplashScreen splash = new SplashScreen();
-    splash.show();
-
-    // Initialise application in background.
-    class InitialiseTask extends Task<Void> {
-      @Override
-      public Void call() throws Exception {
-        Injector injector = Guice.createInjector(new ApplicationModule());
-        com.airhacks.afterburner.injection.Injector
-            .setInstanceSupplier(new AfterburnerGuiceInstanceSupplier(injector));
-
-        Platform.runLater(() -> {
-          startApp();
-        });
-        return null;
-      }
-    }
-
-    final InitialiseTask initialiseTask = new InitialiseTask();
-    initialiseTask.setOnSucceeded(event -> splash.hide());
-    initialiseTask.setOnFailed(event -> {
-      splash.hide();
-      logger.error("Could not start application", initialiseTask.getException());
-      new MessageDialog(stage, MessageDialogType.ERROR, bundle.getString("error.title"),
-          initialiseTask.getException().getMessage());
-    });
-    Thread thread = new Thread(initialiseTask);
-    thread.start();
-  }
-
-  private void startApp() {
     ApplicationGui app = new ApplicationGui();
+    notifyPreloader(new ApplicationStarted());
     app.show();
   }
 
   public static void main(String[] args) {
-    launch(args);
+    System.setProperty("javafx.preloader", MainPreloader.class.getName());
+    Application.launch(args);
   }
 }

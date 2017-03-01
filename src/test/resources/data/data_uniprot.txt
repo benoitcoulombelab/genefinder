@@ -1,4 +1,4 @@
 human	
 accession number	
 sp|P11171	
-sp|Q08211	
+tr|Q08211	

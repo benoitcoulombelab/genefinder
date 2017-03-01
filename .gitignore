@@ -3,3 +3,6 @@
 /.classpath
 /.project
 /.checkstyle
+/.factorypath
+**/*.log*
+*.db

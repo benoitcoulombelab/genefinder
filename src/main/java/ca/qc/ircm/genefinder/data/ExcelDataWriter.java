@@ -1,6 +1,25 @@
+/*
+ * Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder.data;
 
+import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
+import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -9,8 +28,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,10 +40,11 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+@Component
 public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
-  private static final Logger logger = LoggerFactory.getLogger(ExcelDataWriter.class);
   private static final NumberFormat doubleFormat;
 
   static {
@@ -41,9 +60,19 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
     numberFormat.setGroupingUsed(false);
   }
 
+  protected ExcelDataWriter() {
+    super();
+  }
+
+  protected ExcelDataWriter(NcbiConfiguration ncbiConfiguration,
+      UniprotConfiguration uniprotConfiguration) {
+    super(ncbiConfiguration, uniprotConfiguration);
+  }
+
   @Override
   public void writeGene(File input, File output, FindGenesParameters parameters,
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
+    Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (InputStream inputStream = new FileInputStream(input)) {
       Workbook workbook;
       if (input.getName().endsWith(".xlsx")) {
@@ -52,16 +81,11 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         workbook = new HSSFWorkbook(inputStream);
       }
       Sheet sheet = workbook.getSheetAt(0);
-      Header header = parseHeader(sheet);
-      if (!finishedHeader(header)) {
-        logger.warn("Could not find GI column in file {}", input);
-        return;
-      }
       for (int i = 0; i <= sheet.getLastRowNum(); i++) {
         Row row = sheet.getRow(i);
-        Cell cell = row.getCell(header.proteinIdColumnIndex);
+        Cell cell = row.getCell(parameters.getProteinColumn());
         String value = getComputedValue(cell);
-        List<String> proteinIds = parseProteinIds(value);
+        List<String> proteinIds = parseProteinIds(value, proteinIdPattern);
         int addedCount = 0;
         if (parameters.isGeneId()) {
           addedCount++;
@@ -78,71 +102,65 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         if (parameters.isProteinMolecularWeight()) {
           addedCount++;
         }
-        shitCells(row, header.proteinIdColumnIndex, addedCount);
-        int index = header.proteinIdColumnIndex + 1;
+        shitCells(row, parameters.getProteinColumn(), addedCount);
+        int index = parameters.getProteinColumn() + 1;
         if (parameters.isGeneId()) {
           cell = row.getCell(index++);
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneId() != null
-                      ? mappings.get(proteinId).getGeneId().toString() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> numberFormat.format(gene.getId()))
+              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
-          if (proteinIds.size() == 1) {
-            String proteinId = proteinIds.get(0);
-            ProteinMapping mapping = mappings.get(proteinId);
-            if (mapping != null && mapping.getGeneId() != null) {
-              cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-              cell.setCellValue(mapping.getGeneId());
-            }
+          if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellValue(Long.parseLong(newValue));
           }
         }
         if (parameters.isGeneName()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneName() != null
-                      ? mappings.get(proteinId).getGeneName() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol()).filter(s -> s != null)
+              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isGeneSynonyms()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSynonyms() != null
-                      ? mappings.get(proteinId).getGeneSynonyms() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getSynonyms())
+              .filter(s -> s != null)
+              .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isGeneSummary()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getGeneSummary() != null
-                      ? mappings.get(proteinId).getGeneSummary() : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+              .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
+              .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
         }
         if (parameters.isProteinMolecularWeight()) {
-          String newValue = formatCollection(proteinIds,
-              proteinId -> mappings.get(proteinId) != null
-                  && mappings.get(proteinId).getMolecularWeight() != null
-                      ? doubleFormat.format(mappings.get(proteinId).getMolecularWeight()) : "");
+          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+              .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
+              .filter(mw -> mw != null).map(mw -> doubleFormat.format(mw))
+              .collect(Collectors.joining(PROTEIN_DELIMITER));
           cell = row.getCell(index++);
           cell.setCellType(Cell.CELL_TYPE_STRING);
           cell.setCellValue(newValue);
-          if (proteinIds.size() == 1) {
-            String proteinId = proteinIds.get(0);
-            ProteinMapping mapping = mappings.get(proteinId);
-            if (mapping != null && mapping.getMolecularWeight() != null) {
-              cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-              cell.setCellValue(mapping.getMolecularWeight());
-              CellStyle style = workbook.createCellStyle();
-              DataFormat format = workbook.createDataFormat();
-              style.setDataFormat(format.getFormat("0.00"));
-              cell.setCellStyle(style);
-            }
+          if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellValue(Double.parseDouble(newValue));
+            CellStyle style = workbook.createCellStyle();
+            DataFormat format = workbook.createDataFormat();
+            style.setDataFormat(format.getFormat("0.00"));
+            cell.setCellStyle(style);
           }
         }
       }
@@ -185,25 +203,6 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           break;
       }
     }
-  }
-
-  private Header parseHeader(Sheet sheet) throws IOException {
-    Header header = new Header();
-    for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-      Row row = sheet.getRow(i);
-      for (int j = 0; j < row.getLastCellNum(); j++) {
-        Cell cell = row.getCell(j);
-        if (cell != null) {
-          String value = getComputedValue(cell);
-          Matcher matcher = PROTEIN_PATTERN.matcher(value);
-          if (matcher.find()) {
-            header.proteinIdColumnIndex = j;
-            break;
-          }
-        }
-      }
-    }
-    return header;
   }
 
   private String getComputedValue(Cell cell) {

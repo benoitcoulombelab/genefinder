@@ -1,5 +1,23 @@
+/*
+ * Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ca.qc.ircm.genefinder.data.gui;
 
+import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
 import ca.qc.ircm.genefinder.data.FindGenesInDataTask;
 import ca.qc.ircm.genefinder.data.FindGenesInDataTaskFactory;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
@@ -10,16 +28,12 @@ import ca.qc.ircm.genefinder.gui.drag.DragFilesOverHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDetectedHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDoneHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDroppedHandler;
-import ca.qc.ircm.genefinder.organism.Organism;
-import ca.qc.ircm.genefinder.organism.gui.OrganismStringConverter;
 import ca.qc.ircm.util.javafx.JavafxUtils;
 import ca.qc.ircm.util.javafx.message.MessageDialog;
 import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.ListChangeListener;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -27,12 +41,17 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,9 +65,10 @@ import javax.inject.Inject;
 /**
  * Gene finder controller.
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GeneFinderPresenter {
   private static final Logger logger = LoggerFactory.getLogger(GeneFinderPresenter.class);
-  private ListProperty<Organism> organismsProperty = new SimpleListProperty<>();
   private BooleanProperty geneIdProperty = new SimpleBooleanProperty();
   private BooleanProperty geneNameProperty = new SimpleBooleanProperty();
   private BooleanProperty geneSynonymsProperty = new SimpleBooleanProperty();
@@ -61,9 +81,13 @@ public class GeneFinderPresenter {
   @FXML
   private ListView<File> files;
   @FXML
-  private Label organismLabel;
+  private Label proteinColumnLabel;
   @FXML
-  private ChoiceBox<Organism> organism;
+  private TextField proteinColumn;
+  @FXML
+  private Label proteinDatabaseLabel;
+  @FXML
+  private ChoiceBox<ProteinDatabase> proteinDatabase;
   @FXML
   private CheckBox geneId;
   @FXML
@@ -81,7 +105,7 @@ public class GeneFinderPresenter {
   @FXML
   private void initialize() {
     fileChooser.getExtensionFilters()
-        .add(new ExtensionFilter(resources.getString("file.description"), "*"));
+        .add(new ExtensionFilter(resources.getString("file.description"), "*", "*.*"));
 
     files.setCellFactory(new FileListCellFactory());
     files.setOnDragDetected(new DragFileOnListDetectedHandler(files));
@@ -94,39 +118,46 @@ public class GeneFinderPresenter {
         removeSelectedFiles();
       }
     });
-    organism.setItems(organismsProperty);
-    organism.setConverter(new OrganismStringConverter());
-    organismsProperty.addListener((ListChangeListener<Organism>) event -> {
-      while (event.next()) {
-        if (event.wasAdded() || event.wasRemoved()) {
-          if (!organism.getItems().isEmpty()) {
-            organism.getSelectionModel().select(0);
-          }
-        }
-      }
-    });
+    proteinDatabase.setItems(FXCollections.observableArrayList(ProteinDatabase.values()));
+    proteinDatabase.setConverter(new ProteinDatabaseStringConverter(Locale.getDefault()));
     geneIdProperty.bind(geneId.selectedProperty());
     geneNameProperty.bind(geneName.selectedProperty());
     geneSynonymsProperty.bind(geneSynonyms.selectedProperty());
     geneSummaryProperty.bind(geneSummary.selectedProperty());
     proteinMolecularWeightProperty.bind(proteinMolecularWeight.selectedProperty());
 
-    geneId.setSelected(true);
+    proteinDatabase.setValue(ProteinDatabase.values()[0]);
     geneName.setSelected(true);
-  }
-
-  public ListProperty<Organism> organismsProperty() {
-    return organismsProperty;
   }
 
   private FindGenesParameters getFindGenesParameters() {
     FindGenesParametersBean parameters = new FindGenesParametersBean();
+    parameters.proteinColumn(parseProteinColumn());
+    parameters.proteinDatabase(proteinDatabase.getSelectionModel().getSelectedItem());
     parameters.geneId(geneIdProperty.get());
     parameters.geneName(geneNameProperty.get());
     parameters.geneSynonyms(geneSynonymsProperty.get());
     parameters.geneSummary(geneSummaryProperty.get());
     parameters.proteinMolecularWeight(proteinMolecularWeightProperty.get());
     return parameters;
+  }
+
+  private int parseProteinColumn() {
+    try {
+      return Integer.parseInt(proteinColumn.getText()) - 1;
+    } catch (NumberFormatException e) {
+      if (!StringUtils.isAlpha(proteinColumn.getText())) {
+        int column = 0;
+        char[] chars = proteinColumn.getText().toUpperCase().toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+          char letter = chars[chars.length - i - 1];
+          column += Math.max(i * 26, 1) * (letter - 'A' + 1);
+        }
+        return column - 1;
+      } else {
+        return 0;
+      }
+    }
   }
 
   @FXML
@@ -146,8 +177,7 @@ public class GeneFinderPresenter {
   }
 
   private void removeSelectedFiles() {
-    List<Integer> selections =
-        new ArrayList<Integer>(files.getSelectionModel().getSelectedIndices());
+    List<Integer> selections = new ArrayList<>(files.getSelectionModel().getSelectedIndices());
     Collections.sort(selections);
     Collections.reverse(selections);
     for (Integer selection : selections) {
@@ -160,11 +190,10 @@ public class GeneFinderPresenter {
   @FXML
   private void start() {
     if (validate()) {
-      List<File> files = new ArrayList<File>(this.files.getItems());
-      Organism organism = this.organism.getSelectionModel().getSelectedItem();
+      List<File> files = new ArrayList<>(this.files.getItems());
       final Window window = this.files.getScene().getWindow();
-      final FindGenesInDataTask task = findGenesInDataTaskFactory.create(organism, files,
-          getFindGenesParameters(), Locale.getDefault());
+      final FindGenesInDataTask task =
+          findGenesInDataTaskFactory.create(files, getFindGenesParameters(), Locale.getDefault());
       final ProgressDialog progressDialog = new ProgressDialog(window, task);
       task.stateProperty().addListener((observable, oldValue, newValue) -> {
         if (newValue == State.FAILED || newValue == State.SUCCEEDED
@@ -192,18 +221,40 @@ public class GeneFinderPresenter {
   private boolean validate() {
     filesLabel.getStyleClass().remove("error");
     files.getStyleClass().remove("error");
-    organismLabel.getStyleClass().remove("error");
-    organism.getStyleClass().remove("error");
-    List<String> errors = new ArrayList<String>();
+    proteinColumnLabel.getStyleClass().remove("error");
+    proteinColumn.getStyleClass().remove("error");
+    proteinDatabaseLabel.getStyleClass().remove("error");
+    proteinDatabase.getStyleClass().remove("error");
+    List<String> errors = new ArrayList<>();
     if (files.getItems().isEmpty()) {
       errors.add(resources.getString("error.files.required"));
       filesLabel.getStyleClass().add("error");
       files.getStyleClass().add("error");
     }
-    if (organism.getSelectionModel().getSelectedItem() == null) {
-      errors.add(resources.getString("error.organism.required"));
-      organismLabel.getStyleClass().add("error");
-      organism.getStyleClass().add("error");
+    if (proteinColumn.getText() == null || proteinColumn.getText().isEmpty()) {
+      errors.add(resources.getString("proteinColumn.empty"));
+      proteinColumnLabel.getStyleClass().add("error");
+      proteinColumn.getStyleClass().add("error");
+    } else {
+      try {
+        int column = Integer.parseInt(proteinColumn.getText());
+        if (column < 1) {
+          errors.add(resources.getString("proteinColumn.belowMinimum"));
+          proteinColumnLabel.getStyleClass().add("error");
+          proteinColumn.getStyleClass().add("error");
+        }
+      } catch (NumberFormatException e) {
+        if (!StringUtils.isAlpha(proteinColumn.getText())) {
+          errors.add(resources.getString("proteinColumn.invalid"));
+          proteinColumnLabel.getStyleClass().add("error");
+          proteinColumn.getStyleClass().add("error");
+        }
+      }
+    }
+    if (proteinDatabase.getSelectionModel().getSelectedItem() == null) {
+      errors.add(resources.getString("proteinDatabase.required"));
+      proteinDatabaseLabel.getStyleClass().add("error");
+      proteinDatabase.getStyleClass().add("error");
     }
     boolean valid = errors.isEmpty();
     if (!valid) {
