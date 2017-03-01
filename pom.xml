@@ -259,21 +259,4 @@
       </plugin>
     </plugins>
   </reporting>
-  <profiles>
-    <profile>
-      <id>uniprot-repository</id>
-      <activation>
-        <property>
-          <name>uniprot-repository</name>
-          <value>!false</value>
-        </property>
-      </activation>
-      <repositories>
-        <repository>
-          <id>uniprot-repository</id>
-          <url>http://www.ebi.ac.uk/~maven/m2repo</url>
-        </repository>
-      </repositories>
-    </profile>
-  </profiles>
 </project>
