@@ -210,6 +210,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
   }
 
   private String getComputedValue(Cell cell, NumberFormat numberFormat) {
+    if (cell == null) {
+      return "";
+    }
     switch (cell.getCellType()) {
       case Cell.CELL_TYPE_STRING:
       case Cell.CELL_TYPE_BLANK:
