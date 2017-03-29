@@ -75,8 +75,8 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
     Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (InputStream inputStream = new FileInputStream(input)) {
-      try (Workbook workbook = input.getName().endsWith(".xlsx") ? new XSSFWorkbook(inputStream)
-          : new HSSFWorkbook(inputStream)) {
+      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xlsx")
+          ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream)) {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
           Row row = sheet.getRow(i);

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -32,6 +33,8 @@ import javax.inject.Inject;
 @Component
 @Primary
 public class GuessProteinParser implements ProteinParser {
+  private static final Pattern EXCEL_FILENAME_PATTERN =
+      Pattern.compile(".+\\.xls(\\w?)", Pattern.CASE_INSENSITIVE);
   @Inject
   private ExcelProteinParser excelProteinParser;
   @Inject
@@ -49,8 +52,7 @@ public class GuessProteinParser implements ProteinParser {
   @Override
   public List<String> parseProteinIds(File input, FindGenesParameters parameters)
       throws IOException {
-    if (input.getName().endsWith(".xlsx") || input.getName().endsWith(".xlsm")
-        || input.getName().endsWith(".xls")) {
+    if (EXCEL_FILENAME_PATTERN.matcher(input.getName()).matches()) {
       return excelProteinParser.parseProteinIds(input, parameters);
     } else {
       return textProteinParser.parseProteinIds(input, parameters);
