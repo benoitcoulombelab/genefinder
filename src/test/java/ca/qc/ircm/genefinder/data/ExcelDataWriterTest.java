@@ -101,25 +101,25 @@ public class ExcelDataWriterTest {
     if (cell == null) {
       return "";
     }
-    switch (cell.getCellType()) {
-      case Cell.CELL_TYPE_STRING:
-      case Cell.CELL_TYPE_BLANK:
+    switch (cell.getCellTypeEnum()) {
+      case STRING:
+      case BLANK:
         return cell.getStringCellValue();
-      case Cell.CELL_TYPE_BOOLEAN:
+      case BOOLEAN:
         return String.valueOf(cell.getBooleanCellValue());
-      case Cell.CELL_TYPE_NUMERIC:
+      case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
-      case Cell.CELL_TYPE_ERROR:
+      case ERROR:
         return "";
-      case Cell.CELL_TYPE_FORMULA:
-        switch (cell.getCachedFormulaResultType()) {
-          case Cell.CELL_TYPE_STRING:
+      case FORMULA:
+        switch (cell.getCachedFormulaResultTypeEnum()) {
+          case STRING:
             return cell.getStringCellValue();
-          case Cell.CELL_TYPE_BOOLEAN:
+          case BOOLEAN:
             return String.valueOf(cell.getBooleanCellValue());
-          case Cell.CELL_TYPE_NUMERIC:
+          case NUMERIC:
             return numberFormat.format(cell.getNumericCellValue());
-          case Cell.CELL_TYPE_ERROR:
+          case ERROR:
             return "";
           default:
             return "";
@@ -152,33 +152,34 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("gi|119627830", getComputedValue(row.getCell(0)));
-      assertEquals("1234", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
-      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4), doubleFormat));
-      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830", getComputedValue(row.getCell(0)));
+        assertEquals("1234", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+        assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4), doubleFormat));
+        assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -208,34 +209,35 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("gi|119627830", getComputedValue(row.getCell(0)));
-      assertEquals("1234;4567", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
-      assertEquals(
-          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -269,34 +271,35 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("gi|119627830;gi|189054652", getComputedValue(row.getCell(0)));
-      assertEquals("1234;4567", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
-      assertEquals(
-          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830;gi|189054652", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -330,34 +333,35 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("gi|119627830;gi|189054652", getComputedValue(row.getCell(0)));
-      assertEquals("1234;4567", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
-      assertEquals(
-          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
-      assertEquals("gi|119621462", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("gi|119572880", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830;gi|189054652", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
+        assertEquals("gi|119621462", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("gi|119572880", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -394,34 +398,35 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("gi|119627830;gi|189054652", getComputedValue(row.getCell(0)));
-      assertEquals("1234;4567;4568", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A;POLR2B;POLR2C", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A;RPB2|RPO2B;RPB3|RPO2C", getComputedValue(row.getCell(3)));
-      assertEquals(
-          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II;This gene encodes the second smallest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830;gi|189054652", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567;4568", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B;POLR2C", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B;RPB3|RPO2C", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II;This gene encodes the second smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -448,33 +453,34 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("119627830", getComputedValue(row.getCell(0)));
-      assertEquals("1234", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
-      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("119627830", getComputedValue(row.getCell(0)));
+        assertEquals("1234", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+        assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -508,34 +514,35 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("119627830;189054652", getComputedValue(row.getCell(0)));
-      assertEquals("1234;4567", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
-      assertEquals(
-          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("119627830;189054652", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -569,34 +576,35 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("119627830;189054652", getComputedValue(row.getCell(0)));
-      assertEquals("1234;4567", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
-      assertEquals(
-          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
-      assertEquals("119621462", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("119580583", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("119572880", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("119627830;189054652", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
+        assertEquals("119621462", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("119572880", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -623,33 +631,34 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("sp|P11171", getComputedValue(row.getCell(0)));
-      assertEquals("1234", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
-      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("tr|Q08211", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("sp|P11171", getComputedValue(row.getCell(0)));
+        assertEquals("1234", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+        assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("tr|Q08211", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 
@@ -676,33 +685,34 @@ public class ExcelDataWriterTest {
     excelDataWriter.writeGene(input, output, parameters, mappings);
 
     try (InputStream inputStream = new FileInputStream(output)) {
-      Workbook workbook = new XSSFWorkbook(inputStream);
-      Sheet sheet = workbook.getSheetAt(0);
-      Row row = sheet.getRow(0);
-      assertEquals("human", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(2);
-      assertEquals("ref|NP_001159477.1", getComputedValue(row.getCell(0)));
-      assertEquals("1234", getComputedValue(row.getCell(1)));
-      assertEquals("POLR2A", getComputedValue(row.getCell(2)));
-      assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
-      assertEquals("This gene encodes the largest subunit of RNA polymerase II",
-          getComputedValue(row.getCell(4)));
-      assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
-      assertEquals("", getComputedValue(row.getCell(6)));
-      row = sheet.getRow(3);
-      assertEquals("ref|NP_001348.2", getComputedValue(row.getCell(0)));
-      assertEquals("", getComputedValue(row.getCell(1)));
-      assertEquals("", getComputedValue(row.getCell(2)));
-      assertEquals("", getComputedValue(row.getCell(3)));
-      assertEquals("", getComputedValue(row.getCell(4)));
-      assertEquals("", getComputedValue(row.getCell(5)));
-      assertEquals("", getComputedValue(row.getCell(6)));
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("ref|NP_001159477.1", getComputedValue(row.getCell(0)));
+        assertEquals("1234", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+        assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("ref|NP_001348.2", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
     }
   }
 }
