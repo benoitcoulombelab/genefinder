@@ -304,6 +304,68 @@ public class ExcelDataWriterTest {
   }
 
   @Test
+  public void writeGene_MultipleLines_Commas() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_many_commas.xlsx").toURI());
+    final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    GeneInfo gene = new GeneInfo(1234L, "POLR2A");
+    gene.setSynonyms(Arrays.asList("RPB1", "RPO2A"));
+    gene.setDescription("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setGenes(Arrays.asList(gene));
+    mapping.setMolecularWeight(20.0);
+    mappings.put("119627830", mapping);
+    mapping = new ProteinMapping();
+    gene = new GeneInfo(4567L, "POLR2B");
+    gene.setSynonyms(Arrays.asList("RPB2", "RPO2B"));
+    gene.setDescription("This gene encodes the smallest subunit of RNA polymerase II");
+    mapping.setGenes(Arrays.asList(gene));
+    mapping.setMolecularWeight(3.4);
+    mappings.put("189054652", mapping);
+
+    excelDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (InputStream inputStream = new FileInputStream(output)) {
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830,gi|189054652", getComputedValue(row.getCell(0)));
+        assertEquals("1234;4567", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
+        assertEquals(
+            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4)));
+        assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
+    }
+  }
+
+  @Test
   public void writeGene_MultipleLinesInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_manycolumns.xlsx").toURI());
     final File output = temporaryFolder.newFile();

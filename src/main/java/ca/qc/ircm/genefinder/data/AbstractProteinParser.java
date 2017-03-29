@@ -35,7 +35,7 @@ import javax.inject.Inject;
  * Common function for parsing protein ids from file.
  */
 public abstract class AbstractProteinParser implements ProteinParser {
-  protected static final String PROTEIN_DELIMITER = ";";
+  protected static final String PROTEIN_DELIMITER = "\\s*[;,]\\s*";
   @Inject
   private NcbiConfiguration ncbiConfiguration;
   @Inject

@@ -111,6 +111,31 @@ public class TextProteinParserTest {
   }
 
   @Test
+  public void parseProteinIds_MultipleLines_Commas() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_many_commas.txt").toURI());
+    when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+
+    List<String> ids = textProteinParser.parseProteinIds(input, parameters);
+
+    assertEquals(9, ids.size());
+    assertTrue(ids.contains("119627830"));
+    assertTrue(ids.contains("189054652"));
+    assertTrue(ids.contains("119580583"));
+    assertTrue(ids.contains("108250308"));
+    assertTrue(ids.contains("119605998"));
+    assertTrue(ids.contains("100913206"));
+    assertTrue(ids.contains("119589484"));
+    assertTrue(ids.contains("269849686"));
+    assertTrue(ids.contains("119580714"));
+  }
+
+  @Test
   public void parseProteinIds_MultipleLinesInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_manycolumns.txt").toURI());
     when(parameters.getProteinColumn()).thenReturn(0);

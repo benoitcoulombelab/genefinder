@@ -268,6 +268,75 @@ public class TextDataWriterTest {
   }
 
   @Test
+  public void writeGene_MultipleLines_Commas() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_many_commas.txt").toURI());
+    final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    GeneInfo gene = new GeneInfo(1234L, "POLR2A");
+    gene.setSynonyms(Arrays.asList("RPB1", "RPO2A"));
+    gene.setDescription("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setGenes(Arrays.asList(gene));
+    mapping.setMolecularWeight(20.0);
+    mappings.put("119627830", mapping);
+    mapping = new ProteinMapping();
+    gene = new GeneInfo(4567L, "POLR2B");
+    gene.setSynonyms(Arrays.asList("RPB2", "RPO2B"));
+    gene.setDescription("This gene encodes the smallest subunit of RNA polymerase II");
+    mapping.setGenes(Arrays.asList(gene));
+    mapping.setMolecularWeight(3.4);
+    mappings.put("189054652", mapping);
+
+    textDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (LineNumberReader reader =
+        new LineNumberReader(new InputStreamReader(new FileInputStream(output)))) {
+      String line;
+      line = reader.readLine();
+      assertNotNull(line);
+      String[] columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("human", columns[0]);
+      assertEquals("", columns[1]);
+      assertEquals("", columns[2]);
+      assertEquals("", columns[3]);
+      assertEquals("", columns[4]);
+      assertEquals("", columns[5]);
+      assertEquals("", columns[6]);
+      line = reader.readLine();
+      line = reader.readLine();
+      columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("gi|119627830,gi|189054652", columns[0]);
+      assertEquals("1234;4567", columns[1]);
+      assertEquals("POLR2A;POLR2B", columns[2]);
+      assertEquals("RPB1|RPO2A;RPB2|RPO2B", columns[3]);
+      assertEquals(
+          "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+          columns[4]);
+      assertEquals("20.0;3.4", columns[5]);
+      assertEquals("", columns[6]);
+      line = reader.readLine();
+      columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("gi|119580583", columns[0]);
+      assertEquals("", columns[1]);
+      assertEquals("", columns[2]);
+      assertEquals("", columns[3]);
+      assertEquals("", columns[4]);
+      assertEquals("", columns[5]);
+      assertEquals("", columns[6]);
+    }
+  }
+
+  @Test
   public void writeGene_MultipleLinesInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_manycolumns.txt").toURI());
     final File output = temporaryFolder.newFile();
