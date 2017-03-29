@@ -80,6 +80,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
           Row row = sheet.getRow(i);
+          if (row == null) {
+            continue;
+          }
           Cell cell = row.getCell(parameters.getProteinColumn());
           String value = getComputedValue(cell);
           List<String> proteinIds = parseProteinIds(value, proteinIdPattern);
@@ -102,7 +105,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           shitCells(row, parameters.getProteinColumn(), addedCount);
           int index = parameters.getProteinColumn() + 1;
           if (parameters.isGeneId()) {
-            cell = row.getCell(index++);
+            cell = row.createCell(index++);
             String newValue = proteinIds.stream()
                 .filter(proteinId -> mappings.get(proteinId) != null)
                 .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
@@ -121,7 +124,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                 .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
                 .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol())
                 .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
-            cell = row.getCell(index++);
+            cell = row.createCell(index++);
             cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
           }
@@ -133,7 +136,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                     .map(gene -> gene.getSynonyms()).filter(s -> s != null)
                     .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
                     .collect(Collectors.joining(PROTEIN_DELIMITER));
-            cell = row.getCell(index++);
+            cell = row.createCell(index++);
             cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
           }
@@ -143,7 +146,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                 .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
                 .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
                 .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
-            cell = row.getCell(index++);
+            cell = row.createCell(index++);
             cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
           }
@@ -153,7 +156,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                     .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
                     .filter(mw -> mw != null).map(mw -> doubleFormat.format(mw))
                     .collect(Collectors.joining(PROTEIN_DELIMITER));
-            cell = row.getCell(index++);
+            cell = row.createCell(index++);
             cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
             if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {

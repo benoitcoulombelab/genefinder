@@ -63,6 +63,9 @@ public class ExcelProteinParser extends AbstractProteinParser {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
           Row row = sheet.getRow(i);
+          if (row == null) {
+            continue;
+          }
           Cell cell = row.getCell(parameters.getProteinColumn());
           String value = getComputedValue(cell, numberFormat);
           proteinIds.addAll(parseProteinIds(value, proteinIdPattern));
