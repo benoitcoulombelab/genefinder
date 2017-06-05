@@ -58,8 +58,8 @@ public class ExcelProteinParser extends AbstractProteinParser {
     NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
     numberFormat.setGroupingUsed(false);
     try (InputStream inputStream = new FileInputStream(input)) {
-      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xlsx")
-          ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream)) {
+      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xls")
+          ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream)) {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
           Row row = sheet.getRow(i);
