@@ -146,7 +146,7 @@ public class GeneFinderPresenter {
     try {
       return Integer.parseInt(proteinColumn.getText()) - 1;
     } catch (NumberFormatException e) {
-      if (!StringUtils.isAlpha(proteinColumn.getText())) {
+      if (StringUtils.isAlpha(proteinColumn.getText())) {
         int column = 0;
         char[] chars = proteinColumn.getText().toUpperCase().toCharArray();
         for (int i = 0; i < chars.length; i++) {
