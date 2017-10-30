@@ -49,7 +49,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
@@ -59,8 +60,12 @@ public class ExcelDataWriterTest {
   private FindGenesParameters parameters;
   @Mock
   private NcbiConfiguration ncbiConfiguration;
+  @Inject
+  private NcbiConfiguration realNcbiConfiguration;
   @Mock
   private UniprotConfiguration uniprotConfiguration;
+  @Inject
+  private UniprotConfiguration realUniprotConfiguration;
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   private static final NumberFormat numberFormat;
@@ -86,11 +91,11 @@ public class ExcelDataWriterTest {
     excelDataWriter = new ExcelDataWriter(ncbiConfiguration, uniprotConfiguration);
     temporaryFolder.create();
     when(ncbiConfiguration.refseqProteinAccessionPattern())
-        .thenReturn(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)"));
+        .thenReturn(realNcbiConfiguration.refseqProteinAccessionPattern());
     when(ncbiConfiguration.refseqProteinGiPattern())
-        .thenReturn(Pattern.compile("^(?:gi\\|)?(\\d+)"));
-    when(uniprotConfiguration.proteinIdPattern()).thenReturn(Pattern.compile(
-        "^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?"));
+        .thenReturn(realNcbiConfiguration.refseqProteinGiPattern());
+    when(uniprotConfiguration.proteinIdPattern())
+        .thenReturn(realUniprotConfiguration.proteinIdPattern());
   }
 
   private String getComputedValue(Cell cell) {
@@ -768,6 +773,60 @@ public class ExcelDataWriterTest {
         assertEquals("", getComputedValue(row.getCell(6)));
         row = sheet.getRow(3);
         assertEquals("ref|NP_001348.2", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+      }
+    }
+  }
+
+  @Test
+  public void writeGene_Scaffold() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_scaffold.xlsx").toURI());
+    final File output = temporaryFolder.newFile("data.xlsx");
+    when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    GeneInfo gene = new GeneInfo(1234L, "POLR2A");
+    gene.setSynonyms(Arrays.asList("RPB1", "RPO2A"));
+    gene.setDescription("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setGenes(Arrays.asList(gene));
+    mapping.setMolecularWeight(20.0);
+    mappings.put("119627830", mapping);
+
+    excelDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (InputStream inputStream = new FileInputStream(output)) {
+      try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(0);
+        assertEquals("human", getComputedValue(row.getCell(0)));
+        assertEquals("", getComputedValue(row.getCell(1)));
+        assertEquals("", getComputedValue(row.getCell(2)));
+        assertEquals("", getComputedValue(row.getCell(3)));
+        assertEquals("", getComputedValue(row.getCell(4)));
+        assertEquals("", getComputedValue(row.getCell(5)));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(2);
+        assertEquals("gi|119627830 (+1)", getComputedValue(row.getCell(0)));
+        assertEquals("1234", getComputedValue(row.getCell(1)));
+        assertEquals("POLR2A", getComputedValue(row.getCell(2)));
+        assertEquals("RPB1|RPO2A", getComputedValue(row.getCell(3)));
+        assertEquals("This gene encodes the largest subunit of RNA polymerase II",
+            getComputedValue(row.getCell(4), doubleFormat));
+        assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
+        assertEquals("", getComputedValue(row.getCell(6)));
+        row = sheet.getRow(3);
+        assertEquals("gi|119580583 (+4)", getComputedValue(row.getCell(0)));
         assertEquals("", getComputedValue(row.getCell(1)));
         assertEquals("", getComputedValue(row.getCell(2)));
         assertEquals("", getComputedValue(row.getCell(3)));

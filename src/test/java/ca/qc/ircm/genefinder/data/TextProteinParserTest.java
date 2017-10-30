@@ -35,7 +35,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.util.List;
-import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
@@ -45,8 +46,12 @@ public class TextProteinParserTest {
   private FindGenesParameters parameters;
   @Mock
   private NcbiConfiguration ncbiConfiguration;
+  @Inject
+  private NcbiConfiguration realNcbiConfiguration;
   @Mock
   private UniprotConfiguration uniprotConfiguration;
+  @Inject
+  private UniprotConfiguration realUniprotConfiguration;
 
   /**
    * Before test.
@@ -56,11 +61,11 @@ public class TextProteinParserTest {
   public void beforeTest() {
     textProteinParser = new TextProteinParser(ncbiConfiguration, uniprotConfiguration);
     when(ncbiConfiguration.refseqProteinAccessionPattern())
-        .thenReturn(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)"));
+        .thenReturn(realNcbiConfiguration.refseqProteinAccessionPattern());
     when(ncbiConfiguration.refseqProteinGiPattern())
-        .thenReturn(Pattern.compile("^(?:gi\\|)?(\\d+)"));
-    when(uniprotConfiguration.proteinIdPattern()).thenReturn(Pattern.compile(
-        "^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?"));
+        .thenReturn(realNcbiConfiguration.refseqProteinGiPattern());
+    when(uniprotConfiguration.proteinIdPattern())
+        .thenReturn(realUniprotConfiguration.proteinIdPattern());
   }
 
   @Test
@@ -282,5 +287,27 @@ public class TextProteinParserTest {
     List<String> ids = textProteinParser.parseProteinIds(input, parameters);
 
     assertEquals(0, ids.size());
+  }
+
+  @Test
+  public void parseProteinIds_Scaffold() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_scaffold.txt").toURI());
+    when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+
+    List<String> ids = textProteinParser.parseProteinIds(input, parameters);
+
+    assertEquals(6, ids.size());
+    assertTrue(ids.contains("119627830"));
+    assertTrue(ids.contains("119580583"));
+    assertTrue(ids.contains("108250308"));
+    assertTrue(ids.contains("100913206"));
+    assertTrue(ids.contains("269849686"));
+    assertTrue(ids.contains("119580714"));
   }
 }

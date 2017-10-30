@@ -44,7 +44,8 @@ import java.io.LineNumberReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
@@ -54,8 +55,12 @@ public class TextDataWriterTest {
   private FindGenesParameters parameters;
   @Mock
   private NcbiConfiguration ncbiConfiguration;
+  @Inject
+  private NcbiConfiguration realNcbiConfiguration;
   @Mock
   private UniprotConfiguration uniprotConfiguration;
+  @Inject
+  private UniprotConfiguration realUniprotConfiguration;
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -66,11 +71,11 @@ public class TextDataWriterTest {
   public void beforeTest() {
     textDataWriter = new TextDataWriter(ncbiConfiguration, uniprotConfiguration);
     when(ncbiConfiguration.refseqProteinAccessionPattern())
-        .thenReturn(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)"));
+        .thenReturn(realNcbiConfiguration.refseqProteinAccessionPattern());
     when(ncbiConfiguration.refseqProteinGiPattern())
-        .thenReturn(Pattern.compile("^(?:gi\\|)?(\\d+)"));
-    when(uniprotConfiguration.proteinIdPattern()).thenReturn(Pattern.compile(
-        "^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?"));
+        .thenReturn(realNcbiConfiguration.refseqProteinGiPattern());
+    when(uniprotConfiguration.proteinIdPattern())
+        .thenReturn(realUniprotConfiguration.proteinIdPattern());
   }
 
   @Test
@@ -786,6 +791,66 @@ public class TextDataWriterTest {
       columns = line.split("\t", -1);
       assertEquals(7, columns.length);
       assertEquals("ref|NP_001348.2", columns[0]);
+      assertEquals("", columns[1]);
+      assertEquals("", columns[2]);
+      assertEquals("", columns[3]);
+      assertEquals("", columns[4]);
+      assertEquals("", columns[5]);
+      assertEquals("", columns[6]);
+    }
+  }
+
+  @Test
+  public void writeGene_Scaffold() throws Throwable {
+    final File input = new File(getClass().getResource("/data/data_scaffold.txt").toURI());
+    final File output = temporaryFolder.newFile();
+    when(parameters.getProteinColumn()).thenReturn(0);
+    when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
+    when(parameters.isGeneId()).thenReturn(true);
+    when(parameters.isGeneName()).thenReturn(true);
+    when(parameters.isGeneSynonyms()).thenReturn(true);
+    when(parameters.isGeneSummary()).thenReturn(true);
+    when(parameters.isProteinMolecularWeight()).thenReturn(true);
+    final Map<String, ProteinMapping> mappings = new HashMap<>();
+    ProteinMapping mapping = new ProteinMapping();
+    GeneInfo gene = new GeneInfo(1234L, "POLR2A");
+    gene.setSynonyms(Arrays.asList("RPB1", "RPO2A"));
+    gene.setDescription("This gene encodes the largest subunit of RNA polymerase II");
+    mapping.setGenes(Arrays.asList(gene));
+    mapping.setMolecularWeight(20.0);
+    mappings.put("119627830", mapping);
+
+    textDataWriter.writeGene(input, output, parameters, mappings);
+
+    try (LineNumberReader reader =
+        new LineNumberReader(new InputStreamReader(new FileInputStream(output)))) {
+      String line;
+      line = reader.readLine();
+      assertNotNull(line);
+      String[] columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("human", columns[0]);
+      assertEquals("", columns[1]);
+      assertEquals("", columns[2]);
+      assertEquals("", columns[3]);
+      assertEquals("", columns[4]);
+      assertEquals("", columns[5]);
+      assertEquals("", columns[6]);
+      line = reader.readLine();
+      line = reader.readLine();
+      columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("gi|119627830 (+1)", columns[0]);
+      assertEquals("1234", columns[1]);
+      assertEquals("POLR2A", columns[2]);
+      assertEquals("RPB1|RPO2A", columns[3]);
+      assertEquals("This gene encodes the largest subunit of RNA polymerase II", columns[4]);
+      assertEquals("20.0", columns[5]);
+      assertEquals("", columns[6]);
+      line = reader.readLine();
+      columns = line.split("\t", -1);
+      assertEquals(7, columns.length);
+      assertEquals("gi|119580583 (+4)", columns[0]);
       assertEquals("", columns[1]);
       assertEquals("", columns[2]);
       assertEquals("", columns[3]);
