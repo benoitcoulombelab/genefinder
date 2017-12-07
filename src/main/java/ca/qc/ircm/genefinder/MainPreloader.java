@@ -18,8 +18,8 @@
 package ca.qc.ircm.genefinder;
 
 import ca.qc.ircm.genefinder.gui.SplashScreen;
-import ca.qc.ircm.util.javafx.message.MessageDialog;
-import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
+import ca.qc.ircm.javafx.message.MessageDialog;
+import ca.qc.ircm.javafx.message.MessageDialog.MessageDialogType;
 import javafx.application.Preloader;
 import javafx.stage.Stage;
 import org.slf4j.Logger;

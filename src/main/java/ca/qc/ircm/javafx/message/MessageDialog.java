@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ca.qc.ircm.util.javafx.message;
+package ca.qc.ircm.javafx.message;
 
-import ca.qc.ircm.util.javafx.JavafxUtils;
+import ca.qc.ircm.javafx.JavafxUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
