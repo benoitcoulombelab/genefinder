@@ -60,7 +60,7 @@
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <testFx.version>4.0.4-alpha</testFx.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
-    <mojolicense-maven-plugin.version>1.8</mojolicense-maven-plugin.version>
+    <mojolicense-maven-plugin.version>1.14</mojolicense-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
   <dependencyManagement>
