@@ -38,8 +38,8 @@ public class UniprotConfigurationTest {
   public void defaultProperties() throws Throwable {
     assertEquals("http://www.uniprot.org/uploadlists", uniprotConfiguration.mapping());
     assertEquals(Pattern
-        .compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?"
-            + "|^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?")
+        .compile("^(?:\\w{2}\\|)?([OPQ][0-9][A-Z0-9]{3}[0-9])(?:-\\d+)?(?:\\|.*)?( \\(\\+\\d+\\))?|"
+            + "^(?:\\w{2}\\|)?([A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\\d+)?(?:\\|.*)?( \\(\\+\\d+\\))?")
         .pattern(), uniprotConfiguration.proteinIdPattern().pattern());
     assertEquals(100, uniprotConfiguration.maxIdsPerRequest());
   }
