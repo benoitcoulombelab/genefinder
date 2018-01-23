@@ -229,7 +229,6 @@
           <version>${spring-boot-maven-plugin.version}</version>
           <configuration>
             <mainClass>${start-class}</mainClass>
-            <executable>true</executable>
           </configuration>
           <executions>
             <execution>
