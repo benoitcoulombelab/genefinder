@@ -21,7 +21,7 @@
   <parent>
     <groupId>ca.qc.ircm</groupId>
     <artifactId>ircm-parent</artifactId>
-    <version>2.2</version>
+    <version>3</version>
     <relativePath>../ircm-parent/pom.xml</relativePath>
   </parent>
   <artifactId>genefinder</artifactId>
@@ -58,9 +58,9 @@
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
-    <testFx.version>4.0.4-alpha</testFx.version>
+    <testFx.version>4.0.10-alpha</testFx.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
-    <mojolicense-maven-plugin.version>1.8</mojolicense-maven-plugin.version>
+    <mojolicense-maven-plugin.version>1.14</mojolicense-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
   <dependencyManagement>
@@ -330,4 +330,32 @@
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>java9</id>
+      <activation>
+        <jdk>9</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+		      <groupId>org.testfx</groupId>
+		      <artifactId>testfx-core</artifactId>
+		      <version>${testFx.version}</version>
+		      <scope>test</scope>
+		      <exclusions>
+		        <exclusion>
+		          <groupId>org.testfx</groupId>
+		          <artifactId>testfx-internal-java8</artifactId>
+		        </exclusion>
+		      </exclusions>
+		    </dependency>
+		    <dependency>
+		      <groupId>org.testfx</groupId>
+		      <artifactId>testfx-internal-java9</artifactId>
+		      <version>${testFx.version}</version>
+		      <scope>test</scope>
+		    </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
