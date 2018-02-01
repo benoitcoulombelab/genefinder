@@ -256,6 +256,7 @@
               <exclude>**/*.txt</exclude>
               <exclude>**/*.log</exclude>
               <exclude>**/*.log.*</exclude>
+              <exclude>src/main/java/org/stackoverflowusers/**</exclude>
               <exclude>**/*.fasta</exclude>
               <exclude>**/idmapping3-*</exclude>
             </excludes>
