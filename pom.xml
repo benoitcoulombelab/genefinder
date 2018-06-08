@@ -13,7 +13,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses />.
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -21,11 +21,11 @@
   <parent>
     <groupId>ca.qc.ircm</groupId>
     <artifactId>ircm-parent</artifactId>
-    <version>2.2</version>
+    <version>4</version>
     <relativePath>../ircm-parent/pom.xml</relativePath>
   </parent>
   <artifactId>genefinder</artifactId>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <name>genefinder</name>
   <inceptionYear>2014</inceptionYear>
   <description>Finds genes based on a list of protein ids</description>
@@ -47,7 +47,7 @@
   </issueManagement>
   <properties>
     <javac.version>1.8</javac.version>
-    <start-class>ca.qc.ircm.genefinder.Main</start-class>
+    <main-class>ca.qc.ircm.genefinder.Main</main-class>
     <spring-boot.version>1.5.1.RELEASE</spring-boot.version>
     <javax.inject.version>1</javax.inject.version>
     <afterburner.fx.version>1.6.1</afterburner.fx.version>
@@ -58,9 +58,9 @@
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
-    <testFx.version>4.0.4-alpha</testFx.version>
+    <testFx.version>4.0.10-alpha</testFx.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
-    <mojolicense-maven-plugin.version>1.8</mojolicense-maven-plugin.version>
+    <mojolicense-maven-plugin.version>1.14</mojolicense-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
   <dependencyManagement>
@@ -228,8 +228,7 @@
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot-maven-plugin.version}</version>
           <configuration>
-            <mainClass>${start-class}</mainClass>
-            <executable>true</executable>
+            <mainClass>${main-class}</mainClass>
           </configuration>
           <executions>
             <execution>
@@ -255,8 +254,11 @@
             <excludes>
               <exclude>**/.*</exclude>
               <exclude>**/*.txt</exclude>
+              <exclude>**/*.log</exclude>
+              <exclude>**/*.log.*</exclude>
+              <exclude>src/main/java/org/stackoverflowusers/**</exclude>
               <exclude>**/*.fasta</exclude>
-              <exclude>**/*.dmp</exclude>
+              <exclude>**/idmapping3-*</exclude>
             </excludes>
             <executions>
               <execution>
@@ -330,4 +332,32 @@
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>java9</id>
+      <activation>
+        <jdk>9</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+		      <groupId>org.testfx</groupId>
+		      <artifactId>testfx-core</artifactId>
+		      <version>${testFx.version}</version>
+		      <scope>test</scope>
+		      <exclusions>
+		        <exclusion>
+		          <groupId>org.testfx</groupId>
+		          <artifactId>testfx-internal-java8</artifactId>
+		        </exclusion>
+		      </exclusions>
+		    </dependency>
+		    <dependency>
+		      <groupId>org.testfx</groupId>
+		      <artifactId>testfx-internal-java9</artifactId>
+		      <version>${testFx.version}</version>
+		      <scope>test</scope>
+		    </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

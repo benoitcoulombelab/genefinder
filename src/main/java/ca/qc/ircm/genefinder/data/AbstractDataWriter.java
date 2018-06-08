@@ -33,6 +33,7 @@ import javax.inject.Inject;
 
 public abstract class AbstractDataWriter implements DataWriter {
   protected static final String PROTEIN_DELIMITER = ";";
+  protected static final String PROTEIN_DELIMITER_PATTERN = "\\s*[;,]\\s*";
   protected static final String LIST_DELIMITER = "|";
   @Inject
   private NcbiConfiguration ncbiConfiguration;
@@ -59,7 +60,7 @@ public abstract class AbstractDataWriter implements DataWriter {
 
   protected List<String> parseProteinIds(String content, Pattern proteinIdPattern)
       throws IOException {
-    String[] rawProteins = content.split(PROTEIN_DELIMITER, -1);
+    String[] rawProteins = content.split(PROTEIN_DELIMITER_PATTERN, -1);
     Set<String> proteinIds = new LinkedHashSet<>();
     for (String rawProtein : rawProteins) {
       Matcher matcher = proteinIdPattern.matcher(rawProtein);

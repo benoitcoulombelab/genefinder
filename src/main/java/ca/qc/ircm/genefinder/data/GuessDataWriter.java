@@ -31,7 +31,8 @@ import javax.inject.Inject;
 @Component
 @Primary
 public class GuessDataWriter implements DataWriter {
-  private static final Pattern EXCEL_FILENAME_PATTERN = Pattern.compile(".+\\.xls(\\w?)");
+  private static final Pattern EXCEL_FILENAME_PATTERN =
+      Pattern.compile(".+\\.xls(\\w?)", Pattern.CASE_INSENSITIVE);
 
   @Inject
   private ExcelDataWriter excelDataWriter;

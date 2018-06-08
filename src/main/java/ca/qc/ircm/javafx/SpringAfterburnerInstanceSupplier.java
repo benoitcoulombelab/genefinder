@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ca.qc.ircm.util.javafx;
+package ca.qc.ircm.javafx;
 
 import org.springframework.context.ApplicationContext;
 

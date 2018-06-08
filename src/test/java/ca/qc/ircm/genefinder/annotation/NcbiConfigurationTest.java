@@ -36,9 +36,9 @@ public class NcbiConfigurationTest {
 
   @Test
   public void defaultProperties() throws Throwable {
-    assertEquals(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)").pattern(),
+    assertEquals(Pattern.compile("^(?:ref\\|)?([ANYXZ]P_\\d+\\.\\d+)( \\(\\+\\d+\\))?").pattern(),
         ncbiConfiguration.refseqProteinAccessionPattern().pattern());
-    assertEquals(Pattern.compile("^(?:gi\\|)?(\\d+)").pattern(),
+    assertEquals(Pattern.compile("^(?:gi\\|)?(\\d+)( \\(\\+\\d+\\))?").pattern(),
         ncbiConfiguration.refseqProteinGiPattern().pattern());
     assertEquals("https://eutils.ncbi.nlm.nih.gov/entrez/eutils", ncbiConfiguration.eutils());
     assertEquals(1000, ncbiConfiguration.maxIdsPerRequest());

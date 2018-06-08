@@ -17,7 +17,7 @@
 
 package ca.qc.ircm.genefinder.gui;
 
-import ca.qc.ircm.util.javafx.JavafxUtils;
+import ca.qc.ircm.javafx.JavafxUtils;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 

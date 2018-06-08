@@ -23,6 +23,7 @@ import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -74,98 +75,103 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
     Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (InputStream inputStream = new FileInputStream(input)) {
-      Workbook workbook;
-      if (input.getName().endsWith(".xlsx")) {
-        workbook = new XSSFWorkbook(inputStream);
-      } else {
-        workbook = new HSSFWorkbook(inputStream);
-      }
-      Sheet sheet = workbook.getSheetAt(0);
-      for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-        Row row = sheet.getRow(i);
-        Cell cell = row.getCell(parameters.getProteinColumn());
-        String value = getComputedValue(cell);
-        List<String> proteinIds = parseProteinIds(value, proteinIdPattern);
-        int addedCount = 0;
-        if (parameters.isGeneId()) {
-          addedCount++;
-        }
-        if (parameters.isGeneName()) {
-          addedCount++;
-        }
-        if (parameters.isGeneSynonyms()) {
-          addedCount++;
-        }
-        if (parameters.isGeneSummary()) {
-          addedCount++;
-        }
-        if (parameters.isProteinMolecularWeight()) {
-          addedCount++;
-        }
-        shitCells(row, parameters.getProteinColumn(), addedCount);
-        int index = parameters.getProteinColumn() + 1;
-        if (parameters.isGeneId()) {
-          cell = row.getCell(index++);
-          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
-              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
-              .flatMap(genes -> genes.stream()).map(gene -> numberFormat.format(gene.getId()))
-              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
-          cell.setCellType(Cell.CELL_TYPE_STRING);
-          cell.setCellValue(newValue);
-          if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-            cell.setCellValue(Long.parseLong(newValue));
+      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xls")
+          ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+          Row row = sheet.getRow(i);
+          if (row == null) {
+            continue;
+          }
+          Cell cell = row.getCell(parameters.getProteinColumn());
+          String value = getComputedValue(cell);
+          List<String> proteinIds = parseProteinIds(value, proteinIdPattern);
+          int addedCount = 0;
+          if (parameters.isGeneId()) {
+            addedCount++;
+          }
+          if (parameters.isGeneName()) {
+            addedCount++;
+          }
+          if (parameters.isGeneSynonyms()) {
+            addedCount++;
+          }
+          if (parameters.isGeneSummary()) {
+            addedCount++;
+          }
+          if (parameters.isProteinMolecularWeight()) {
+            addedCount++;
+          }
+          shitCells(row, parameters.getProteinColumn(), addedCount);
+          int index = parameters.getProteinColumn() + 1;
+          if (parameters.isGeneId()) {
+            cell = row.createCell(index++);
+            String newValue = proteinIds.stream()
+                .filter(proteinId -> mappings.get(proteinId) != null)
+                .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+                .flatMap(genes -> genes.stream()).map(gene -> numberFormat.format(gene.getId()))
+                .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(newValue);
+            if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
+              cell.setCellType(CellType.NUMERIC);
+              cell.setCellValue(Long.parseLong(newValue));
+            }
+          }
+          if (parameters.isGeneName()) {
+            String newValue = proteinIds.stream()
+                .filter(proteinId -> mappings.get(proteinId) != null)
+                .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+                .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol())
+                .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+            cell = row.createCell(index++);
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(newValue);
+          }
+          if (parameters.isGeneSynonyms()) {
+            String newValue =
+                proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+                    .map(proteinId -> mappings.get(proteinId).getGenes())
+                    .filter(genes -> genes != null).flatMap(genes -> genes.stream())
+                    .map(gene -> gene.getSynonyms()).filter(s -> s != null)
+                    .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
+                    .collect(Collectors.joining(PROTEIN_DELIMITER));
+            cell = row.createCell(index++);
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(newValue);
+          }
+          if (parameters.isGeneSummary()) {
+            String newValue = proteinIds.stream()
+                .filter(proteinId -> mappings.get(proteinId) != null)
+                .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
+                .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
+                .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
+            cell = row.createCell(index++);
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(newValue);
+          }
+          if (parameters.isProteinMolecularWeight()) {
+            String newValue =
+                proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
+                    .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
+                    .filter(mw -> mw != null).map(mw -> doubleFormat.format(mw))
+                    .collect(Collectors.joining(PROTEIN_DELIMITER));
+            cell = row.createCell(index++);
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(newValue);
+            if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
+              cell.setCellType(CellType.NUMERIC);
+              cell.setCellValue(Double.parseDouble(newValue));
+              CellStyle style = workbook.createCellStyle();
+              DataFormat format = workbook.createDataFormat();
+              style.setDataFormat(format.getFormat("0.00"));
+              cell.setCellStyle(style);
+            }
           }
         }
-        if (parameters.isGeneName()) {
-          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
-              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
-              .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol()).filter(s -> s != null)
-              .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
-          cell = row.getCell(index++);
-          cell.setCellType(Cell.CELL_TYPE_STRING);
-          cell.setCellValue(newValue);
+        try (OutputStream outputStream = new FileOutputStream(output)) {
+          workbook.write(outputStream);
         }
-        if (parameters.isGeneSynonyms()) {
-          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
-              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
-              .flatMap(genes -> genes.stream()).map(gene -> gene.getSynonyms())
-              .filter(s -> s != null)
-              .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
-              .collect(Collectors.joining(PROTEIN_DELIMITER));
-          cell = row.getCell(index++);
-          cell.setCellType(Cell.CELL_TYPE_STRING);
-          cell.setCellValue(newValue);
-        }
-        if (parameters.isGeneSummary()) {
-          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
-              .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
-              .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
-              .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
-          cell = row.getCell(index++);
-          cell.setCellType(Cell.CELL_TYPE_STRING);
-          cell.setCellValue(newValue);
-        }
-        if (parameters.isProteinMolecularWeight()) {
-          String newValue = proteinIds.stream().filter(proteinId -> mappings.get(proteinId) != null)
-              .map(proteinId -> mappings.get(proteinId).getMolecularWeight())
-              .filter(mw -> mw != null).map(mw -> doubleFormat.format(mw))
-              .collect(Collectors.joining(PROTEIN_DELIMITER));
-          cell = row.getCell(index++);
-          cell.setCellType(Cell.CELL_TYPE_STRING);
-          cell.setCellValue(newValue);
-          if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-            cell.setCellValue(Double.parseDouble(newValue));
-            CellStyle style = workbook.createCellStyle();
-            DataFormat format = workbook.createDataFormat();
-            style.setDataFormat(format.getFormat("0.00"));
-            cell.setCellStyle(style);
-          }
-        }
-      }
-      try (OutputStream outputStream = new FileOutputStream(output)) {
-        workbook.write(outputStream);
       }
     }
   }
@@ -180,22 +186,22 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
     for (int i = end - 1; i > start; i--) {
       Cell destination = row.getCell(i + count);
       Cell source = row.getCell(i);
-      destination.setCellType(source.getCellType());
+      destination.setCellType(source.getCellTypeEnum());
       destination.setCellStyle(source.getCellStyle());
-      switch (source.getCellType()) {
-        case Cell.CELL_TYPE_STRING:
+      switch (source.getCellTypeEnum()) {
+        case STRING:
           destination.setCellValue(source.getStringCellValue());
           break;
-        case Cell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
           destination.setCellValue(source.getBooleanCellValue());
           break;
-        case Cell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
           destination.setCellValue(source.getNumericCellValue());
           break;
-        case Cell.CELL_TYPE_ERROR:
+        case ERROR:
           destination.setCellValue(source.getErrorCellValue());
           break;
-        case Cell.CELL_TYPE_FORMULA:
+        case FORMULA:
           destination.setCellValue(source.getCellFormula());
           break;
         default:
@@ -210,25 +216,28 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
   }
 
   private String getComputedValue(Cell cell, NumberFormat numberFormat) {
-    switch (cell.getCellType()) {
-      case Cell.CELL_TYPE_STRING:
-      case Cell.CELL_TYPE_BLANK:
+    if (cell == null) {
+      return "";
+    }
+    switch (cell.getCellTypeEnum()) {
+      case STRING:
+      case BLANK:
         return cell.getStringCellValue();
-      case Cell.CELL_TYPE_BOOLEAN:
+      case BOOLEAN:
         return String.valueOf(cell.getBooleanCellValue());
-      case Cell.CELL_TYPE_NUMERIC:
+      case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
-      case Cell.CELL_TYPE_ERROR:
+      case ERROR:
         return "";
-      case Cell.CELL_TYPE_FORMULA:
-        switch (cell.getCachedFormulaResultType()) {
-          case Cell.CELL_TYPE_STRING:
+      case FORMULA:
+        switch (cell.getCachedFormulaResultTypeEnum()) {
+          case STRING:
             return cell.getStringCellValue();
-          case Cell.CELL_TYPE_BOOLEAN:
+          case BOOLEAN:
             return String.valueOf(cell.getBooleanCellValue());
-          case Cell.CELL_TYPE_NUMERIC:
+          case NUMERIC:
             return numberFormat.format(cell.getNumericCellValue());
-          case Cell.CELL_TYPE_ERROR:
+          case ERROR:
             return "";
           default:
             return "";

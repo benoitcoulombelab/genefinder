@@ -58,43 +58,46 @@ public class ExcelProteinParser extends AbstractProteinParser {
     NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
     numberFormat.setGroupingUsed(false);
     try (InputStream inputStream = new FileInputStream(input)) {
-      Workbook workbook;
-      if (input.getName().endsWith(".xlsx")) {
-        workbook = new XSSFWorkbook(inputStream);
-      } else {
-        workbook = new HSSFWorkbook(inputStream);
-      }
-      Sheet sheet = workbook.getSheetAt(0);
-      for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-        Row row = sheet.getRow(i);
-        Cell cell = row.getCell(parameters.getProteinColumn());
-        String value = getComputedValue(cell, numberFormat);
-        proteinIds.addAll(parseProteinIds(value, proteinIdPattern));
+      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xls")
+          ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream)) {
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+          Row row = sheet.getRow(i);
+          if (row == null) {
+            continue;
+          }
+          Cell cell = row.getCell(parameters.getProteinColumn());
+          String value = getComputedValue(cell, numberFormat);
+          proteinIds.addAll(parseProteinIds(value, proteinIdPattern));
+        }
       }
     }
     return proteinIds;
   }
 
   private String getComputedValue(Cell cell, NumberFormat numberFormat) {
-    switch (cell.getCellType()) {
-      case Cell.CELL_TYPE_STRING:
-      case Cell.CELL_TYPE_BLANK:
+    if (cell == null) {
+      return "";
+    }
+    switch (cell.getCellTypeEnum()) {
+      case STRING:
+      case BLANK:
         return cell.getStringCellValue();
-      case Cell.CELL_TYPE_BOOLEAN:
+      case BOOLEAN:
         return String.valueOf(cell.getBooleanCellValue());
-      case Cell.CELL_TYPE_NUMERIC:
+      case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
-      case Cell.CELL_TYPE_ERROR:
+      case ERROR:
         return "";
-      case Cell.CELL_TYPE_FORMULA:
-        switch (cell.getCachedFormulaResultType()) {
-          case Cell.CELL_TYPE_STRING:
+      case FORMULA:
+        switch (cell.getCachedFormulaResultTypeEnum()) {
+          case STRING:
             return cell.getStringCellValue();
-          case Cell.CELL_TYPE_BOOLEAN:
+          case BOOLEAN:
             return String.valueOf(cell.getBooleanCellValue());
-          case Cell.CELL_TYPE_NUMERIC:
+          case NUMERIC:
             return numberFormat.format(cell.getNumericCellValue());
-          case Cell.CELL_TYPE_ERROR:
+          case ERROR:
             return "";
           default:
             return "";

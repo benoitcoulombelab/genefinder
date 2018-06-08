@@ -18,7 +18,7 @@
 package ca.qc.ircm.genefinder;
 
 import ca.qc.ircm.genefinder.gui.ApplicationGui;
-import ca.qc.ircm.util.javafx.SpringAfterburnerInstanceSupplier;
+import ca.qc.ircm.javafx.SpringAfterburnerInstanceSupplier;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

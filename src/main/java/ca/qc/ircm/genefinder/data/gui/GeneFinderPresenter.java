@@ -28,9 +28,9 @@ import ca.qc.ircm.genefinder.gui.drag.DragFilesOverHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDetectedHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDoneHandler;
 import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDroppedHandler;
-import ca.qc.ircm.util.javafx.JavafxUtils;
-import ca.qc.ircm.util.javafx.message.MessageDialog;
-import ca.qc.ircm.util.javafx.message.MessageDialog.MessageDialogType;
+import ca.qc.ircm.javafx.JavafxUtils;
+import ca.qc.ircm.javafx.message.MessageDialog;
+import ca.qc.ircm.javafx.message.MessageDialog.MessageDialogType;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -146,7 +146,7 @@ public class GeneFinderPresenter {
     try {
       return Integer.parseInt(proteinColumn.getText()) - 1;
     } catch (NumberFormatException e) {
-      if (!StringUtils.isAlpha(proteinColumn.getText())) {
+      if (StringUtils.isAlpha(proteinColumn.getText())) {
         int column = 0;
         char[] chars = proteinColumn.getText().toUpperCase().toCharArray();
         for (int i = 0; i < chars.length; i++) {
