@@ -17,11 +17,10 @@
 
 package ca.qc.ircm.genefinder.test.config;
 
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * Default test rules.

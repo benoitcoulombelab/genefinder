@@ -17,9 +17,8 @@
 
 package ca.qc.ircm.genefinder.xml;
 
-import org.xml.sax.Attributes;
-
 import javax.xml.parsers.SAXParser;
+import org.xml.sax.Attributes;
 
 /**
  * An element parsed by a {@link SAXParser}.

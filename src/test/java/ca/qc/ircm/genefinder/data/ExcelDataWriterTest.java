@@ -28,6 +28,15 @@ import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import javax.inject.Inject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -40,17 +49,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.inject.Inject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
@@ -230,7 +228,8 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0", getComputedValue(row.getCell(5), doubleFormat));
         assertEquals("", getComputedValue(row.getCell(6)));
@@ -292,7 +291,8 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
         assertEquals("", getComputedValue(row.getCell(6)));
@@ -354,7 +354,8 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
         assertEquals("", getComputedValue(row.getCell(6)));
@@ -416,7 +417,8 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
         assertEquals("gi|119621462", getComputedValue(row.getCell(6)));
@@ -481,7 +483,9 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B;POLR2C", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B;RPB3|RPO2C", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II;This gene encodes the second smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II;"
+                + "This gene encodes the second smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0;3.4", getComputedValue(row.getCell(5), doubleFormat));
         assertEquals("", getComputedValue(row.getCell(6)));
@@ -597,7 +601,8 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
         assertEquals("", getComputedValue(row.getCell(6)));
@@ -659,7 +664,8 @@ public class ExcelDataWriterTest {
         assertEquals("POLR2A;POLR2B", getComputedValue(row.getCell(2)));
         assertEquals("RPB1|RPO2A;RPB2|RPO2B", getComputedValue(row.getCell(3)));
         assertEquals(
-            "This gene encodes the largest subunit of RNA polymerase II;This gene encodes the smallest subunit of RNA polymerase II",
+            "This gene encodes the largest subunit of RNA polymerase II;"
+                + "This gene encodes the smallest subunit of RNA polymerase II",
             getComputedValue(row.getCell(4)));
         assertEquals("20.0;3.4", getComputedValue(row.getCell(5)));
         assertEquals("119621462", getComputedValue(row.getCell(6)));

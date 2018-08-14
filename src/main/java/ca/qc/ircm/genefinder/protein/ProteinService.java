@@ -17,10 +17,9 @@
 
 package ca.qc.ircm.genefinder.protein;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /**
  * Services for proteins.
@@ -53,6 +52,13 @@ public class ProteinService {
     AMINO_ACID_WEIGHTS.put('Y', 163.18);
   }
 
+  /**
+   * Computes theoretical weight of protein in kilo Dalton.
+   *
+   * @param sequence
+   *          protein sequence
+   * @return theoretical weight of protein
+   */
   public double weight(String sequence) {
     double water = 18.015;
     double weight = sequence.chars().map(aa -> Character.toUpperCase(aa)).mapToObj(aa -> (char) aa)

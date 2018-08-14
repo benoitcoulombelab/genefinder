@@ -20,7 +20,6 @@ package ca.qc.ircm.genefinder.data;
 import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
 import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
 
 public abstract class AbstractDataWriter implements DataWriter {

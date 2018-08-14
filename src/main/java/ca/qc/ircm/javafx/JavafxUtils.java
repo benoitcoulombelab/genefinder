@@ -17,13 +17,12 @@
 
 package ca.qc.ircm.javafx;
 
+import java.io.File;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
-import java.io.File;
 
 /**
  * Utilities for JavaFX.

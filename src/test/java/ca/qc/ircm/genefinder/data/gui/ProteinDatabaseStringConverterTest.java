@@ -22,9 +22,8 @@ import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import java.util.Locale;
+import org.junit.Test;
 
 public class ProteinDatabaseStringConverterTest {
   private Locale locale = Locale.getDefault();

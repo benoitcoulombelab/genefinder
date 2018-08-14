@@ -17,9 +17,8 @@
 
 package ca.qc.ircm.genefinder.gui;
 
-import javafx.util.StringConverter;
-
 import java.io.File;
+import javafx.util.StringConverter;
 
 /**
  * {@link StringConverter} for {@link File}.

@@ -20,9 +20,6 @@ package ca.qc.ircm.genefinder.data;
 import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.annotation.UniprotConfiguration;
-import org.apache.commons.lang3.SystemUtils;
-import org.springframework.stereotype.Component;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +34,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.SystemUtils;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TextDataWriter extends AbstractDataWriter implements DataWriter {

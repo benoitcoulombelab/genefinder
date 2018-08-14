@@ -17,9 +17,8 @@
 
 package ca.qc.ircm.javafx;
 
-import org.springframework.context.ApplicationContext;
-
 import java.util.function.Function;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Spring instance supplier for afterburner.fx.

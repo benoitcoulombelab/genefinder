@@ -18,15 +18,13 @@
 package ca.qc.ircm.genefinder.data;
 
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 @Component
 @Primary

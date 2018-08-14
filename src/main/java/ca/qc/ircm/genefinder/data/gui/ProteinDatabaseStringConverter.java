@@ -18,9 +18,8 @@
 package ca.qc.ircm.genefinder.data.gui;
 
 import ca.qc.ircm.genefinder.annotation.ProteinDatabase;
-import javafx.util.StringConverter;
-
 import java.util.Locale;
+import javafx.util.StringConverter;
 
 /**
  * StringConverter for {@link ProteinDatabase}.

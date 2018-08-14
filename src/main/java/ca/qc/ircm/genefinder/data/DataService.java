@@ -21,9 +21,6 @@ import ca.qc.ircm.genefinder.annotation.DownloadProteinMappingService;
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.progressbar.ProgressBar;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -34,8 +31,9 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.inject.Inject;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * Services for data file.
@@ -59,6 +57,22 @@ public class DataService {
     this.dataWriter = dataWriter;
   }
 
+  /**
+   * Find selected gene and protein information for proteins found in files.
+   *
+   * @param files
+   *          files
+   * @param parameters
+   *          information to find
+   * @param progressBar
+   *          records progression
+   * @param locale
+   *          user's locale
+   * @throws IOException
+   *           could not read file
+   * @throws InterruptedException
+   *           process interrupted by user
+   */
   public void findGeneNames(Collection<File> files, FindGenesParameters parameters,
       ProgressBar progressBar, Locale locale) throws IOException, InterruptedException {
     ResourceBundle bundle = ResourceBundle.getBundle(DataService.class.getName(), locale);

@@ -26,14 +26,13 @@ import static org.mockito.Mockito.when;
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
+import java.util.List;
+import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
-import java.util.Locale;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations

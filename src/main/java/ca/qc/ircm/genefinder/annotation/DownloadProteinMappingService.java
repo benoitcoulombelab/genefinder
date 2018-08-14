@@ -19,7 +19,6 @@ package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.progressbar.ProgressBar;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;

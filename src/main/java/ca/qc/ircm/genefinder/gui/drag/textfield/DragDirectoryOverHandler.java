@@ -19,12 +19,11 @@ package ca.qc.ircm.genefinder.gui.drag.textfield;
 
 import ca.qc.ircm.genefinder.gui.drag.DragOverHandler;
 import ca.qc.ircm.genefinder.util.FileUtils;
+import java.io.File;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
-
-import java.io.File;
 
 /**
  * Handles drag over for TextField containing directory path.

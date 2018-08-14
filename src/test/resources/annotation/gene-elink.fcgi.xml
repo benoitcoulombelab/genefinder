@@ -30,8 +30,8 @@
       <LinkName>protein_gene</LinkName>
       
         <Link>
-				<Id>1</Id>
-			</Link>
+        <Id>1</Id>
+      </Link>
       
     </LinkSetDb>
   </LinkSet>
@@ -46,8 +46,8 @@
       <LinkName>protein_gene</LinkName>
       
         <Link>
-				<Id>4404</Id>
-			</Link>
+        <Id>4404</Id>
+      </Link>
       
     </LinkSetDb>
   </LinkSet>
@@ -62,8 +62,8 @@
       <LinkName>protein_gene</LinkName>
       
         <Link>
-				<Id>4404</Id>
-			</Link>
+        <Id>4404</Id>
+      </Link>
       
     </LinkSetDb>
   </LinkSet>

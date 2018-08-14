@@ -18,13 +18,12 @@
 package ca.qc.ircm.genefinder.gui;
 
 import ca.qc.ircm.javafx.JavafxUtils;
+import java.util.ResourceBundle;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
-import java.util.ResourceBundle;
 
 /**
  * Progress dialog.

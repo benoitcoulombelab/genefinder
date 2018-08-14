@@ -18,7 +18,6 @@
 package ca.qc.ircm.genefinder.data;
 
 import ca.qc.ircm.genefinder.annotation.ProteinMapping;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;

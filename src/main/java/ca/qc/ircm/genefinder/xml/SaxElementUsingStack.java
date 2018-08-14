@@ -17,10 +17,9 @@
 
 package ca.qc.ircm.genefinder.xml;
 
-import org.xml.sax.Attributes;
-
 import java.util.ListIterator;
 import java.util.Stack;
+import org.xml.sax.Attributes;
 
 /**
  * {@link SaxElement} containing its parent inside a {@link Stack}.

@@ -17,12 +17,11 @@
 
 package ca.qc.ircm.genefinder.rest;
 
-import org.glassfish.jersey.client.ClientProperties;
-import org.springframework.stereotype.Component;
-
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import org.glassfish.jersey.client.ClientProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Factory for REST client.
@@ -39,6 +38,11 @@ public class RestClientFactory {
     this.restConfiguration = restConfiguration;
   }
 
+  /**
+   * Creates an instance of REST client.
+   * 
+   * @return REST client
+   */
   public Client createClient() {
     Client client = ClientBuilder.newClient();
     client.property(ClientProperties.CONNECT_TIMEOUT, restConfiguration.timeout());

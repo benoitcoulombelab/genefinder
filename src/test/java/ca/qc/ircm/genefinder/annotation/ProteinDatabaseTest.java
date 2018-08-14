@@ -19,9 +19,8 @@ package ca.qc.ircm.genefinder.annotation;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import java.util.Locale;
+import org.junit.Test;
 
 public class ProteinDatabaseTest {
   @Test

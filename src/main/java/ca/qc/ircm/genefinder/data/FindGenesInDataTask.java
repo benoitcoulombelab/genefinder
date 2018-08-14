@@ -18,15 +18,13 @@
 package ca.qc.ircm.genefinder.data;
 
 import ca.qc.ircm.progressbar.JavafxProgressBar;
-import javafx.concurrent.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Locale;
-
+import javafx.concurrent.Task;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Task that download protein database and find genes for MaxQuant file.

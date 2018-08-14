@@ -17,11 +17,10 @@
 
 package ca.qc.ircm.genefinder.gui;
 
+import java.io.File;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
-
-import java.io.File;
 
 /**
  * Cell factory for {@link File}.

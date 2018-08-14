@@ -18,13 +18,12 @@
 package ca.qc.ircm.genefinder.gui;
 
 import ca.qc.ircm.genefinder.data.gui.GeneFinderView;
+import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import java.util.ResourceBundle;
 
 /**
  * Main application controller.

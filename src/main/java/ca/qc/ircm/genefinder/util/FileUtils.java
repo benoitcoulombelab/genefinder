@@ -17,6 +17,9 @@
 
 package ca.qc.ircm.genefinder.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
@@ -24,10 +27,6 @@ import org.apache.commons.vfs2.VFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stackoverflowusers.file.WindowsShortcut;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
 
 /**
  * Utilities for files.

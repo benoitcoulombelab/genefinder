@@ -17,12 +17,11 @@
 
 package ca.qc.ircm.genefinder.gui;
 
+import java.io.File;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.util.StringConverter;
-
-import java.io.File;
 
 /**
  * {@link ListCell} that shows files.

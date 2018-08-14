@@ -27,6 +27,10 @@ import ca.qc.ircm.genefinder.test.config.RetryOnFail;
 import ca.qc.ircm.genefinder.test.config.RetryOnFailRule;
 import ca.qc.ircm.genefinder.test.config.TestFxTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
@@ -45,11 +49,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testfx.framework.junit.ApplicationTest;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestFxTestAnnotations

@@ -19,14 +19,12 @@ package ca.qc.ircm.genefinder.annotation;
 
 import ca.qc.ircm.genefinder.data.FindGenesParameters;
 import ca.qc.ircm.progressbar.ProgressBar;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-
 import javax.inject.Inject;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /**
  * Dispatch calls to proper implementation.

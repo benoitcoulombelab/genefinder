@@ -17,11 +17,10 @@
 
 package ca.qc.ircm.genefinder.annotation;
 
+import java.util.regex.Pattern;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.regex.Pattern;
 
 @Configuration
 @EnableConfigurationProperties

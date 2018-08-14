@@ -17,15 +17,13 @@
 
 package ca.qc.ircm.genefinder.data;
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /**
  * Guesses {@link ProteinParser} instance to use based on file type.

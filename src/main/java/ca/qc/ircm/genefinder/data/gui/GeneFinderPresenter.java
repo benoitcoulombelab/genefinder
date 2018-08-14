@@ -31,6 +31,12 @@ import ca.qc.ircm.genefinder.gui.drag.list.DragFileOnListDroppedHandler;
 import ca.qc.ircm.javafx.JavafxUtils;
 import ca.qc.ircm.javafx.message.MessageDialog;
 import ca.qc.ircm.javafx.message.MessageDialog.MessageDialogType;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -46,21 +52,13 @@ import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import javax.inject.Inject;
 
 /**
  * Gene finder controller.

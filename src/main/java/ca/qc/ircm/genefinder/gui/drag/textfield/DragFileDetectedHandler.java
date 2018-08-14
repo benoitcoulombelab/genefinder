@@ -17,15 +17,14 @@
 
 package ca.qc.ircm.genefinder.gui.drag.textfield;
 
+import java.io.File;
+import java.util.Arrays;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-
-import java.io.File;
-import java.util.Arrays;
 
 /**
  * Handles drag detected for TextField containing file path.

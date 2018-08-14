@@ -22,14 +22,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
+import javax.ws.rs.client.Client;
 import org.glassfish.jersey.client.ClientProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.ws.rs.client.Client;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations

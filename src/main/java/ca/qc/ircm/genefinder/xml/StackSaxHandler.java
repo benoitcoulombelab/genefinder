@@ -17,11 +17,10 @@
 
 package ca.qc.ircm.genefinder.xml;
 
+import java.util.Stack;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import java.util.Stack;
 
 /**
  * Stacks elements to simplify tests for parent elements.

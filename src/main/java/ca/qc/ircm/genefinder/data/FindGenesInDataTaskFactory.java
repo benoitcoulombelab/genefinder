@@ -17,13 +17,11 @@
 
 package ca.qc.ircm.genefinder.data;
 
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Locale;
-
 import javax.inject.Inject;
+import org.springframework.stereotype.Component;
 
 /**
  * Creates instances of {@link FindGenesInDataTask}.

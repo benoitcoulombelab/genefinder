@@ -21,16 +21,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.ResourceBundle;
 
 public class XmlResourceBundleTest {
   @Mock

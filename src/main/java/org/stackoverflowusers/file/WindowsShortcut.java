@@ -1,15 +1,14 @@
 package org.stackoverflowusers.file;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileType;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
 
 /**
  * Represents a Windows shortcut (typically visible to Java only as a '.lnk' file).
@@ -27,12 +26,11 @@ import java.text.ParseException;
  * 0-596-00907-0 http://www.oreilly.com/catalog/swinghks/
  * </p>
  */
-@SuppressWarnings("checkstyle:all")
 @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "Code copied from stackoverflow")
 public class WindowsShortcut {
   private boolean isDirectory;
   private boolean isLocal;
-  private String real_file;
+  private String realFile;
 
   /**
    * Provides a quick test to see if this could be a valid link ! If you try to instantiate a new
@@ -60,6 +58,16 @@ public class WindowsShortcut {
     return isPotentiallyValid;
   }
 
+  /**
+   * Creates a Windows shortcut from file.
+   *
+   * @param file
+   *          file
+   * @throws IOException
+   *           could not read file
+   * @throws ParseException
+   *           file is not a Windows shortcut
+   */
   public WindowsShortcut(File file) throws IOException, ParseException {
     InputStream in = new FileInputStream(file);
     try {
@@ -69,6 +77,16 @@ public class WindowsShortcut {
     }
   }
 
+  /**
+   * Creates a Windows shortcut from file.
+   *
+   * @param file
+   *          file
+   * @throws IOException
+   *           could not read file
+   * @throws ParseException
+   *           file is not a Windows shortcut
+   */
   public WindowsShortcut(FileObject file) throws IOException, ParseException {
     InputStream in = file.getContent().getInputStream();
     try {
@@ -79,10 +97,12 @@ public class WindowsShortcut {
   }
 
   /**
+   * Returns the name of the filesystem object pointed to by this shortcut.
+   *
    * @return the name of the filesystem object pointed to by this shortcut
    */
   public String getRealFilename() {
-    return real_file;
+    return realFile;
   }
 
   /**
@@ -104,7 +124,7 @@ public class WindowsShortcut {
   }
 
   /**
-   * Gets all the bytes from an InputStream
+   * Gets all the bytes from an InputStream.
    *
    * @param in
    *          the InputStream from which to read bytes
@@ -117,7 +137,7 @@ public class WindowsShortcut {
   }
 
   /**
-   * Gets up to max bytes from an InputStream
+   * Gets up to max bytes from an InputStream.
    *
    * @param in
    *          the InputStream from which to read bytes
@@ -137,8 +157,9 @@ public class WindowsShortcut {
         break;
       }
       bout.write(buff, 0, n);
-      if (max != null)
+      if (max != null) {
         max -= n;
+      }
     }
     in.close();
     return bout.toByteArray();
@@ -151,24 +172,25 @@ public class WindowsShortcut {
   }
 
   /**
-   * Gobbles up link data by parsing it and storing info in member fields
+   * Gobbles up link data by parsing it and storing info in member fields.
    *
    * @param link
    *          all the bytes from the .lnk file
    */
   private void parseLink(byte[] link) throws ParseException {
     try {
-      if (!isMagicPresent(link))
+      if (!isMagicPresent(link)) {
         throw new ParseException("Invalid shortcut; magic is missing", 0);
+      }
 
       // get the flags byte
       byte flags = link[0x14];
 
       // get the file attributes byte
       final int file_atts_offset = 0x18;
-      byte file_atts = link[file_atts_offset];
-      byte is_dir_mask = (byte) 0x10;
-      if ((file_atts & is_dir_mask) > 0) {
+      byte fileAtts = link[file_atts_offset];
+      byte isDirMask = (byte) 0x10;
+      if ((fileAtts & isDirMask) > 0) {
         isDirectory = true;
       } else {
         isDirectory = false;
@@ -177,37 +199,37 @@ public class WindowsShortcut {
       // if the shell settings are present, skip them
       final int shell_offset = 0x4c;
       final byte has_shell_mask = (byte) 0x01;
-      int shell_len = 0;
+      int shellLen = 0;
       if ((flags & has_shell_mask) > 0) {
         // the plus 2 accounts for the length marker itself
-        shell_len = bytesToWord(link, shell_offset) + 2;
+        shellLen = bytesToWord(link, shell_offset) + 2;
       }
 
       // get to the file settings
-      int file_start = 0x4c + shell_len;
+      int fileStart = 0x4c + shellLen;
 
       final int file_location_info_flag_offset_offset = 0x08;
-      int file_location_info_flag = link[file_start + file_location_info_flag_offset_offset];
-      isLocal = (file_location_info_flag & 2) == 0;
+      int fileLocationInfoFlag = link[fileStart + file_location_info_flag_offset_offset];
+      isLocal = (fileLocationInfoFlag & 2) == 0;
       // get the local volume and local system values
       // final int localVolumeTable_offset_offset = 0x0C;
       final int basename_offset_offset = 0x10;
       final int networkVolumeTable_offset_offset = 0x14;
       final int finalname_offset_offset = 0x18;
-      int finalname_offset = link[file_start + finalname_offset_offset] + file_start;
-      String finalname = getNullDelimitedString(link, finalname_offset);
+      int finalnameOffset = link[fileStart + finalname_offset_offset] + fileStart;
+      String finalname = getNullDelimitedString(link, finalnameOffset);
       if (isLocal) {
-        int basename_offset = link[file_start + basename_offset_offset] + file_start;
-        String basename = getNullDelimitedString(link, basename_offset);
-        real_file = basename + finalname;
+        int basenameOffset = link[fileStart + basename_offset_offset] + fileStart;
+        String basename = getNullDelimitedString(link, basenameOffset);
+        realFile = basename + finalname;
       } else {
-        int networkVolumeTable_offset =
-            link[file_start + networkVolumeTable_offset_offset] + file_start;
-        int shareName_offset_offset = 0x08;
-        int shareName_offset =
-            link[networkVolumeTable_offset + shareName_offset_offset] + networkVolumeTable_offset;
-        String shareName = getNullDelimitedString(link, shareName_offset);
-        real_file = shareName + "\\" + finalname;
+        int networkVolumeTableOffset =
+            link[fileStart + networkVolumeTable_offset_offset] + fileStart;
+        int shareNameOffsetOffset = 0x08;
+        int shareNameOffset =
+            link[networkVolumeTableOffset + shareNameOffsetOffset] + networkVolumeTableOffset;
+        String shareName = getNullDelimitedString(link, shareNameOffset);
+        realFile = shareName + "\\" + finalname;
       }
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new ParseException("Could not be parsed, probably not a valid WindowsShortcut", 0);

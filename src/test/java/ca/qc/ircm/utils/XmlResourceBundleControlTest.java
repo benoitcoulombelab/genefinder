@@ -20,13 +20,12 @@ package ca.qc.ircm.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.junit.Test;
 
 public class XmlResourceBundleControlTest {
   private Set<String> convertKeys(Enumeration<String> keys) {

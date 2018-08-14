@@ -26,13 +26,6 @@ import ca.qc.ircm.genefinder.util.ExceptionUtils;
 import ca.qc.ircm.genefinder.xml.StackSaxHandler;
 import ca.qc.ircm.progressbar.ProgressBar;
 import ca.qc.ircm.utils.MessageResources;
-import org.glassfish.jersey.logging.LoggingFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +39,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -57,6 +49,12 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 /**
  * Download protein mappings from RefSeq database.
@@ -116,9 +114,9 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
   private void downloadGeneMappings(List<ProteinMapping> mappings, FindGenesParameters parameters,
       ProgressBar progressBar, MessageResources resources)
       throws IOException, InterruptedException {
-    Map<String, ProteinMapping> mappingsById = mappings.stream()
+    final Map<String, ProteinMapping> mappingsById = mappings.stream()
         .collect(Collectors.toMap(mapping -> mapping.getProteinId(), mapping -> mapping));
-    Map<String, String> gis = gis(mappings, parameters, progressBar.step(0.5), resources);
+    final Map<String, String> gis = gis(mappings, parameters, progressBar.step(0.5), resources);
     progressBar = progressBar.step(0.5);
     Client client = restClientFactory.createClient();
     client.register(LoggingFeature.class);
@@ -249,6 +247,7 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
                 protected void startElement(String elementName, Attributes attributes)
                     throws SAXException {
                   if (current("DocSum")) {
+                    // Do nothing.
                   } else if (current("Id")) {
                     builder.delete(0, builder.length());
                     saveCharacter = true;
@@ -428,6 +427,7 @@ public class RefseqDownloadProteinMappingService extends AbstractDownloadProtein
                 protected void startElement(String elementName, Attributes attributes)
                     throws SAXException {
                   if (current("DocSum")) {
+                    // Do nothing.
                   } else if (current("Id")) {
                     builder.delete(0, builder.length());
                     saveCharacter = true;
