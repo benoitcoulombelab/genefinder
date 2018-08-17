@@ -57,8 +57,9 @@ public class ExcelProteinParser extends AbstractProteinParser {
     NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.ENGLISH);
     numberFormat.setGroupingUsed(false);
     try (InputStream inputStream = new FileInputStream(input)) {
-      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xls")
-          ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream)) {
+      try (Workbook workbook =
+          input.getName().toLowerCase().endsWith(".xls") ? new HSSFWorkbook(inputStream)
+              : new XSSFWorkbook(inputStream)) {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
           Row row = sheet.getRow(i);
@@ -87,16 +88,20 @@ public class ExcelProteinParser extends AbstractProteinParser {
       case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
       case ERROR:
+      case _NONE:
         return "";
       case FORMULA:
         switch (cell.getCachedFormulaResultTypeEnum()) {
           case STRING:
+          case BLANK:
             return cell.getStringCellValue();
           case BOOLEAN:
             return String.valueOf(cell.getBooleanCellValue());
           case NUMERIC:
             return numberFormat.format(cell.getNumericCellValue());
+          case FORMULA:
           case ERROR:
+          case _NONE:
             return "";
           default:
             return "";

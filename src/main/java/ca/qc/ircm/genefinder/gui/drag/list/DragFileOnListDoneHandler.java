@@ -36,7 +36,7 @@ public class DragFileOnListDoneHandler implements EventHandler<DragEvent> {
   @Override
   public void handle(DragEvent event) {
     if (event.getTransferMode() == TransferMode.MOVE) {
-      list.getItems().remove(event.getDragboard().getFiles());
+      list.getItems().removeAll(event.getDragboard().getFiles());
     }
     event.consume();
   }

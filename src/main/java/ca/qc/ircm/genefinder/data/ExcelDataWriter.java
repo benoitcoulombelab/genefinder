@@ -74,8 +74,9 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
       Map<String, ProteinMapping> mappings) throws IOException, InterruptedException {
     Pattern proteinIdPattern = proteinIdPattern(parameters);
     try (InputStream inputStream = new FileInputStream(input)) {
-      try (Workbook workbook = input.getName().toLowerCase().endsWith(".xls")
-          ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream)) {
+      try (Workbook workbook =
+          input.getName().toLowerCase().endsWith(".xls") ? new HSSFWorkbook(inputStream)
+              : new XSSFWorkbook(inputStream)) {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
           Row row = sheet.getRow(i);
@@ -189,6 +190,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
       destination.setCellStyle(source.getCellStyle());
       switch (source.getCellTypeEnum()) {
         case STRING:
+        case BLANK:
           destination.setCellValue(source.getStringCellValue());
           break;
         case BOOLEAN:
@@ -202,6 +204,8 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           break;
         case FORMULA:
           destination.setCellValue(source.getCellFormula());
+          break;
+        case _NONE:
           break;
         default:
           destination.setCellValue(source.getStringCellValue());
@@ -227,16 +231,20 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
       case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
       case ERROR:
+      case _NONE:
         return "";
       case FORMULA:
         switch (cell.getCachedFormulaResultTypeEnum()) {
           case STRING:
+          case BLANK:
             return cell.getStringCellValue();
           case BOOLEAN:
             return String.valueOf(cell.getBooleanCellValue());
           case NUMERIC:
             return numberFormat.format(cell.getNumericCellValue());
+          case FORMULA:
           case ERROR:
+          case _NONE:
             return "";
           default:
             return "";

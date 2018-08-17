@@ -113,16 +113,20 @@ public class ExcelDataWriterTest {
       case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
       case ERROR:
+      case _NONE:
         return "";
       case FORMULA:
         switch (cell.getCachedFormulaResultTypeEnum()) {
           case STRING:
+          case BLANK:
             return cell.getStringCellValue();
           case BOOLEAN:
             return String.valueOf(cell.getBooleanCellValue());
           case NUMERIC:
             return numberFormat.format(cell.getNumericCellValue());
+          case FORMULA:
           case ERROR:
+          case _NONE:
             return "";
           default:
             return "";
