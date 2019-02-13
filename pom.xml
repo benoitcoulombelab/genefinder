@@ -217,13 +217,6 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>external.atlassian.jgitflow</groupId>
-          <artifactId>jgitflow-maven-plugin</artifactId>
-          <configuration>
-            <noDeploy>true</noDeploy>
-          </configuration>
-        </plugin>
-        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot-maven-plugin.version}</version>
