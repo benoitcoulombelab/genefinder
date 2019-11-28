@@ -60,7 +60,6 @@
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <testFx.version>4.0.10-alpha</testFx.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
-    <mojolicense-maven-plugin.version>1.14</mojolicense-maven-plugin.version>
     <application.title>Gene finder</application.title>
   </properties>
   <dependencyManagement>
@@ -260,24 +259,6 @@
             </executions>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>license-maven-plugin</artifactId>
-          <version>${mojolicense-maven-plugin.version}</version>
-          <configuration>
-            <useMissingFile>true</useMissingFile>
-          </configuration>
-          <executions>
-            <execution>
-              <id>license-add-third-party</id>
-              <goals><goal>add-third-party</goal></goals>
-            </execution>
-            <execution>
-              <id>license-download-licenses</id>
-              <goals><goal>download-licenses</goal></goals>
-            </execution>
-          </executions>
-        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -300,10 +281,6 @@
       </plugin>
       <plugin>
         <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
       </plugin>
     </plugins>
