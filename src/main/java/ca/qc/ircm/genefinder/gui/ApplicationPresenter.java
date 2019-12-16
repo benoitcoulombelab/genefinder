@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ApplicationPresenter {
   @FXML
-  private ResourceBundle resources;
-  @FXML
   private BorderPane layout;
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   private void initialize() {
@@ -43,5 +43,10 @@ public class ApplicationPresenter {
 
     GeneFinderView geneFinderView = new GeneFinderView();
     layout.setCenter(geneFinderView.getView());
+  }
+
+  @FXML
+  private void about() {
+    new AboutDialog(layout.getScene().getWindow());
   }
 }

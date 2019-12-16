@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?scenebuilder-preview-i18n-resource aboutdialog.properties?>
+
+<BorderPane styleClass="about-dialog" xmlns:fx="http://javafx.com/fxml" fx:controller="ca.qc.ircm.genefinder.gui.AboutDialogPresenter">
+	<center>
+		<VBox styleClass="messages">
+			<Label text="%message" minHeight="50"/>
+			<Hyperlink text="%flaticon" onAction="#openFlaticon"/>
+			<Hyperlink text="%icons8" onAction="#openIcons8"/>
+		</VBox>
+	</center>
+	<bottom>
+		<HBox styleClass="buttons">
+			<Button fx:id="ok" text="%ok" onAction="#close" defaultButton="true" cancelButton="true"/>
+		</HBox>
+	</bottom>
+</BorderPane>
