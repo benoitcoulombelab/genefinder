@@ -24,7 +24,7 @@
 
 <BorderPane fx:id="layout" styleClass="app" xmlns:fx="http://javafx.com/fxml" fx:controller="ca.qc.ircm.genefinder.gui.ApplicationPresenter">
   <top>
-    <MenuBar>
+    <MenuBar fx:id="menu">
       <Menu text="%help">
         <MenuItem text="%about" onAction="#about"/>
       </Menu>

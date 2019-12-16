@@ -20,7 +20,9 @@ package ca.qc.ircm.genefinder.gui;
 import ca.qc.ircm.genefinder.data.gui.GeneFinderView;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
+import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -34,10 +36,15 @@ public class ApplicationPresenter {
   @FXML
   private BorderPane layout;
   @FXML
+  private MenuBar menu;
+  @FXML
   private ResourceBundle resources;
 
   @FXML
   private void initialize() {
+    if (SystemUtils.IS_OS_MAC_OSX) {
+      menu.setUseSystemMenuBar(true);
+    }
     layout.setPrefHeight(Integer.parseInt(resources.getString("height")));
     layout.setPrefWidth(Integer.parseInt(resources.getString("width")));
 
