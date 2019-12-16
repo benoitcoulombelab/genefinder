@@ -58,9 +58,30 @@
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
-    <testFx.version>4.0.10-alpha</testFx.version>
+    <testFx.version>4.0.15-alpha</testFx.version>
+    <javafx-14.version>14-ea+1</javafx-14.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
     <application.title>Gene finder</application.title>
+    <javafx.finalName>${project.build.finalName}.jar</javafx.finalName>
+    <jpackage>${java.home}/bin/jpackage</jpackage>
+    <jpackage.skip>true</jpackage.skip>
+    <jpackage.input>${project.build.directory}/jpackage</jpackage.input>
+    <jpackage.options.windows>${project.build.directory}/classes/jpackage/windows.txt</jpackage.options.windows>
+    <jpackage.options.mac>${project.build.directory}/classes/jpackage/mac.txt</jpackage.options.mac>
+    <jpackage.options.linux>${project.build.directory}/classes/jpackage/linux.txt</jpackage.options.linux>
+    <jpackage.options>${jpackage.options.windows}</jpackage.options>
+    <copyright>Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)</copyright>
+    <icon.windows>${project.basedir}/src/main/resources/icons/gene-finder.ico</icon.windows>
+    <icon.mac>${project.basedir}/src/main/resources/icons/gene-finder.icns</icon.mac>
+    <icon.linux>${project.basedir}/src/main/resources/icons/gene-finder.png</icon.linux>
+    <icon>${icon.windows}</icon>
+    <license.file>${project.basedir}/LICENSE.txt</license.file>
+    <win.uuid>09749a55-ede7-4ca5-8c07-0292ecd5fc17</win.uuid>
+    <mac.package.identifier>Gene-Finder</mac.package.identifier>
+    <linux.deb.maintainer>christian.poitras@ircm.qc.ca</linux.deb.maintainer>
+    <linux.rpm.license.type>GPLv3+</linux.rpm.license.type>
+    <linux.app.release>1</linux.app.release>
+    <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -191,6 +212,16 @@
       </resource>
       <resource>
         <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>jpackage/**</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>jpackage/**</include>
+        </includes>
       </resource>
     </resources>
     <testResources>
@@ -231,6 +262,45 @@
           </executions>
         </plugin>
         <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>copy-jar-jpackage</id>
+              <phase>package</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <target>
+                  <echo message="Copy jar for jpackage" />
+                  <copy file="${project.build.directory}/${javafx.finalName}" todir="${jpackage.input}"></copy>
+                </target>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.6.0</version>
+          <executions>
+            <execution>
+              <id>package-application</id>
+              <goals>
+                <goal>exec</goal>
+              </goals>
+              <phase>package</phase>
+              <configuration>
+                <skip>${jpackage.skip}</skip>
+                <executable>${jpackage}</executable>
+                <arguments>
+                  <argument>@${jpackage.options}</argument>
+                </arguments>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <configuration>
@@ -259,6 +329,26 @@
             </executions>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>format-windows-product-version</id>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <phase>validate</phase>
+                <configuration>
+                  <name>win.version</name>
+                  <value>${project.version}</value>
+                  <regex>^(\d+)(\.\d+)?(\.\d+)?(-SNAPSHOT)?$</regex>
+                  <replacement>$1$2$3</replacement>
+                </configuration>
+              </execution>
+            </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -280,8 +370,19 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
+      <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
@@ -303,6 +404,81 @@
     </plugins>
   </reporting>
   <profiles>
+    <profile>
+      <id>java14</id>
+      <activation>
+        <jdk>14</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-controls</artifactId>
+          <version>${javafx-14.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-fxml</artifactId>
+          <version>${javafx-14.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-web</artifactId>
+          <version>${javafx-14.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-swing</artifactId>
+          <version>${javafx-14.version}</version>
+        </dependency>
+      </dependencies>
+      <properties>
+        <!-- Fails in Java 14-ea+1 -->
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <jpackage.options>${jpackage.options.windows}</jpackage.options>
+        <icon>${icon.windows}</icon>
+      </properties>
+    </profile>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <jpackage.options>${jpackage.options.mac}</jpackage.options>
+        <icon>${icon.mac}</icon>
+      </properties>
+    </profile>
+    <profile>
+      <id>linux</id>
+      <activation>
+        <os>
+          <family>unix</family>
+          <name>Linux</name>
+        </os>
+      </activation>
+      <properties>
+        <jpackage.options>${jpackage.options.linux}</jpackage.options>
+        <icon>${icon.linux}</icon>
+      </properties>
+    </profile>
+    <profile>
+      <id>installer</id>
+      <properties>
+        <jpackage.skip>false</jpackage.skip>
+      </properties>
+    </profile>
     <profile>
       <id>java9</id>
       <activation>
