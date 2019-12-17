@@ -34,7 +34,8 @@ uniprot:
   maxIdsPerRequest: 100 # Never more than 500
 
 logging:
-  file: ${spring.application.name}.log
+  file:
+    name: ${spring.application.name}.log
 
 ---
 spring:
@@ -43,4 +44,5 @@ spring:
     url: jdbc:h2:mem:testdb
 
 logging:
-  file: test.log
+  file:
+    name: test.log
