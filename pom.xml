@@ -46,6 +46,7 @@
     <url>https://bitbucket.org/ircm/genefinder/issues</url>
   </issueManagement>
   <properties>
+    <resource.delimiter>$[*]</resource.delimiter>
     <javac.version>1.8</javac.version>
     <main-class>ca.qc.ircm.genefinder.Main</main-class>
     <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
@@ -238,6 +239,15 @@
     </testResources>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <configuration>
+            <delimiters>
+              <delimiter>${resource.delimiter}</delimiter>
+            </delimiters>
+            <useDefaultDelimiters>false</useDefaultDelimiters>
+          </configuration>
+        </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
