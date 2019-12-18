@@ -16,5 +16,7 @@
 "$[project.organization.name]"
 --icon
 "$[icon]"
+--java-options
+"-Dlogging.file.name=${user.home}/genefinder/genefinder.log"
 --mac-package-identifier
 "$[mac.package.identifier]"
