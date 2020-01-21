@@ -71,7 +71,7 @@
     <jpackage.options.mac>${project.build.directory}/classes/jpackage/mac.txt</jpackage.options.mac>
     <jpackage.options.linux>${project.build.directory}/classes/jpackage/linux.txt</jpackage.options.linux>
     <jpackage.options>${jpackage.options.windows}</jpackage.options>
-    <copyright>Copyright (c) 2014 Institut de recherches cliniques de Montreal (IRCM)</copyright>
+    <copyright>Copyright (c) ${project.inceptionYear} ${organization.name}</copyright>
     <icon.windows>${project.basedir}/src/main/resources/icons/gene-finder.ico</icon.windows>
     <icon.mac>${project.basedir}/src/main/resources/icons/gene-finder.icns</icon.mac>
     <icon.linux>${project.basedir}/src/main/resources/icons/gene-finder.png</icon.linux>
