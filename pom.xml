@@ -77,7 +77,7 @@
     <icon.linux>${project.basedir}/src/main/resources/icons/gene-finder.png</icon.linux>
     <icon>${icon.windows}</icon>
     <license.file>${project.basedir}/LICENSE.txt</license.file>
-    <win.uuid>09749a55-ede7-4ca5-8c07-0292ecd5fc17</win.uuid>
+    <win.uuid>21cbd2d5-7107-4737-a235-569c7ae200c3</win.uuid>
     <mac.package.identifier>Gene-Finder</mac.package.identifier>
     <linux.deb.maintainer>christian.poitras@ircm.qc.ca</linux.deb.maintainer>
     <linux.rpm.license.type>GPLv3+</linux.rpm.license.type>
