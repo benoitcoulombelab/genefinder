@@ -16,6 +16,8 @@
 "$[project.organization.name]"
 --icon
 "$[icon]"
+--java-options
+"-Dlogging.file.name=${user.home}/$[project.artifactId]/$[project.artifactId].log"
 --win-menu
 --win-menu-group
 "$[project.name]"
