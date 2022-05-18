@@ -17,16 +17,17 @@
 
 package ca.qc.ircm.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -35,12 +36,12 @@ public class XmlResourceBundleTest {
   @Mock
   private ResourceBundle parent;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     MockitoAnnotations.initMocks(this);
   }
 
-  @After
+  @AfterEach
   public void afterTest() {
     Mockito.validateMockitoUsage();
   }
@@ -54,12 +55,12 @@ public class XmlResourceBundleTest {
     assertEquals("This is a test", resources.getString("message"));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void getString_Null() throws Throwable {
     InputStream input = getClass().getResourceAsStream("/utils/XmlResourceBundleTest.xml");
 
     XmlResourceBundle resources = new XmlResourceBundle(input);
-    resources.getString(null);
+    assertThrows(NullPointerException.class, () -> resources.getString(null));
   }
 
   @Test

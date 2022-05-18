@@ -28,13 +28,10 @@ import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import java.util.List;
 import java.util.Locale;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class DownloadProteinMappingServiceDispatcherTest {
   private DownloadProteinMappingServiceDispatcher downloadProteinMappingServiceDispatcher;
@@ -50,7 +47,7 @@ public class DownloadProteinMappingServiceDispatcherTest {
   private ProgressBar progressBar;
   private Locale locale = Locale.getDefault();
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     downloadProteinMappingServiceDispatcher = new DownloadProteinMappingServiceDispatcher(
         refseqDownloadProteinMappingService, uniprotDownloadProteinMappingService);

@@ -20,8 +20,8 @@ package ca.qc.ircm.genefinder.data;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.annotation.GeneInfo;
@@ -37,15 +37,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class TextDataWriterTest {
   private TextDataWriter textDataWriter;
@@ -59,13 +55,13 @@ public class TextDataWriterTest {
   private UniprotConfiguration uniprotConfiguration;
   @Inject
   private UniprotConfiguration realUniprotConfiguration;
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  File temporaryFolder;
 
   /**
    * Before test.
    */
-  @Before
+  @BeforeEach
   public void beforeTest() {
     textDataWriter = new TextDataWriter(ncbiConfiguration, uniprotConfiguration);
     when(ncbiConfiguration.refseqProteinAccessionPattern())
@@ -79,7 +75,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene() throws Throwable {
     final File input = new File(getClass().getResource("/data/data.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -139,7 +135,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_ManyGenesForProtein() throws Throwable {
     final File input = new File(getClass().getResource("/data/data.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -203,7 +199,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_MultipleLines() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -271,7 +267,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_MultipleLines_Commas() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many_commas.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -339,7 +335,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_MultipleLinesInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_manycolumns.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -407,7 +403,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_MultipleLinesWithManyGenesForProtein() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -479,7 +475,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_NoGi() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -539,7 +535,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_ManyNoGi() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi_many.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -607,7 +603,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_ManyNoGiInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi_manycolumns.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -675,7 +671,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_Uniprot() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_uniprot.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
@@ -735,7 +731,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_Refseq() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_refseq.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ);
     when(parameters.isGeneId()).thenReturn(true);
@@ -795,7 +791,7 @@ public class TextDataWriterTest {
   @Test
   public void writeGene_Scaffold() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_scaffold.txt").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.txt");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);

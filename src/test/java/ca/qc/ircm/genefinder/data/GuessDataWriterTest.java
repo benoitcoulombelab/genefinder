@@ -23,13 +23,10 @@ import ca.qc.ircm.genefinder.annotation.ProteinMapping;
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import java.io.File;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class GuessDataWriterTest {
   private GuessDataWriter guessDataWriter;
@@ -44,7 +41,7 @@ public class GuessDataWriterTest {
   @Mock
   private Map<String, ProteinMapping> mappings;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     guessDataWriter = new GuessDataWriter(excelDataWriter, textDataWriter);
   }

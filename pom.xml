@@ -16,7 +16,8 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>ca.qc.ircm</groupId>
@@ -97,24 +98,15 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.testfx</groupId>
@@ -127,6 +119,12 @@
       <artifactId>testfx-junit</artifactId>
       <version>${testFx.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -282,7 +280,7 @@
               </goals>
               <configuration>
                 <target>
-                  <echo message="Copy jar for jpackage" />
+                  <echo message="Copy jar for jpackage"/>
                   <copy file="${project.build.directory}/${javafx.finalName}" todir="${jpackage.input}"></copy>
                 </target>
               </configuration>
@@ -334,7 +332,9 @@
             </excludes>
             <executions>
               <execution>
-                <goals><goal>check</goal></goals>
+                <goals>
+                  <goal>check</goal>
+                </goals>
               </execution>
             </executions>
           </configuration>
@@ -343,21 +343,21 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>${build-helper-maven-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>format-windows-product-version</id>
-                <goals>
-                  <goal>regex-property</goal>
-                </goals>
-                <phase>validate</phase>
-                <configuration>
-                  <name>win.version</name>
-                  <value>${project.version}</value>
-                  <regex>^(\d+)(\.\d+)?(\.\d+)?(-SNAPSHOT)?$</regex>
-                  <replacement>$1$2$3</replacement>
-                </configuration>
-              </execution>
-            </executions>
+          <executions>
+            <execution>
+              <id>format-windows-product-version</id>
+              <goals>
+                <goal>regex-property</goal>
+              </goals>
+              <phase>validate</phase>
+              <configuration>
+                <name>win.version</name>
+                <value>${project.version}</value>
+                <regex>^(\d+)(\.\d+)?(\.\d+)?(-SNAPSHOT)?$</regex>
+                <replacement>$1$2$3</replacement>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

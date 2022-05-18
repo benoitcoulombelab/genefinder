@@ -20,8 +20,8 @@ package ca.qc.ircm.genefinder.data;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.annotation.NcbiConfiguration;
@@ -30,13 +30,10 @@ import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import java.io.File;
 import java.util.List;
 import javax.inject.Inject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class TextProteinParserTest {
   private TextProteinParser textProteinParser;
@@ -54,7 +51,7 @@ public class TextProteinParserTest {
   /**
    * Before test.
    */
-  @Before
+  @BeforeEach
   @SuppressWarnings("checkstyle:linelength")
   public void beforeTest() {
     textProteinParser = new TextProteinParser(ncbiConfiguration, uniprotConfiguration);

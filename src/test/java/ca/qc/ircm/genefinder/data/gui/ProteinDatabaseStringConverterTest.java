@@ -20,10 +20,10 @@ package ca.qc.ircm.genefinder.data.gui;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Locale;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ProteinDatabaseStringConverterTest {
   private Locale locale = Locale.getDefault();

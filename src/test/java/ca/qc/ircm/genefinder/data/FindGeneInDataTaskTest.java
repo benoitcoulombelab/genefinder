@@ -24,7 +24,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
 import ca.qc.ircm.genefinder.test.config.RetryOnFail;
-import ca.qc.ircm.genefinder.test.config.RetryOnFailRule;
+import ca.qc.ircm.genefinder.test.config.RetryOnFailExtension;
 import ca.qc.ircm.genefinder.test.config.TestFxTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import java.io.File;
@@ -36,22 +36,19 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testfx.framework.junit.ApplicationTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @TestFxTestAnnotations
+@ExtendWith(RetryOnFailExtension.class)
 public class FindGeneInDataTaskTest extends ApplicationTest {
   private FindGenesInDataTask findGenesInDataTask;
   @Mock
@@ -70,10 +67,8 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
   private ArgumentCaptor<ObservableValue<Number>> observableProgressCaptor;
   private List<File> dataFiles = new ArrayList<>();
   private Locale locale;
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  public RetryOnFailRule retryOnFailRule = new RetryOnFailRule();
-  @Rule
-  public RuleChain ruleChain = RuleChain.outerRule(retryOnFailRule).around(temporaryFolder);
+  @TempDir
+  File temporaryFolder;
 
   @Override
   public void start(Stage stage) throws Exception {
@@ -82,10 +77,10 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
   /**
    * Before test.
    */
-  @Before
+  @BeforeEach
   public void beforeTest() throws Throwable {
-    dataFiles.add(temporaryFolder.newFile("data1.txt"));
-    dataFiles.add(temporaryFolder.newFile("data2.txt"));
+    dataFiles.add(new File(temporaryFolder, "data1.txt"));
+    dataFiles.add(new File(temporaryFolder, "data2.txt"));
     locale = Locale.getDefault();
     findGenesInDataTask = new FindGenesInDataTask(dataService, dataFiles, parameters, locale);
     doAnswer(new Answer<Void>() {

@@ -35,17 +35,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class DataServiceTest {
   private DataService dataServiceBean;
@@ -61,14 +57,14 @@ public class DataServiceTest {
   private List<String> proteinIds;
   @Captor
   private ArgumentCaptor<Map<String, ProteinMapping>> mappingsCaptor;
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  File temporaryFolder;
   private Locale locale;
 
   /**
    * Before test.
    */
-  @Before
+  @BeforeEach
   public void beforeTest() {
     dataServiceBean = new DataService(proteinMappingService, proteinParser, dataWriter);
     locale = Locale.getDefault();
@@ -78,9 +74,9 @@ public class DataServiceTest {
   @Test
   public void findGeneNames() throws Throwable {
     File file = new File(getClass().getResource("/proteinGroups.txt").toURI());
-    File input = temporaryFolder.newFile("proteinGroups.txt");
+    File input = new File(temporaryFolder, "proteinGroups.txt");
     FileUtils.copyFile(file, input);
-    final File output = new File(temporaryFolder.getRoot(), "proteinGroupsWithGene.txt");
+    final File output = new File(temporaryFolder, "proteinGroupsWithGene.txt");
     final List<File> files = Arrays.asList(input);
     List<ProteinMapping> mappings = new ArrayList<>();
     mappings.add(getProteinMapping("4262120", "ABC"));

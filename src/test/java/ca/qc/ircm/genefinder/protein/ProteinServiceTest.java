@@ -17,20 +17,17 @@
 
 package ca.qc.ircm.genefinder.protein;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class ProteinServiceTest {
   private ProteinService proteinServiceDefault;
 
-  @Before
+  @BeforeEach
   public void beforeTest() throws Throwable {
     proteinServiceDefault = new ProteinService();
   }

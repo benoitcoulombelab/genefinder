@@ -17,12 +17,12 @@
 
 package ca.qc.ircm.progressbar;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -35,12 +35,12 @@ public class JavafxProgressBarTest {
   @Captor
   private ArgumentCaptor<Double> progressCaptor;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     MockitoAnnotations.initMocks(this);
   }
 
-  @After
+  @AfterEach
   public void afterTest() {
     Mockito.validateMockitoUsage();
   }

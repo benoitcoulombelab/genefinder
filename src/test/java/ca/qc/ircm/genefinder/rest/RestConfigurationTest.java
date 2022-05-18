@@ -17,15 +17,12 @@
 
 package ca.qc.ircm.genefinder.rest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.Test;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class RestConfigurationTest {
   @Inject

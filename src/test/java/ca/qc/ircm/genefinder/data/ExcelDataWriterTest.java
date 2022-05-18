@@ -20,7 +20,7 @@ package ca.qc.ircm.genefinder.data;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.REFSEQ_GI;
 import static ca.qc.ircm.genefinder.annotation.ProteinDatabase.UNIPROT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import ca.qc.ircm.genefinder.annotation.GeneInfo;
@@ -42,15 +42,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class ExcelDataWriterTest {
   private ExcelDataWriter excelDataWriter;
@@ -64,8 +60,8 @@ public class ExcelDataWriterTest {
   private UniprotConfiguration uniprotConfiguration;
   @Inject
   private UniprotConfiguration realUniprotConfiguration;
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  File temporaryFolder;
   private static final NumberFormat numberFormat;
 
   static {
@@ -84,10 +80,9 @@ public class ExcelDataWriterTest {
   /**
    * Before test.
    */
-  @Before
+  @BeforeEach
   public void beforeTest() throws Throwable {
     excelDataWriter = new ExcelDataWriter(ncbiConfiguration, uniprotConfiguration);
-    temporaryFolder.create();
     when(ncbiConfiguration.refseqProteinAccessionPattern())
         .thenReturn(realNcbiConfiguration.refseqProteinAccessionPattern());
     when(ncbiConfiguration.refseqProteinGiPattern())
@@ -139,7 +134,7 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene() throws Throwable {
     final File input = new File(getClass().getResource("/data/data.xlsx").toURI());
-    final File output = temporaryFolder.newFile("data.xlsx");
+    final File output = new File(temporaryFolder, "data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -193,7 +188,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_ManyGenesForProtein() throws Throwable {
     final File input = new File(getClass().getResource("/data/data.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -252,7 +248,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_MultipleLines() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -315,7 +312,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_MultipleLines_Commas() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many_commas.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -378,7 +376,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_MultipleLinesInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_manycolumns.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -441,7 +440,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_MultipleLinesWithManyGenesForProtein() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_many.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -508,7 +508,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_NoGi() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -562,7 +563,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_ManyNoGi() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi_many.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -625,7 +627,8 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_ManyNoGiInDifferentColumns() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_nogi_manycolumns.xlsx").toURI());
-    final File output = temporaryFolder.newFile();
+    final File output = new File(temporaryFolder, "data.xlsx");
+    ;
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);
@@ -688,7 +691,7 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_Uniprot() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_uniprot.xlsx").toURI());
-    final File output = temporaryFolder.newFile("data.xlsx");
+    final File output = new File(temporaryFolder, "data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(UNIPROT);
     when(parameters.isGeneId()).thenReturn(true);
@@ -742,7 +745,7 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_Refseq() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_refseq.xlsx").toURI());
-    final File output = temporaryFolder.newFile("data.xlsx");
+    final File output = new File(temporaryFolder, "data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ);
     when(parameters.isGeneId()).thenReturn(true);
@@ -796,7 +799,7 @@ public class ExcelDataWriterTest {
   @Test
   public void writeGene_Scaffold() throws Throwable {
     final File input = new File(getClass().getResource("/data/data_scaffold.xlsx").toURI());
-    final File output = temporaryFolder.newFile("data.xlsx");
+    final File output = new File(temporaryFolder, "data.xlsx");
     when(parameters.getProteinColumn()).thenReturn(0);
     when(parameters.getProteinDatabase()).thenReturn(REFSEQ_GI);
     when(parameters.isGeneId()).thenReturn(true);

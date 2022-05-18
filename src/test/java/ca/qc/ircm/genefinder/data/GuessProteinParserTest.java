@@ -21,13 +21,10 @@ import static org.mockito.Mockito.verify;
 
 import ca.qc.ircm.genefinder.test.config.ServiceTestAnnotations;
 import java.io.File;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ServiceTestAnnotations
 public class GuessProteinParserTest {
   private GuessProteinParser guessProteinParser;
@@ -38,7 +35,7 @@ public class GuessProteinParserTest {
   @Mock
   private FindGenesParameters parameters;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     guessProteinParser = new GuessProteinParser(excelProteinParser, textProteinParser);
   }
