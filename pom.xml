@@ -48,7 +48,7 @@
   </issueManagement>
   <properties>
     <resource.delimiter>$[*]</resource.delimiter>
-    <javac.version>1.8</javac.version>
+    <javac.version>17</javac.version>
     <main-class>ca.qc.ircm.genefinder.Main</main-class>
     <spring-boot.version>2.4.13</spring-boot.version>
     <javax.inject.version>1</javax.inject.version>
@@ -61,7 +61,6 @@
     <commons-io.version>2.4</commons-io.version>
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <testFx.version>4.0.15-alpha</testFx.version>
-    <javafx-14.version>14-ea+1</javafx-14.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
     <application.title>Gene finder</application.title>
     <javafx.finalName>${project.build.finalName}.jar</javafx.finalName>
@@ -131,6 +130,26 @@
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javac.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javac.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-web</artifactId>
+      <version>${javac.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>${javac.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -408,38 +427,6 @@
     </plugins>
   </reporting>
   <profiles>
-    <profile>
-      <id>java14</id>
-      <activation>
-        <jdk>14</jdk>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-controls</artifactId>
-          <version>${javafx-14.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-fxml</artifactId>
-          <version>${javafx-14.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-web</artifactId>
-          <version>${javafx-14.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-swing</artifactId>
-          <version>${javafx-14.version}</version>
-        </dependency>
-      </dependencies>
-      <properties>
-        <!-- Fails in Java 14-ea+1 -->
-        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
-      </properties>
-    </profile>
     <profile>
       <id>windows</id>
       <activation>
