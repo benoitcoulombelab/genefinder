@@ -9,7 +9,7 @@ msi
 --main-jar
 "$[javafx.finalName]"
 --app-version
-"$[win.version]"
+"$[app.version]"
 --copyright
 "$[copyright]"
 --description
