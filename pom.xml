@@ -26,7 +26,7 @@
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <artifactId>genefinder</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <name>genefinder</name>
   <inceptionYear>2014</inceptionYear>
   <description>Finds genes based on a list of protein ids</description>
