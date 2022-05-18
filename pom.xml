@@ -22,7 +22,7 @@
   <parent>
     <groupId>ca.qc.ircm</groupId>
     <artifactId>parent</artifactId>
-    <version>7</version>
+    <version>10</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <artifactId>genefinder</artifactId>
