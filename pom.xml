@@ -50,7 +50,7 @@
     <resource.delimiter>$[*]</resource.delimiter>
     <javac.version>1.8</javac.version>
     <main-class>ca.qc.ircm.genefinder.Main</main-class>
-    <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+    <spring-boot.version>2.4.13</spring-boot.version>
     <javax.inject.version>1</javax.inject.version>
     <afterburner.fx.version>1.6.1</afterburner.fx.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
@@ -101,12 +101,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.testfx</groupId>
