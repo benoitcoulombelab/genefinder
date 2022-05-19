@@ -43,7 +43,7 @@
     <url>https://github.com/benoitcoulombelab/genefinder</url>
   </scm>
   <issueManagement>
-    <system>Bitbucket</system>
+    <system>GitHub</system>
     <url>https://github.com/benoitcoulombelab/genefinder/issues</url>
   </issueManagement>
   <properties>
