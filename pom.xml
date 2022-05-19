@@ -342,16 +342,17 @@
               <exclude>**/*.log.*</exclude>
               <exclude>src/main/java/org/stackoverflowusers/**</exclude>
               <exclude>**/*.fasta</exclude>
+              <exclude>**/*.icns</exclude>
               <exclude>**/idmapping3-*</exclude>
             </excludes>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
           </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
