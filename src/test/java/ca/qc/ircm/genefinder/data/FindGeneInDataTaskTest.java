@@ -45,11 +45,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.api.FxRobot;
+import org.testfx.framework.junit5.ApplicationExtension;
+import org.testfx.framework.junit5.Start;
 
 @TestFxTestAnnotations
-@ExtendWith(RetryOnFailExtension.class)
-public class FindGeneInDataTaskTest extends ApplicationTest {
+@ExtendWith({ RetryOnFailExtension.class, ApplicationExtension.class })
+public class FindGeneInDataTaskTest {
   private FindGenesInDataTask findGenesInDataTask;
   @Mock
   private DataService dataService;
@@ -70,7 +72,7 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
   @TempDir
   File temporaryFolder;
 
-  @Override
+  @Start
   public void start(Stage stage) throws Exception {
   }
 
@@ -97,7 +99,7 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
   }
 
   @Test
-  public void call() throws Throwable {
+  public void call(FxRobot robot) throws Throwable {
     findGenesInDataTask.messageProperty().addListener(messageChangeListener);
     findGenesInDataTask.progressProperty().addListener(progressChangeListener);
 
@@ -113,7 +115,7 @@ public class FindGeneInDataTaskTest extends ApplicationTest {
 
   @Test
   @RetryOnFail(5)
-  public void cancel() throws Throwable {
+  public void cancel(FxRobot robot) throws Throwable {
     findGenesInDataTask.setOnCancelled(cancelHandler);
 
     new Thread(() -> findGenesInDataTask.cancel()).start();
