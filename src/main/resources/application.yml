@@ -39,7 +39,9 @@ logging:
 
 ---
 spring:
-  profiles: test
+  config:
+    activate:
+      on-profile: test
   datasource:
     url: jdbc:h2:mem:testdb
 
