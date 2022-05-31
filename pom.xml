@@ -58,7 +58,7 @@
     <poi.version>4.1.2</poi.version>
     <commons-vfs2.version>2.9.0</commons-vfs2.version>
     <commons-lang3.version>3.1</commons-lang3.version>
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.11.0</commons-io.version>
     <findbugs.annotations.version>3.0.1</findbugs.annotations.version>
     <testFx.version>4.0.15-alpha</testFx.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
