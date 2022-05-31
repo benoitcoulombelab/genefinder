@@ -38,7 +38,7 @@ public class XmlResourceBundleTest {
 
   @BeforeEach
   public void beforeTest() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
   }
 
   @AfterEach

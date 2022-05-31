@@ -37,7 +37,7 @@ public class JavafxProgressBarTest {
 
   @BeforeEach
   public void beforeTest() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
   }
 
   @AfterEach
