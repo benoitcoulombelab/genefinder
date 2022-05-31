@@ -34,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.SystemUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -122,7 +121,7 @@ public class TextDataWriter extends AbstractDataWriter implements DataWriter {
           writer.write("\t");
           writer.write(columns[i]);
         }
-        writer.write(SystemUtils.LINE_SEPARATOR);
+        writer.write(System.lineSeparator());
       }
     }
   }
