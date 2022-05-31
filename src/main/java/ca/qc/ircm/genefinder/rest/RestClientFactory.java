@@ -17,9 +17,9 @@
 
 package ca.qc.ircm.genefinder.rest;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.springframework.stereotype.Component;
 
