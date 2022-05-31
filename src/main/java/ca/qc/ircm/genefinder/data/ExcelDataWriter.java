@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -111,10 +110,8 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                 .map(proteinId -> mappings.get(proteinId).getGenes()).filter(genes -> genes != null)
                 .flatMap(genes -> genes.stream()).map(gene -> numberFormat.format(gene.getId()))
                 .distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
-            cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
             if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
-              cell.setCellType(CellType.NUMERIC);
               cell.setCellValue(Long.parseLong(newValue));
             }
           }
@@ -125,7 +122,6 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                 .flatMap(genes -> genes.stream()).map(gene -> gene.getSymbol())
                 .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
             cell = row.createCell(index++);
-            cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
           }
           if (parameters.isGeneSynonyms()) {
@@ -137,7 +133,6 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                     .map(s -> s.stream().collect(Collectors.joining(LIST_DELIMITER))).distinct()
                     .collect(Collectors.joining(PROTEIN_DELIMITER));
             cell = row.createCell(index++);
-            cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
           }
           if (parameters.isGeneSummary()) {
@@ -147,7 +142,6 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                 .flatMap(genes -> genes.stream()).map(gene -> gene.getDescription())
                 .filter(s -> s != null).distinct().collect(Collectors.joining(PROTEIN_DELIMITER));
             cell = row.createCell(index++);
-            cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
           }
           if (parameters.isProteinMolecularWeight()) {
@@ -157,10 +151,8 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
                     .filter(mw -> mw != null).map(mw -> doubleFormat.format(mw))
                     .collect(Collectors.joining(PROTEIN_DELIMITER));
             cell = row.createCell(index++);
-            cell.setCellType(CellType.STRING);
             cell.setCellValue(newValue);
             if (!newValue.isEmpty() && !newValue.contains(PROTEIN_DELIMITER)) {
-              cell.setCellType(CellType.NUMERIC);
               cell.setCellValue(Double.parseDouble(newValue));
               CellStyle style = workbook.createCellStyle();
               DataFormat format = workbook.createDataFormat();
@@ -186,12 +178,10 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
     for (int i = end - 1; i > start; i--) {
       Cell destination = row.getCell(i + count);
       Cell source = row.getCell(i);
-      destination.setCellType(source.getCellTypeEnum());
       destination.setCellStyle(source.getCellStyle());
-      switch (source.getCellTypeEnum()) {
-        case STRING:
+      switch (source.getCellType()) {
         case BLANK:
-          destination.setCellValue(source.getStringCellValue());
+          destination.setBlank();
           break;
         case BOOLEAN:
           destination.setCellValue(source.getBooleanCellValue());
@@ -207,6 +197,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           break;
         case _NONE:
           break;
+        case STRING:
         default:
           destination.setCellValue(source.getStringCellValue());
           break;
@@ -222,7 +213,7 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
     if (cell == null) {
       return "";
     }
-    switch (cell.getCellTypeEnum()) {
+    switch (cell.getCellType()) {
       case STRING:
       case BLANK:
         return cell.getStringCellValue();
@@ -230,11 +221,8 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
         return String.valueOf(cell.getBooleanCellValue());
       case NUMERIC:
         return numberFormat.format(cell.getNumericCellValue());
-      case ERROR:
-      case _NONE:
-        return "";
       case FORMULA:
-        switch (cell.getCachedFormulaResultTypeEnum()) {
+        switch (cell.getCachedFormulaResultType()) {
           case STRING:
           case BLANK:
             return cell.getStringCellValue();
@@ -245,10 +233,11 @@ public class ExcelDataWriter extends AbstractDataWriter implements DataWriter {
           case FORMULA:
           case ERROR:
           case _NONE:
-            return "";
           default:
             return "";
         }
+      case ERROR:
+      case _NONE:
       default:
         return "";
     }

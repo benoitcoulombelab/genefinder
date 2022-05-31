@@ -55,7 +55,7 @@
     <afterburner.fx.version>1.6.1</afterburner.fx.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
     <jersey-client.version>2.25</jersey-client.version>
-    <poi.version>3.17</poi.version>
+    <poi.version>4.1.2</poi.version>
     <commons-vfs2.version>2.9.0</commons-vfs2.version>
     <commons-lang3.version>3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>

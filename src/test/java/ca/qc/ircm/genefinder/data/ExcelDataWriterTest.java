@@ -99,7 +99,7 @@ public class ExcelDataWriterTest {
     if (cell == null) {
       return "";
     }
-    switch (cell.getCellTypeEnum()) {
+    switch (cell.getCellType()) {
       case STRING:
       case BLANK:
         return cell.getStringCellValue();
@@ -111,7 +111,7 @@ public class ExcelDataWriterTest {
       case _NONE:
         return "";
       case FORMULA:
-        switch (cell.getCachedFormulaResultTypeEnum()) {
+        switch (cell.getCachedFormulaResultType()) {
           case STRING:
           case BLANK:
             return cell.getStringCellValue();
