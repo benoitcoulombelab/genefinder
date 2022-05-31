@@ -22,11 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -109,7 +108,7 @@ public class UniprotDownloadProteinMappingServiceTest {
     when(restClientFactory.createClient()).thenReturn(client);
     when(client.target(anyString())).thenReturn(target);
     when(target.path(anyString())).thenReturn(target);
-    when(target.queryParam(anyString(), anyVararg())).thenReturn(target);
+    when(target.queryParam(anyString(), any())).thenReturn(target);
     when(target.request()).thenReturn(request);
     when(progressBar.step(anyDouble())).thenReturn(progressBar);
   }
