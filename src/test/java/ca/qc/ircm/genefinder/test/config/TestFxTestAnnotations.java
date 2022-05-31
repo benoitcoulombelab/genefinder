@@ -30,7 +30,9 @@ import org.springframework.test.context.TestExecutionListeners.MergeMode;
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest
 @ActiveProfiles("test")
-@TestExecutionListeners(mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(
+    value = { LogMethodNameTestExecutionListener.class },
+    mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 public @interface TestFxTestAnnotations {
 
 }

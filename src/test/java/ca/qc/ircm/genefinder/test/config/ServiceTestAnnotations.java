@@ -24,11 +24,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest(classes = Main.class)
 @ActiveProfiles("test")
+@TestExecutionListeners(
+    value = { LogMethodNameTestExecutionListener.class },
+    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public @interface ServiceTestAnnotations {
 
 }
