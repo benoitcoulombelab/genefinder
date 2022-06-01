@@ -17,14 +17,15 @@
 
 package ca.qc.ircm.genefinder.data;
 
+import static ca.qc.ircm.genefinder.test.config.JavaFxTestUtils.waitForPlatform;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
-import ca.qc.ircm.genefinder.test.config.RetryOnFail;
-import ca.qc.ircm.genefinder.test.config.RetryOnFailExtension;
 import ca.qc.ircm.genefinder.test.config.TestFxTestAnnotations;
 import ca.qc.ircm.progressbar.ProgressBar;
 import java.io.File;
@@ -35,7 +36,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,10 +47,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
 
 @TestFxTestAnnotations
-@ExtendWith({ RetryOnFailExtension.class, ApplicationExtension.class })
+@ExtendWith({ ApplicationExtension.class })
 public class FindGeneInDataTaskTest {
   private FindGenesInDataTask findGenesInDataTask;
   @Mock
@@ -71,10 +70,6 @@ public class FindGeneInDataTaskTest {
   private Locale locale;
   @TempDir
   File temporaryFolder;
-
-  @Start
-  public void start(Stage stage) throws Exception {
-  }
 
   /**
    * Before test.
@@ -107,6 +102,7 @@ public class FindGeneInDataTaskTest {
 
     verify(dataService).findGeneNames(eq(dataFiles), eq(parameters), any(ProgressBar.class),
         eq(locale));
+    waitForPlatform();
     verify(messageChangeListener, atLeastOnce()).changed(observableMessageCaptor.capture(),
         any(String.class), any(String.class));
     verify(progressChangeListener, atLeastOnce()).changed(observableProgressCaptor.capture(),
@@ -114,13 +110,20 @@ public class FindGeneInDataTaskTest {
   }
 
   @Test
-  @RetryOnFail(5)
+  public void call_RuntimeException(FxRobot robot) throws Throwable {
+    doThrow(new IllegalArgumentException()).when(dataService).findGeneNames(any(), any(), any(),
+        any());
+
+    assertThrows(IllegalArgumentException.class, () -> findGenesInDataTask.call());
+  }
+
+  @Test
   public void cancel(FxRobot robot) throws Throwable {
     findGenesInDataTask.setOnCancelled(cancelHandler);
 
-    new Thread(() -> findGenesInDataTask.cancel()).start();
+    findGenesInDataTask.cancel();
 
-    Thread.sleep(1000);
+    waitForPlatform();
     verify(cancelHandler).handle(any(WorkerStateEvent.class));
   }
 }
