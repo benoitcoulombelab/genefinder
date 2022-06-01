@@ -29,8 +29,9 @@ import javafx.stage.Window;
  * Progress dialog.
  */
 public class ProgressDialog {
-  private Stage stage;
-  private Worker<?> worker;
+  Stage stage;
+  Worker<?> worker;
+  ProgressDialogPresenter presenter;
 
   /**
    * Creates progress window.
@@ -44,7 +45,7 @@ public class ProgressDialog {
     this.worker = worker;
 
     ProgressDialogView view = new ProgressDialogView();
-    final ProgressDialogPresenter presenter = (ProgressDialogPresenter) view.getPresenter();
+    presenter = (ProgressDialogPresenter) view.getPresenter();
     final ResourceBundle resources = view.getResourceBundle();
     stage = new Stage();
     stage.initOwner(owner);

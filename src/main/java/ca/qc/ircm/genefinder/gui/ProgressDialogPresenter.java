@@ -28,7 +28,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -41,15 +40,13 @@ import org.springframework.stereotype.Component;
 public class ProgressDialogPresenter {
   private final BooleanProperty cancelledProperty = new SimpleBooleanProperty();
   @FXML
-  private BorderPane layout;
+  ProgressBar progressBar;
   @FXML
-  private ProgressBar progressBar;
+  ProgressIndicator progressIndicator;
   @FXML
-  private ProgressIndicator progressIndicator;
+  Label message;
   @FXML
-  private Label message;
-  @FXML
-  private Button cancel;
+  Button cancel;
 
   @FXML
   private void initialize() {
