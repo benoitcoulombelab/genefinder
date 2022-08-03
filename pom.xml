@@ -127,26 +127,6 @@
       <artifactId>snakeyaml</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>${javac.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-fxml</artifactId>
-      <version>${javac.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-web</artifactId>
-      <version>${javac.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-swing</artifactId>
-      <version>${javac.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -260,6 +240,7 @@
             <excludes>
               <exclude>ca/qc/ircm/genefinder/test/**/*.java</exclude>
             </excludes>
+            <argLine>--add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
           </configuration>
         </plugin>
         <plugin>
