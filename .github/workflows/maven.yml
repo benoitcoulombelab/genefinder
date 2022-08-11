@@ -34,7 +34,8 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'liberica'
+          java-package: jdk+fx
           cache: maven
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v1
